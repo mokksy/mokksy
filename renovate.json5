@@ -1,0 +1,27 @@
+{
+  // https://www.augmentedmind.de/2023/07/30/renovate-bot-cheat-sheet/
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":rebaseStalePrs"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "dev.mokksy"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Automatically merge patch-level updates",
+      "matchUpdateTypes": [
+        "patch",
+        "digest"
+      ],
+      "automerge": true
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+config:
+  validation: true
+  warningsAsErrors: false
+  checkExhaustiveness: false
+
+complexity:
+  LargeClass:
+    excludes: &testFolders
+      - '**/test/**'
+      - '**/androidTest/**'
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/androidUnitTest/**'
+      - '**/androidInstrumentedTest/**'
+      - '**/jsTest/**'
+      - '**/iosTest/**'
+      - '**/*.kts'
+  LongMethod:
+    excludes: *testFolders
+
+naming:
+  MatchingDeclarationName:
+    excludes:
+      - '**/build/**'
+  InvalidPackageDeclaration:
+    excludes:
+      - '**/build/**'
+
+style:
+  MaxLineLength:
+    excludeCommentStatements: true
+  AbstractClassCanBeConcreteClass:
+    excludes: *testFolders
+
