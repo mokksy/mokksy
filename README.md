@@ -14,9 +14,16 @@ _Mokksy_ - Mock HTTP Server, built with [Kotlin](https://kotlinlang.org/) and [K
 * [Key Features](#key-features)
 * [Quick start](#quick-start)
 * [Responding with predefined responses](#responding-with-predefined-responses)
-  * [GET Request](#get-request)
-  * [POST Request](#post-request)
-* [Server-Side Events (SSE) Response](#server-side-events-sse-response)
+  * [GET request](#get-request)
+  * [POST request](#post-request)
+* [Server-Side Events (SSE) response](#server-side-events-sse-response)
+* [Request Specification Matchers](#request-specification-matchers)
+* [Verifying Requests](#verifying-requests)
+  * [Verify all stubs were triggered](#verify-all-stubs-were-triggered)
+  * [Verify no unexpected requests arrived](#verify-no-unexpected-requests-arrived)
+  * [Recommended AfterEach setup](#recommended-aftereach-setup)
+  * [Inspecting unmatched items](#inspecting-unmatched-items)
+* [Request Journal](#request-journal)
 
 <!--- END -->
 
@@ -36,6 +43,28 @@ Particularly, it might be useful for integration testing LLM clients.
 - **Error Simulation**: Ability to mock negative scenarios and error responses
 
 ## Quick start
+      
+1. Add dependencies:
+ 
+   Gradle _build.gradle.kts:_
+   ```kotlin
+   dependencies {               
+        // for multiplatform projects
+       implementation("dev.mokksy:mokksy:$latestVersion")
+        // for JVM projects
+       implementation("dev.mokksy:mokksy-jvm:$latestVersion")
+   }
+   ``` 
+   _pom.xml:_
+   ```xml
+    <dependency>
+        <groupId>dev.mokksy</groupId>
+        <artifactId>mokksy-jvm</artifactId>
+        <version>[LATEST_VERSION]</version>
+        <scope>test</scope>
+    </dependency>
+   ```
+
 
 <!--- CLEAR -->
 <!--- INCLUDE 
@@ -63,13 +92,13 @@ import kotlin.time.Duration.Companion.milliseconds
 class ReadmeTest {
 -->
 
-1. Create Mokksy server:
+2. Create Mokksy server:
 
 ```kotlin
 val mokksy = Mokksy()
 ```
 
-2. Create an http client using MokksyServer's as baseUrl:
+3. Configure http client using Mokksy server's as baseUrl in your application:
 
 ```kotlin
 val client = HttpClient {
@@ -81,7 +110,9 @@ val client = HttpClient {
 
 ## Responding with predefined responses
 
-### GET Request
+Mokksy supports all HTTP verbs. Here are some examples.
+
+### GET request
 
 GET request example:
 
@@ -118,7 +149,7 @@ result.status shouldBe HttpStatusCode.OK
 result.bodyAsText() shouldBe expectedResponse
 ```
 
-When the request does not match - MokksyServer returns `404 (Not Found)`:
+When the request does not match - Mokksy server returns `404 (Not Found)`:
 
 ```kotlin
 val notFoundResult = client.get("/ping") {
@@ -132,7 +163,7 @@ notFoundResult.status shouldBe HttpStatusCode.NotFound
   }
 -->
 
-### POST Request
+### POST request
 
 POST request example:
 
@@ -191,7 +222,7 @@ result.headers["Foo"] shouldBe "bar"
   }
 -->
 
-## Server-Side Events (SSE) Response
+## Server-Side Events (SSE) response
 
 [Server-Side Events (SSE)](https://html.spec.whatwg.org/multipage/server-sent-events.html) is a technology that allows a
 server to push updates to the client over a single, long-lived HTTP connection. This enables real-time updates without
@@ -244,7 +275,145 @@ result.bodyAsText() shouldBe "data: One\r\ndata: Two\r\n"
 <!--- SUFFIX
 }
 -->
-<!--- KNIT example-readme-01.kt -->    
+<!--- KNIT example-readme-01.kt -->
+
+## Request Specification Matchers
+
+Mokksy provides various matcher types to specify conditions for matching incoming HTTP requests:
+
+- **Path matchers** — `path("/things")` or `path = beEqual("/things")`
+- **Header matchers** — `containsHeader("X-Request-ID", "abc")` checks for a header with an exact value
+- **Content matchers** — `bodyContains("value")` checks if the raw body string contains a substring;
+  `bodyString += contain("value")` adds a Kotest matcher directly
+- **Predicate matchers** — `bodyMatchesPredicate { it?.name == "foo" }` matches against the typed,
+  deserialized request body
+- **Call matchers** — `successCallMatcher` matches if a function called with the body does not throw
+
+## Verifying Requests
+
+Mokksy provides two complementary verification methods that check opposite sides of the stub/request contract.
+
+### Verify all stubs were triggered
+
+`checkForUnmatchedStubs()` fails if any registered stub was never matched by an incoming request.
+Use this to catch stubs you set up but that were never actually called — a sign the code under test took
+a different path than expected.
+
+```kotlin
+// Fails if any stub has matchCount == 0
+mokksy.checkForUnmatchedStubs()
+```
+
+> **Note:** Be careful when running tests in parallel against a single `MokksyServer` instance.
+> Some stubs might be unmatched when one test completes. Avoid calling this in `@AfterEach`/`@AfterTest`
+> unless each test owns its own server instance.
+
+### Verify no unexpected requests arrived
+
+`checkForUnmatchedRequests()` fails if any HTTP request arrived at the server but no stub matched it.
+These requests are recorded in the `RequestJournal` and reported together.
+
+```kotlin
+// Fails if any request arrived with no matching stub
+mokksy.checkForUnmatchedRequests()
+```
+
+### Recommended AfterEach setup
+
+Run both checks after every test to catch a mismatch in either direction:
+
+<!--- CLEAR -->
+<!--- INCLUDE 
+import dev.mokksy.mokksy.Mokksy
+import io.kotest.matchers.equals.beEqual
+import io.kotest.matchers.shouldBe
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
+
+-->
+```kotlin
+class MyTest {
+
+    private val mokksy = Mokksy()
+  
+    val client = HttpClient {
+        install(DefaultRequest) {
+            url(mokksy.baseUrl())
+        }
+    }
+
+    @Test
+    suspend fun testSomething() {
+        mokksy.get {
+            path = beEqual("/hi")
+        } respondsWith {
+            body = "Hello"
+            delay(100.milliseconds)
+        }
+
+        // when
+        val response = client.get("/hi") 
+
+        // then
+        response.status shouldBe HttpStatusCode.OK
+        response.bodyAsText() shouldBe "Hello"
+    }
+  
+    @AfterEach
+    fun afterEach() {
+        mokksy.checkForUnmatchedRequests() // no unexpected HTTP calls
+    }
+}
+```
+<!--- KNIT example-readme-02.kt -->
+
+### Inspecting unmatched items
+
+Use the `find*` variants to retrieve the unmatched items directly for custom assertions:
+
+```kotlin
+// List<RecordedRequest> — HTTP requests with no matching stub
+val unmatchedRequests: List<RecordedRequest> = mokksy.findAllUnmatchedRequests()
+
+// List<RequestSpecification<*>> — stubs that were never triggered
+val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnmatchedStubs()
+```
+
+`RecordedRequest` is an immutable snapshot that captures `method`, `uri`, and `headers` of the incoming request.
+
+## Request Journal
+
+Mokksy records incoming requests in a `RequestJournal`. The recording mode is controlled by `JournalMode` in
+`ServerConfiguration`:
+
+| Mode                           | Behaviour                                                                                                  |
+|--------------------------------|------------------------------------------------------------------------------------------------------------|
+| `JournalMode.LEAN` *(default)* | Records only requests with no matching stub. Lower overhead; sufficient for `checkForUnmatchedRequests()`. |
+| `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                |
+
+```kotlin
+val mokksy = Mokksy(
+    configuration = ServerConfiguration(
+        journalMode = JournalMode.FULL,
+    ),
+)
+```
+
+Call `resetMatchCounts()` between scenarios to clear both stub match counts and the journal:
+
+```kotlin
+@AfterTest
+fun afterEach() {
+    mokksy.resetMatchCounts()
+}
+```
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification (HTML Living Standard)"
 

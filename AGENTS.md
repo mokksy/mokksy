@@ -46,6 +46,21 @@ Read the project overview from README.md
   - Prioritize test readability
   - When asked to write tests in Java: use JUnit5, Mockito, AssertJ core
 
+#### Testing Ktor request/response handling
+
+- **Never mock Ktor internal classes** (`ApplicationRequest`, `ApplicationCall`, `Headers`, etc.) with mockk.
+  These classes carry live pipeline state that cannot be faithfully reproduced by mocks, causing
+  `ConcurrentModificationException` and other subtle failures.
+- **Use `testApplication`** from `ktor-server-test-host` to test any code that operates on a real
+  `ApplicationRequest`. See `CapturedRequestTest` and `RequestSpecificationTest` for reference patterns.
+- `testApplication` is **not** a suspend function — it runs its block via an internal `runBlocking`.
+  Do **not** wrap it in `runTest`; that creates a nested event loop and virtual-time control is lost.
+  Use it directly as the test body: `fun myTest() = testApplication { ... }`.
+- Install `DoubleReceive` whenever the code under test reads the request body more than once (e.g.
+  when both `body` and `bodyString` matchers are active in `RequestSpecification`).
+- Install `ContentNegotiation { json() }` when the handler needs to deserialize a typed request body
+  via `call.receive(MyClass::class)`.
+
 ### Documentation
 
 - Update README files when adding new features
@@ -59,12 +74,48 @@ Read the project overview from README.md
 - Add links to specifications, if known. Double-check that the link actual and pointing exactly to the specification.
   Never add broken or not accurate links.
 
+#### README code examples and KNIT
+
+README.md code examples are compiled and executed as tests via the
+[Knit](https://github.com/Kotlin/kotlinx-knit) tool. This ensures the README stays in sync with the
+actual API.
+
+- **Configuration**: `knit.properties` at the project root defines:
+  - `knit.dir=mokksy/build/generated/knit/test/kotlin/` — where generated files land
+  - `knit.package=dev.mokksy.knit` — package for generated test classes
+- **Directives** embedded as HTML comments in the Markdown:
+  - `<!--- CLEAR -->` — resets accumulated includes for a new standalone example
+  - `<!--- INCLUDE ... -->` — code inserted before/around the next visible snippet (imports, class
+    wrapper, `@Test` method open); not rendered in the docs
+  - `<!--- SUFFIX ... -->` — code appended after all preceding snippets (closing braces)
+  - `<!--- KNIT filename.kt -->` — triggers generation of `filename.kt` in `knit.dir`; all
+    preceding INCLUDE/SUFFIX/code blocks since the last CLEAR are concatenated into this file
+- Each generated file becomes a compilable test class. Run `./gradlew :mokksy:knit` to regenerate,
+  then `./gradlew :mokksy:jvmTest` to verify examples compile and pass.
+- Visible code blocks between INCLUDE and a closing INCLUDE/SUFFIX are included verbatim; the
+  surrounding class/function context comes from INCLUDE directives.
+- Code snippets **outside** KNIT blocks (reference sections, bullet examples) are plain Markdown
+  fenced code and are not compiled — keep them syntactically correct but they are not executed.
+
+#### README vs Hugo docs
+
+`README.md` (in `mokksy-server/`) and the Hugo page (`docs/content/docs/mokksy.md`) cover the same
+feature set from different angles:
+
+- README is the canonical quick-reference; uses KNIT-compiled examples.
+- Hugo docs are the full website narrative; uses Hugo shortcodes (`{{< tabs >}}` etc.) and may
+  include installation tables, richer explanations, and cross-links.
+- **Keep both in sync** when adding or changing features. A feature documented in one must appear
+  in the other.
+
+The following Mokksy features must be documented in both places when implemented:
+`respondsWithStream` (chunked streaming), response `delay`/`delayMillis`, stub `priority`,
+`removeAfterMatch` (`StubConfiguration`), other HTTP methods (PUT/PATCH/DELETE/HEAD/OPTIONS),
+and typed body matching via `bodyMatchesPredicate`.
+
 ### Project Documentation
 
-The project uses two main tools for documentation:
-
-1. **Dokka** - For API documentation generation from code
-2. **Hugo** - For building the documentation website
+The project uses **Dokka** - For API documentation generation from code
 
 #### Local Documentation Generation
 
@@ -75,36 +126,6 @@ To generate documentation locally:
    ./gradlew :docs:dokkaGenerate
    ```
    This will generate API documentation in `docs/public/apidocs/`.
-
-2. Build the Hugo site:
-   ```shell
-   cd docs
-   hugo
-   ```
-   This will generate the complete site in `docs/public/`.
-
-3. Preview the documentation site locally:
-   ```shell
-   cd docs
-   hugo server
-   ```
-   This will start a local server (typically at http://localhost:1313/) where you can preview the documentation.
-
-#### Documentation Structure
-
-- API reference documentation is generated from code using Dokka
-- User guides and tutorials are written in Markdown in the `docs/content/docs` directory
-- Each AI-Mocks module should have its own documentation page
-
-#### Publishing Documentation
-
-Documentation is automatically published to [mokksy.dev](https://mokksy.dev/) when:
-
-- A new release is created
-- Changes are pushed to the main branch
-- The documentation workflow is manually triggered
-
-The publishing process is handled by the GitHub Actions workflow in `.github/workflows/docs.yaml`.
 
 #### Documentation Content Guidelines
 
