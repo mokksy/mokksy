@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
 internal class BodyMatchingIT : AbstractIT() {
-
     private lateinit var name: String
     private lateinit var id: String
     private lateinit var expectedResponse: Output
@@ -66,7 +65,7 @@ internal class BodyMatchingIT : AbstractIT() {
             .post(name = "predicate", Input::class) {
                 path("/predicate")
                 bodyContains(
-                    Json.encodeToString(input)
+                    Json.encodeToString(input),
                 )
             }.respondsWith(Output::class) {
                 body = expectedResponse
@@ -93,7 +92,7 @@ internal class BodyMatchingIT : AbstractIT() {
             .post(name = "predicate", Input::class) {
                 path("/predicate")
                 bodyContains(
-                    Json.encodeToString(Input("wrong"))
+                    Json.encodeToString(Input("wrong")),
                 )
             }.respondsWith(Output::class) {
                 body = expectedResponse
