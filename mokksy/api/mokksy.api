@@ -121,9 +121,13 @@ public final class dev/mokksy/mokksy/MokksyServerJava {
 	public final fun get (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun get (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun getDelegate ()Ldev/mokksy/mokksy/MokksyServer;
+	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun head (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun head (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun options (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun options (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun patch (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun patch (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
