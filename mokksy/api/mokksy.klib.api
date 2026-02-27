@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [macosArm64]
+// Targets: [js, macosArm64, wasmJs]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -350,6 +350,8 @@ open class dev.mokksy.mokksy/MokksyServer { // dev.mokksy.mokksy/MokksyServer|nu
 
     final val httpFormatter // dev.mokksy.mokksy/MokksyServer.httpFormatter|{}httpFormatter[0]
         final fun <get-httpFormatter>(): dev.mokksy.mokksy.utils.logger/HttpFormatter // dev.mokksy.mokksy/MokksyServer.httpFormatter.<get-httpFormatter>|<get-httpFormatter>(){}[0]
+    final val server // dev.mokksy.mokksy/MokksyServer.server|{}server[0]
+        final fun <get-server>(): io.ktor.server.engine/EmbeddedServer<out io.ktor.server.engine/ApplicationEngine, out io.ktor.server.engine/ApplicationEngine.Configuration> // dev.mokksy.mokksy/MokksyServer.server.<get-server>|<get-server>(){}[0]
 
     final var logger // dev.mokksy.mokksy/MokksyServer.logger|{}logger[0]
         final fun <get-logger>(): io.ktor.util.logging/Logger // dev.mokksy.mokksy/MokksyServer.logger.<get-logger>|<get-logger>(){}[0]
@@ -387,9 +389,10 @@ open class dev.mokksy.mokksy/MokksyServer { // dev.mokksy.mokksy/MokksyServer|nu
     final fun post(kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.post|post(kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun put(kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.put|put(kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun resetMatchCounts() // dev.mokksy.mokksy/MokksyServer.resetMatchCounts|resetMatchCounts(){}[0]
-    final fun shutdown(kotlin/Long = ..., kotlin/Long = ...) // dev.mokksy.mokksy/MokksyServer.shutdown|shutdown(kotlin.Long;kotlin.Long){}[0]
     final fun verifyNoUnexpectedRequests() // dev.mokksy.mokksy/MokksyServer.verifyNoUnexpectedRequests|verifyNoUnexpectedRequests(){}[0]
     final fun verifyNoUnmatchedStubs() // dev.mokksy.mokksy/MokksyServer.verifyNoUnmatchedStubs|verifyNoUnmatchedStubs(){}[0]
+    final suspend fun shutdownSuspend(kotlin/Long = ..., kotlin/Long = ...) // dev.mokksy.mokksy/MokksyServer.shutdownSuspend|shutdownSuspend(kotlin.Long;kotlin.Long){}[0]
+    final suspend fun startSuspend(kotlin/Boolean = ...) // dev.mokksy.mokksy/MokksyServer.startSuspend|startSuspend(kotlin.Boolean){}[0]
 }
 
 final object dev.mokksy.mokksy.utils.highlight/Highlighting { // dev.mokksy.mokksy.utils.highlight/Highlighting|null[0]

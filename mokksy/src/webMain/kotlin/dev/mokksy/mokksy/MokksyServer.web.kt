@@ -1,6 +1,7 @@
 package dev.mokksy.mokksy
 
-import io.github.oshai.kotlinlogging.Level
+import io.github.oshai.kotlinlogging.KLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCallPipeline
 import io.ktor.server.application.call
@@ -9,8 +10,7 @@ import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 
-internal actual suspend fun resolvePort(engine: ApplicationEngine): Int =
-    engine.resolvedConnectors().single().port
+private val logger: KLogger = KotlinLogging.logger("MokksyServer")
 
 internal actual fun createEmbeddedServer(
     host: String,
@@ -27,8 +27,8 @@ internal actual fun createEmbeddedServer(
         if (configuration.verbose) {
             intercept(ApplicationCallPipeline.Monitoring) {
                 val request = call.request
-                logger.at(Level.DEBUG) {
-                    message = "${request.local.method.value} ${request.local.uri}"
+                logger.debug {
+                    "${request.local.method.value} ${request.local.uri}"
                 }
             }
         }

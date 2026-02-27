@@ -23,7 +23,7 @@ internal actual fun createEmbeddedServer(
         host = host,
         port = port,
     ) {
-        // CallLogging is JVM-only; use simple interceptor for native
+        // CallLogging is JVM-only; use a simple interceptor for native
         if (configuration.verbose) {
             intercept(ApplicationCallPipeline.Monitoring) {
                 val request = call.request

@@ -25,14 +25,16 @@ import io.ktor.server.plugins.doublereceive.DoubleReceive
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.sse.SSE
-import kotlinx.coroutines.runBlocking
+import io.ktor.util.logging.Logger
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.serialization.json.Json
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
-private const val DEFAULT_HOST = "127.0.0.1"
+private const val DEFAULT_HOST: String = "127.0.0.1"
 
 /**
  * Creates and returns an embedded Ktor server instance
@@ -87,7 +89,7 @@ public typealias ApplicationConfigurer = (Application.() -> Unit)
  * @author Konstantin Pavlov
  */
 @Suppress("TooManyFunctions")
-@OptIn(ExperimentalAtomicApi::class)
+@OptIn(ExperimentalAtomicApi::class, DelicateCoroutinesApi::class)
 public open class MokksyServer
     @JvmOverloads
     constructor(
@@ -121,13 +123,16 @@ public open class MokksyServer
 
         private val resolvedPort: AtomicInt = AtomicInt(-1)
 
-        public lateinit var logger: io.ktor.util.logging.Logger
+        public lateinit var logger: Logger
         protected val httpFormatter: HttpFormatter = HttpFormatter()
 
         private val stubRegistry = StubRegistry()
         private val requestJournal = RequestJournal(configuration.journalMode)
 
-        private val server =
+        private val started = CompletableDeferred<Unit>()
+
+        protected val server:
+            EmbeddedServer<out ApplicationEngine, out ApplicationEngine.Configuration> =
             createEmbeddedServer(
                 host = host,
                 port = port,
@@ -158,16 +163,23 @@ public open class MokksyServer
                 configurer(this)
             }
 
-        init {
-            server.start(wait = wait)
-            runBlocking {
-                resolvedPort.store(
-                    server.engine
-                        .resolvedConnectors()
-                        .single()
-                        .port,
-                )
-            }
+        /**
+         * Initiates the server to begin processing requests asynchronously.
+         *
+         * @param wait Determines whether the method should wait for the server to start
+         * completely before returning.
+         * If true, the method will wait; if false, it will return immediately
+         * after initiating the server start process.
+         */
+        public suspend fun startSuspend(wait: Boolean = false) {
+            server.startSuspend(wait = wait)
+            val port =
+                server.engine
+                    .resolvedConnectors()
+                    .single()
+                    .port
+            resolvedPort.compareAndSet(-1, port)
+            started.complete(Unit)
         }
 
         /**
@@ -750,8 +762,7 @@ public open class MokksyServer
          * @param timeoutMillis The maximum duration in milliseconds
          * to wait for the shutdown process to complete. Default is 1000 milliseconds.
          */
-        @JvmOverloads
-        public fun shutdown(
+        public suspend fun shutdownSuspend(
             gracePeriodMillis: Long = 500,
             timeoutMillis: Long = 1000,
         ) {
@@ -761,7 +772,7 @@ public open class MokksyServer
                 timeoutMillis >= gracePeriodMillis,
             ) { "timeoutMillis must be >= gracePeriodMillis" }
 
-            server.stop(
+            server.stopSuspend(
                 gracePeriodMillis = gracePeriodMillis,
                 timeoutMillis = timeoutMillis,
             )
