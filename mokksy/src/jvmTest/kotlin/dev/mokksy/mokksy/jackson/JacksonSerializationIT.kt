@@ -40,7 +40,7 @@ internal class JacksonSerializationIT {
                 jackson()
             }
             install(DefaultRequest) {
-                url("http://127.0.0.1:${mokksy.port()}") // Set the base URL
+                url(mokksy.baseUrl())
             }
         }
 
@@ -73,9 +73,8 @@ internal class JacksonSerializationIT {
     }
 
     @AfterTest
-    @Suppress("DEPRECATION")
     fun afterEach() {
-        mokksy.checkForUnmatchedRequests()
-        mokksy.checkForUnmatchedStubs()
+        mokksy.verifyNoUnexpectedRequests()
+        mokksy.verifyNoUnmatchedStubs()
     }
 }
