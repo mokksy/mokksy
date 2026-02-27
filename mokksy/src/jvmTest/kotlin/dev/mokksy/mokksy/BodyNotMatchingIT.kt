@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy
 
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -28,9 +29,10 @@ internal class BodyNotMatchingIT : AbstractIT() {
     @Test
     suspend fun `should fail when !bodyContains`() {
         // given
+        val path = "/predicate-$seed"
         mokksy
             .post(name = "predicate", Input::class) {
-                path("/predicate")
+                path(path)
                 bodyContains(
                     Json.encodeToString(Input("wrong")),
                 )
@@ -41,13 +43,18 @@ internal class BodyNotMatchingIT : AbstractIT() {
             }
         // when
         val result =
-            client.post("/predicate") {
+            client.post(path) {
                 contentType(ContentType.Application.Json)
                 setBody(Json.encodeToString(input))
             }
 
         // then
         result.status shouldBe HttpStatusCode.NotFound
-        mokksy.resetMatchCounts()
+
+        val unexpectedRequests = mokksy.findAllUnexpectedRequests()
+        unexpectedRequests shouldHaveSize 1
+        unexpectedRequests[0].uri shouldBe path
+
+        mokksy.findAllUnmatchedStubs() shouldHaveSize 1
     }
 }
