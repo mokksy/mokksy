@@ -32,7 +32,7 @@ internal open class AbstractIT(
     protected var seed: Int = -1
 
     @BeforeAll
-    suspend fun initServerAndClent() {
+    suspend fun initServerAndClient() {
         mokksy.startSuspend()
         client = clientSupplier(mokksy.port())
     }
