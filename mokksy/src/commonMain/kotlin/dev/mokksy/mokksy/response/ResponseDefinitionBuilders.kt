@@ -21,11 +21,18 @@ import kotlin.time.Duration.Companion.milliseconds
  * @author Konstantin Pavlov
  */
 public abstract class AbstractResponseDefinitionBuilder<P, T>(
-    public var httpStatusCode: Int = 200,
-    public var httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
     public val headers: MutableList<Pair<String, String>>,
     public var delay: Duration = Duration.ZERO,
 ) {
+    private var _httpStatusCode: Int = HttpStatusCode.OK.value
+    public val httpStatusCode: Int get() = _httpStatusCode
+
+    public var httpStatus: HttpStatusCode = HttpStatusCode.OK
+        set(value) {
+            field = value
+            _httpStatusCode = value.value
+        }
+
     /**
      * A lambda function for configuring additional response headers.
      * This function can define custom headers or override existing ones.
@@ -38,7 +45,10 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
      * @param name The header name.
      * @param value The header value.
      */
-    public fun addHeader(name: String, value: String) {
+    public fun addHeader(
+        name: String,
+        value: String,
+    ) {
         headers.add(name to value)
     }
 
@@ -61,7 +71,6 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
     }
 
     public fun httpStatus(status: Int) {
-        this.httpStatusCode = status
         this.httpStatus = HttpStatusCode.fromValue(status)
     }
 
@@ -70,7 +79,7 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
      *
      * @return An instance of [AbstractResponseDefinition].
      */
-    protected abstract fun build(): AbstractResponseDefinition<T>
+    internal abstract fun build(): AbstractResponseDefinition<T>
 }
 
 /**
@@ -97,12 +106,12 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
     httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
     headers: MutableList<Pair<String, String>> = mutableListOf(),
     private val formatter: HttpFormatter,
-) : AbstractResponseDefinitionBuilder<P, T>(
-        httpStatusCode = httpStatusCode,
-        httpStatus = httpStatus,
-        headers = headers,
-    ) {
-    public override fun build(): ResponseDefinition<P, T> =
+) : AbstractResponseDefinitionBuilder<P, T>(headers = headers) {
+    init {
+        this.httpStatus = httpStatus
+    }
+
+    override fun build(): ResponseDefinition<P, T> =
         ResponseDefinition(
             body = body,
             contentType = contentType ?: ContentType.Application.Json,
@@ -138,10 +147,11 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
     headers: MutableList<Pair<String, String>> = mutableListOf(),
     public val chunkContentType: ContentType? = null,
     private val formatter: HttpFormatter,
-) : AbstractResponseDefinitionBuilder<P, T>(
-        httpStatus = httpStatus,
-        headers = headers,
-    ) {
+) : AbstractResponseDefinitionBuilder<P, T>(headers = headers) {
+    init {
+        this.httpStatus = httpStatus
+    }
+
     /**
      * Builds an instance of [StreamResponseDefinition].
      *
@@ -154,7 +164,7 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
      * @param T The type of data being streamed.
      * @return A fully constructed [StreamResponseDefinition] instance containing the configured response details.
      */
-    public override fun build(): StreamResponseDefinition<P, T> =
+    override fun build(): StreamResponseDefinition<P, T> =
         StreamResponseDefinition(
             chunkFlow = flow,
             chunks = chunks.toList(),

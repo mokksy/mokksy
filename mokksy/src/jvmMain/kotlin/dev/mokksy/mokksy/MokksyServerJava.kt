@@ -50,7 +50,7 @@ import kotlin.reflect.KClass
 @Suppress("TooManyFunctions")
 public class MokksyServerJava(
     public val delegate: MokksyServer,
-) {
+) : AutoCloseable {
     /**
      * Creates a [MokksyServerJava] backed by a new [MokksyServer].
      *
@@ -134,6 +134,15 @@ public class MokksyServerJava(
         runBlocking {
             delegate.shutdownSuspend(gracePeriodMillis, timeoutMillis)
         }
+
+    /**
+     * Closes the resource, releasing any underlying resources.
+     *
+     * This method is calling [shutdown] with default timeouts under the hood.
+     *
+     * @return Unit
+     */
+    override fun close(): Unit = shutdown()
 
     /**
      * Returns the base URL of the server in the form `http://<host>:<port>`.
