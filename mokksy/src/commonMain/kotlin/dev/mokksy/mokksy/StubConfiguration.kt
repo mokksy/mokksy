@@ -1,17 +1,12 @@
 package dev.mokksy.mokksy
 
 /**
- * Configuration class for defining the behavior and attributes of a stub.
+ * Configuration for a stub's lifecycle and logging behaviour.
  *
- * This data class is used to configure the characteristics of a stub,
- * including its name, removal behavior, and logging verbosity.
- *
- * @property name The name of the stub configuration. Can be null if not provided.
- * @property removeAfterMatch Indicates whether the stub should be automatically removed
- *        after a successful match with a request.
- * @property verbose Configures detailed logging for the stub, enabling or disabling
- *        additional logging information.
- * @author Konstantin Pavlov
+ * @property name Optional human-readable name used in log and error output. Defaults to `null`.
+ * @property removeAfterMatch When `true`, the stub is removed from the registry after its first match.
+ *           Defaults to `false`.
+ * @property verbose Enables per-stub `DEBUG`-level logging when `true`. Defaults to `false`.
  */
 public data class StubConfiguration(
     val name: String? = null,
