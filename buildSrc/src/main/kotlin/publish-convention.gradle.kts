@@ -66,13 +66,13 @@ mavenPublishing {
         }
 
         scm {
-            connection = "scm:git:git://github.com/mokksy/ai-mocks.git"
-            developerConnection = "scm:git:ssh://github.com/mokksy/ai-mocks.git"
-            url = "https://github.com/mokksy/ai-mocks"
+            connection = "scm:git:git://github.com/mokksy/mokksy.git"
+            developerConnection = "scm:git:ssh://github.com/mokksy/mokksy.git"
+            url = "https://github.com/mokksy/mokksy"
         }
 
         issueManagement {
-            url = "https://github.com/mokksy/ai-mocks/issues"
+            url = "https://github.com/mokksy/mokksy/issues"
             system = "GitHub"
         }
     }
