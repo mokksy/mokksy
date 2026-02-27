@@ -382,7 +382,7 @@ class MyTest {
   
     @AfterEach
     fun afterEach() {
-        mokksy.checkForUnmatchedRequests() // no unexpected HTTP calls
+        mokksy.findAllUnexpectedRequests() // no unexpected HTTP calls
     }
 }
 ```
@@ -394,10 +394,10 @@ Use the `find*` variants to retrieve the unmatched items directly for custom ass
 
 ```kotlin
 // List<RecordedRequest> — HTTP requests with no matching stub
-val unmatchedRequests: List<RecordedRequest> = mokksy.findAllUnmatchedRequests()
+val unmatchedRequests: List<RecordedRequest> = mokksy.findAllUnexpectedRequests()
 
 // List<RequestSpecification<*>> — stubs that were never triggered
-val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnmatchedStubs()
+val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnexpectedStubs()
 ```
 
 `RecordedRequest` is an immutable snapshot that captures `method`, `uri`, and `headers` of the incoming request.
@@ -409,7 +409,7 @@ Mokksy records incoming requests in a `RequestJournal`. The recording mode is co
 
 | Mode                           | Behaviour                                                                                                  |
 |--------------------------------|------------------------------------------------------------------------------------------------------------|
-| `JournalMode.LEAN` *(default)* | Records only requests with no matching stub. Lower overhead; sufficient for `checkForUnmatchedRequests()`. |
+| `JournalMode.LEAN` *(default)* | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnmatchedRequests()`. |
 | `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                |
 
 ```kotlin
