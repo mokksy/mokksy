@@ -44,7 +44,7 @@ internal open class AbstractIT(
 
     @AfterAll
     suspend fun closeServerAndClient() {
-        mokksy.startSuspend()
+        mokksy.shutdownSuspend()
         client.close()
     }
 }

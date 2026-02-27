@@ -391,6 +391,7 @@ open class dev.mokksy.mokksy/MokksyServer { // dev.mokksy.mokksy/MokksyServer|nu
     final fun resetMatchCounts() // dev.mokksy.mokksy/MokksyServer.resetMatchCounts|resetMatchCounts(){}[0]
     final fun verifyNoUnexpectedRequests() // dev.mokksy.mokksy/MokksyServer.verifyNoUnexpectedRequests|verifyNoUnexpectedRequests(){}[0]
     final fun verifyNoUnmatchedStubs() // dev.mokksy.mokksy/MokksyServer.verifyNoUnmatchedStubs|verifyNoUnmatchedStubs(){}[0]
+    final suspend fun awaitStarted() // dev.mokksy.mokksy/MokksyServer.awaitStarted|awaitStarted(){}[0]
     final suspend fun shutdownSuspend(kotlin/Long = ..., kotlin/Long = ...) // dev.mokksy.mokksy/MokksyServer.shutdownSuspend|shutdownSuspend(kotlin.Long;kotlin.Long){}[0]
     final suspend fun startSuspend(kotlin/Boolean = ...) // dev.mokksy.mokksy/MokksyServer.startSuspend|startSuspend(kotlin.Boolean){}[0]
 }

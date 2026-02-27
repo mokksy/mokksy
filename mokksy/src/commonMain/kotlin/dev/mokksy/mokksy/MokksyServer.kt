@@ -195,6 +195,24 @@ public open class MokksyServer
         }
 
         /**
+         * Suspends until the server has fully started and the port is bound.
+         *
+         * Use this as a synchronization point when [startSuspend] is launched asynchronously.
+         * Returns immediately if the server is already started.
+         *
+         * Example:
+         * ```kotlin
+         * coroutineScope {
+         *     launch { mokksy.startSuspend() }
+         *     mokksy.awaitStarted() // port() and baseUrl() are safe after this point
+         * }
+         * ```
+         */
+        public suspend fun awaitStarted() {
+            started.await()
+        }
+
+        /**
          * Adds a [Stub] to the server's collection, asserting that it is not a duplicate.
          *
          * @param stub The [Stub] to register.
