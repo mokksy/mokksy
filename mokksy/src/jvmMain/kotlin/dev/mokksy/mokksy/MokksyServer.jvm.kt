@@ -1,3 +1,5 @@
+@file:JvmName("MokksyJava")
+
 package dev.mokksy.mokksy
 
 import io.ktor.server.application.Application
@@ -38,6 +40,7 @@ internal actual fun createEmbeddedServer(
 public fun Mokksy.start(dispatcher: CoroutineDispatcher = Dispatchers.Default) {
     runBlocking(dispatcher) {
         this@start.startSuspend()
+        this@start.awaitStarted()
     }
 }
 

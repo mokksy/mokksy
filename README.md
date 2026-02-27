@@ -19,7 +19,7 @@
 
 **Check out the [AI-Mocks][ai-mocks] project for advanced LLM and [A2A protocol][a2a] mocking capabilities.**
 
-> [!INFO]
+> [!NOTE]
 > Mokksy server was a part of the [AI-Mocks][ai-mocks] project and has now moved to a separate repository. No artefact relocation is required.
 
 ![mokksy-mascot-256.png](docs/mokksy-mascot-256.png)
@@ -115,12 +115,12 @@ class ReadmeTest {
 
 2. Create and start Mokksy server:
 
-```kotlin
-val mokksy = Mokksy().apply {
-    start()
-}
-```
-
+   **JVM (blocking):**
+   ```kotlin
+   val mokksy = Mokksy().apply {
+       start()
+   }
+   ```
 3. Configure http client using Mokksy server's as baseUrl in your application:
 
 ```kotlin
@@ -130,7 +130,6 @@ val client = HttpClient {
   }
 }
 ```
-If you start Mokksy on a random port, you should wait until it is started and the port is assigned, otherwise `mokksy.port()` and `mokksy.baseUrl()` will throw `IllegalStateException`.
 
 ## Responding with predefined responses
 
@@ -319,13 +318,13 @@ Mokksy provides two complementary verification methods that check opposite sides
 
 ### Verify all stubs were triggered
 
-`checkForUnmatchedStubs()` fails if any registered stub was never matched by an incoming request.
+`verifyNoUnmatchedStubs()` fails if any registered stub was never matched by an incoming request.
 Use this to catch stubs you set up but that were never actually called — a sign the code under test took
 a different path than expected.
 
 ```kotlin
 // Fails if any stub has matchCount == 0
-mokksy.checkForUnmatchedStubs()
+mokksy.verifyNoUnmatchedStubs()
 ```
 
 > **Note:** Be careful when running tests in parallel against a single `MokksyServer` instance.
@@ -334,12 +333,12 @@ mokksy.checkForUnmatchedStubs()
 
 ### Verify no unexpected requests arrived
 
-`checkForUnmatchedRequests()` fails if any HTTP request arrived at the server but no stub matched it.
+`verifyNoUnexpectedRequests()` fails if any HTTP request arrived at the server but no stub matched it.
 These requests are recorded in the `RequestJournal` and reported together.
 
 ```kotlin
 // Fails if any request arrived with no matching stub
-mokksy.checkForUnmatchedRequests()
+mokksy.verifyNoUnexpectedRequests()
 ```
 
 ### Recommended AfterEach setup
@@ -347,9 +346,8 @@ mokksy.checkForUnmatchedRequests()
 Run both checks after every test to catch a mismatch in either direction:
 
 <!--- CLEAR -->
-<!--- INCLUDE 
+<!--- INCLUDE
 import dev.mokksy.mokksy.Mokksy
-import dev.mokksy.mokksy.start
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -361,6 +359,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 -->
@@ -368,11 +367,17 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MyTest {
 
-    val mokksy = Mokksy().apply { start() }
-  
-    val client = HttpClient {
-        install(DefaultRequest) {
-            url(mokksy.baseUrl())
+    val mokksy = Mokksy()
+    lateinit var client: HttpClient
+
+    @BeforeAll
+    suspend fun setup() {
+        mokksy.startSuspend()
+        mokksy.awaitStarted() // port() and baseUrl() are safe after this point
+        client = HttpClient {
+            install(DefaultRequest) {
+                url(mokksy.baseUrl())
+            }
         }
     }
 
@@ -386,18 +391,18 @@ class MyTest {
         }
 
         // when
-        val response = client.get("/hi") 
+        val response = client.get("/hi")
 
         // then
         response.status shouldBe HttpStatusCode.OK
         response.bodyAsText() shouldBe "Hello"
     }
-  
+
     @AfterEach
     fun afterEach() {
-        mokksy.findAllUnexpectedRequests() // no unexpected HTTP calls
+        mokksy.verifyNoUnexpectedRequests()
     }
-  
+
     @AfterAll
     suspend fun afterAll() {
         client.close()
@@ -416,7 +421,7 @@ Use the `find*` variants to retrieve the unmatched items directly for custom ass
 val unmatchedRequests: List<RecordedRequest> = mokksy.findAllUnexpectedRequests()
 
 // List<RequestSpecification<*>> — stubs that were never triggered
-val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnexpectedStubs()
+val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnmatchedStubs()
 ```
 
 `RecordedRequest` is an immutable snapshot that captures `method`, `uri`, and `headers` of the incoming request.
@@ -428,7 +433,7 @@ Mokksy records incoming requests in a `RequestJournal`. The recording mode is co
 
 | Mode                           | Behaviour                                                                                                  |
 |--------------------------------|------------------------------------------------------------------------------------------------------------|
-| `JournalMode.LEAN` *(default)* | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnmatchedRequests()`. |
+| `JournalMode.LEAN` *(default)* | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`. |
 | `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                |
 
 ```kotlin

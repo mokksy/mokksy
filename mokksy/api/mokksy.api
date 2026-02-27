@@ -15,6 +15,17 @@ public final class dev/mokksy/mokksy/JournalMode : java/lang/Enum {
 	public static fun values ()[Ldev/mokksy/mokksy/JournalMode;
 }
 
+public final class dev/mokksy/mokksy/MokksyJava {
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;)V
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;J)V
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;JJ)V
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;)V
+	public static synthetic fun shutdown$default (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
+	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;)V
+	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;)V
+	public static synthetic fun start$default (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
+}
+
 public class dev/mokksy/mokksy/MokksyServer {
 	public field logger Lorg/slf4j/Logger;
 	public fun <init> ()V
@@ -29,6 +40,7 @@ public class dev/mokksy/mokksy/MokksyServer {
 	public fun <init> (Ljava/lang/String;ILdev/mokksy/mokksy/ServerConfiguration;ZLkotlin/jvm/functions/Function1;)V
 	public synthetic fun <init> (Ljava/lang/String;ILdev/mokksy/mokksy/ServerConfiguration;ZLkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/lang/String;Ldev/mokksy/mokksy/ServerConfiguration;)V
+	public final fun awaitStarted (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun baseUrl ()Ljava/lang/String;
 	public final fun checkForUnmatchedRequests ()V
 	public final fun checkForUnmatchedStubs ()V
@@ -79,17 +91,6 @@ public class dev/mokksy/mokksy/MokksyServer {
 	public static synthetic fun startSuspend$default (Ldev/mokksy/mokksy/MokksyServer;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun verifyNoUnexpectedRequests ()V
 	public final fun verifyNoUnmatchedStubs ()V
-}
-
-public final class dev/mokksy/mokksy/MokksyServer_jvmKt {
-	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;)V
-	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;J)V
-	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;JJ)V
-	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;)V
-	public static synthetic fun shutdown$default (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
-	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;)V
-	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;)V
-	public static synthetic fun start$default (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
 }
 
 public final class dev/mokksy/mokksy/ServerConfiguration {
