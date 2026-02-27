@@ -1,10 +1,18 @@
 # Mokksy
 
 [![Maven Central](https://img.shields.io/maven-central/v/dev.mokksy/mokksy)](https://repo1.maven.org/maven2/dev/mokksy/mokksy/)
+[![Build](https://github.com/mokksy/mokksy/actions/workflows/gradle.yml/badge.svg?branch=main)](https://github.com/mokksy/mokksy/actions/workflows/gradle.yml)
+
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/545ae1f12da24e199c9a5432d5290d2e)](https://app.codacy.com/gh/mokksy/mokksy/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/545ae1f12da24e199c9a5432d5290d2e)](https://app.codacy.com/gh/mokksy/mokksy/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mokksy/mokksy)
 
 _Mokksy_ - Mock HTTP Server, built with [Kotlin](https://kotlinlang.org/) and [Ktor](https://ktor.io/).
 
 ![mokksy-mascot-256.png](docs/mokksy-mascot-256.png)
+
+[![Buy me a Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://buymeacoffee.com/mailsk)
 
 **Table of Contents**
 
