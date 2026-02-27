@@ -12,7 +12,7 @@
 [![Kotlin Multiplatform](https://img.shields.io/badge/Platforms-%20JVM%20%7C%20Wasm%2FJS%20%7C%20Native%20-%237F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/docs/multiplatform.html)
 ![GitHub License](https://img.shields.io/github/license/mokksy/mokksy)
 
-[![Documentation](https://img.shields.io/badge/docs-website-blue)](https://mokksy.dev/)
+[![API Reference](https://img.shields.io/badge/API-Reference-blue)](https://mokksy.github.io/mokksy/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mokksy/mokksy)
 
 **_Mokksy_** - Mock HTTP Server, built with [Kotlin](https://kotlinlang.org/) and [Ktor](https://ktor.io/).
