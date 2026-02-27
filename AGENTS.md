@@ -21,6 +21,7 @@ Read the project overview from README.md
 - Use Kotlin's `val` for immutable properties and `var` for mutable properties
 - Use fully qualified imports instead of star imports
 - Ensure to preserve backward compatibility when making changes
+- Use `// region <name>` / `// endregion` comments to group related members in long files, enabling IntelliJ IDEA code folding
 
 #### Java
 
@@ -43,8 +44,12 @@ Read the project overview from README.md
   assertions, e.g. `shouldEqualJson` and never compare substrings.
 - Use `assertSoftly(subject) { ... }` to perform multiple assertions. Never use `assertSoftly { }` to verify properties
   of different subjects, or when there is only one assertion per subject. Avoid using `assertSoftly(this) { ... }`
-  - Prioritize test readability
-  - When asked to write tests in Java: use JUnit5, Mockito, AssertJ core
+- Combine tests that exercise the **same scenario** but assert different properties into a single test using
+  `assertSoftly(subject) { ... }`. Do not split one logical test case across multiple `@Test` functions just to
+  have one assertion per function.
+- Use `shouldContain` (from `io.kotest.matchers.string`) for string containment instead of `.contains(...) shouldBe true`.
+- Prioritize test readability
+- When asked to write tests in Java: use JUnit5, Mockito, AssertJ core
 
 #### Testing Ktor request/response handling
 

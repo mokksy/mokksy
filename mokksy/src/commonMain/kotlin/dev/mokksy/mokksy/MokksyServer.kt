@@ -636,7 +636,7 @@ public open class MokksyServer
         @Suppress("DEPRECATION")
         @Deprecated(
             "Use findAllUnexpectedRequests() instead",
-            ReplaceWith("findAllUnmatchedStubs()"),
+            ReplaceWith("findAllUnexpectedRequests()"),
         )
         public fun findAllUnmatchedRequests(): List<RecordedRequest> = findAllUnexpectedRequests()
 
@@ -665,6 +665,20 @@ public open class MokksyServer
         /**
          * Verifies that all registered stubs have been matched at least once.
          *
+         * Example:
+         * ```kotlin
+         * // given
+         * mokksy.get {
+         *     path("/api/resource")
+         * } respondsWith(String::class) {
+         *     body = "ok"
+         * }
+         * // when
+         * client.get("/api/resource")
+         * // then
+         * mokksy.verifyNoUnmatchedStubs() // passes — stub was triggered
+         * ```
+         *
          * @throws AssertionError If any stub was registered but never triggered during execution.
          */
         public fun verifyNoUnmatchedStubs() {
@@ -678,6 +692,9 @@ public open class MokksyServer
             }
         }
 
+        /**
+         * @suppress Use [verifyNoUnmatchedStubs] instead.
+         */
         @Deprecated(
             "Use verifyNoUnmatchedStubs instead for clarity",
             replaceWith = ReplaceWith("verifyNoUnmatchedStubs()"),
@@ -685,14 +702,22 @@ public open class MokksyServer
         public fun checkForUnmatchedStubs(): Unit = verifyNoUnmatchedStubs()
 
         /**
-         * Verifies that there are no unexpected requests, i.e any stub did not match that.
+         * Verifies that every request received by the server was matched by a stub.
          *
-         * This method checks for any unmatched requests that have been recorded but not handled by
-         * existing stubs or expectations. If any unmatched requests are found, it throws an
-         * AssertionError with details of those requests.
+         * Typically called in a test tear-down to ensure that no unregistered request slipped through.
          *
-         * Typically used in testing environments to ensure that all requests during a test have been
-         * anticipated and have corresponding handlers.
+         * Example:
+         * ```kotlin
+         * mokksy.get {
+         *     path("/api/resource")
+         * }.respondsWith(String::class) {
+         *     body = "ok"
+         * }
+         * // when
+         * client.get("/api/resource")
+         * // then
+         * mokksy.verifyNoUnexpectedRequests() // passes — all requests matched a stub
+         * ```
          *
          * @throws AssertionError If there are any requests that have not been matched by a stub.
          */
@@ -708,11 +733,7 @@ public open class MokksyServer
         }
 
         /**
-         * Checks for any unmatched requests in the system, ensuring that all expected requests have been properly handled.
-         * This method has been deprecated in favor of `findAllUnexpectedRequests()` for improved clarity.
-         *
-         * @throws AssertionError If there are any requests that have not been matched by a stub.
-         * @deprecated Use findAllUnexpectedRequests instead for clarity
+         * @suppress Use [verifyNoUnexpectedRequests] instead.
          */
         @Deprecated(
             "Use verifyNoUnexpectedRequests() instead for clarity",

@@ -87,9 +87,8 @@ internal class BodyMatchingIT : AbstractIT() {
     }
 
     @AfterTest
-    @Suppress("DEPRECATION")
     fun afterEach() {
-        mokksy.checkForUnmatchedRequests()
-        mokksy.checkForUnmatchedStubs()
+        mokksy.verifyNoUnexpectedRequests()
+        mokksy.verifyNoUnmatchedStubs()
     }
 }
