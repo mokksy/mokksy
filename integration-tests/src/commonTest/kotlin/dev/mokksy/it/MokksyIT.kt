@@ -1,33 +1,23 @@
 package dev.mokksy.it
 
 import dev.mokksy.mokksy.Mokksy
+import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.DefaultRequest
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class MokksyIT {
     val mokksy = Mokksy()
-    lateinit var client: HttpClient
+    val client = HttpClient()
 
     @BeforeTest
     fun setup() =
         runTest {
             mokksy.startSuspend()
-            mokksy.awaitStarted()
-            client =
-                HttpClient {
-                    install(HttpTimeout)
-                    install(DefaultRequest) {
-                        url(mokksy.baseUrl())
-                    }
-                }
         }
 
     @AfterTest
@@ -40,12 +30,14 @@ class MokksyIT {
     @Test
     fun `GET returns configured response`() =
         runTest {
+            mokksy.awaitStarted()
+
             mokksy.get { path("/ping") } respondsWith { body = "Pong" }
 
-            val response = client.get("/ping")
+            val response = client.get(mokksy.baseUrl() + "/ping")
 
             val content = response.bodyAsText()
-            assertEquals("Pong", content)
+            content shouldBe "Pong"
             print("""✅Response: "$content".""")
         }
 }

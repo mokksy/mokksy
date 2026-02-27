@@ -2,7 +2,10 @@ package dev.mokksy.it;
 
 import dev.mokksy.mokksy.MokksyServerJava;
 import dev.mokksy.mokksy.StubConfiguration;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,17 +33,12 @@ class MokksyJavaIT {
         mokksy.shutdown();
     }
 
-    @AfterEach
-    void afterEach() {
-        mokksy.resetMatchCounts();
-    }
-
     // region GET
 
     @Test
     void get_shouldReturn200WithBody() throws IOException, InterruptedException {
         mokksy.get(spec -> spec.path("/hello"))
-              .respondsWith(builder -> builder.setBody("Hello, World!"));
+            .respondsWith(builder -> builder.setBody("Hello, World!"));
 
         var response = get("/hello");
 
@@ -85,11 +83,11 @@ class MokksyJavaIT {
         var expectedBody = "{\"id\":\"42\"}";
 
         mokksy.post(spec -> spec.path("/items"))
-              .respondsWith(builder -> {
-                  builder.setBody(expectedBody);
-                  builder.httpStatus(201);
-                  builder.addHeader("Location", "/items/42");
-              });
+            .respondsWith(builder -> {
+                builder.setBody(expectedBody);
+                builder.httpStatus(201);
+                builder.addHeader("Location", "/items/42");
+            });
 
         var response = post("/items", "{\"name\":\"widget\"}");
 
@@ -105,7 +103,7 @@ class MokksyJavaIT {
     @Test
     void removeAfterMatch_shouldReturn404OnSecondRequest() throws IOException, InterruptedException {
         mokksy.get(new StubConfiguration("once-only", true), spec -> spec.path("/once"))
-              .respondsWith(builder -> builder.setBody("First!"));
+            .respondsWith(builder -> builder.setBody("First!"));
 
         var first = get("/once");
         var second = get("/once");
@@ -121,7 +119,7 @@ class MokksyJavaIT {
     @Test
     void verifyNoUnmatchedStubs_shouldThrowWhenStubNeverCalled() {
         mokksy.get(spec -> spec.path("/never-called"))
-              .respondsWith(builder -> builder.setBody("unreachable"));
+            .respondsWith(builder -> builder.setBody("unreachable"));
 
         assertThatThrownBy(mokksy::verifyNoUnmatchedStubs)
             .isInstanceOf(AssertionError.class)
