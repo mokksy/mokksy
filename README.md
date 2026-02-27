@@ -7,6 +7,12 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/545ae1f12da24e199c9a5432d5290d2e)](https://app.codacy.com/gh/mokksy/mokksy/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 [![codecov](https://codecov.io/github/mokksy/mokksy/branch/main/graph/badge.svg?token=IAAMJNDRX4)](https://codecov.io/github/mokksy/mokksy)
 
+![Kotlin API](https://img.shields.io/badge/Kotlin-2.2-%237F52FF.svg?logo=kotlin&logoColor=white)
+![Java](https://img.shields.io/badge/JVM-17-%23ED8B00.svg)
+[![Kotlin Multiplatform](https://img.shields.io/badge/Platforms-%20JVM%20%7C%20Wasm%2FJS%20%7C%20Native%20-%237F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/docs/multiplatform.html)
+![GitHub License](https://img.shields.io/github/license/mokksy/mokksy)
+
+[![Documentation](https://img.shields.io/badge/docs-website-blue)](https://mokksy.dev/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mokksy/mokksy)
 
 **_Mokksy_** - Mock HTTP Server, built with [Kotlin](https://kotlinlang.org/) and [Ktor](https://ktor.io/).
@@ -83,6 +89,7 @@ Particularly, it might be useful for integration testing LLM clients.
 <!--- CLEAR -->
 <!--- INCLUDE 
 import dev.mokksy.mokksy.Mokksy
+import dev.mokksy.mokksy.start
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -106,10 +113,12 @@ import kotlin.time.Duration.Companion.milliseconds
 class ReadmeTest {
 -->
 
-2. Create Mokksy server:
+2. Create and start Mokksy server:
 
 ```kotlin
-val mokksy = Mokksy()
+val mokksy = Mokksy().apply {
+    start()
+}
 ```
 
 3. Configure http client using Mokksy server's as baseUrl in your application:
@@ -121,6 +130,7 @@ val client = HttpClient {
   }
 }
 ```
+If you start Mokksy on a random port, you should wait until it is started and the port is assigned, otherwise `mokksy.port()` and `mokksy.baseUrl()` will throw `IllegalStateException`.
 
 ## Responding with predefined responses
 
@@ -339,6 +349,7 @@ Run both checks after every test to catch a mismatch in either direction:
 <!--- CLEAR -->
 <!--- INCLUDE 
 import dev.mokksy.mokksy.Mokksy
+import dev.mokksy.mokksy.start
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -348,14 +359,16 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-
+import org.junit.jupiter.api.TestInstance
 -->
 ```kotlin
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MyTest {
 
-    private val mokksy = Mokksy()
+    val mokksy = Mokksy().apply { start() }
   
     val client = HttpClient {
         install(DefaultRequest) {
@@ -383,6 +396,12 @@ class MyTest {
     @AfterEach
     fun afterEach() {
         mokksy.findAllUnexpectedRequests() // no unexpected HTTP calls
+    }
+  
+    @AfterAll
+    suspend fun afterAll() {
+        client.close()
+        mokksy.shutdownSuspend()
     }
 }
 ```

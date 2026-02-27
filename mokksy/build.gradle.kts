@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlin.serialization)
-    `kotlin-convention`
+    `kotlin-multiplatform-convention`
     `dokka-convention`
     `publish-convention`
     `netty-convention`
@@ -18,11 +18,15 @@ dokka {
     dokkaSourceSets.configureEach {
         // includes.from("README.md")
     }
+
+    moduleName.set("Mokksy")
+
+    pluginsConfiguration.html {
+        footerMessage = "Copyright © 2025-2026 Konstantin Pavlov"
+    }
 }
 
 kotlin {
-
-    macosArm64()
 
     sourceSets {
         commonMain {
@@ -50,6 +54,12 @@ kotlin {
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.server.test.host)
+            }
+        }
+
+        webMain {
+            dependencies {
+                implementation(libs.ktor.server.cio)
             }
         }
 

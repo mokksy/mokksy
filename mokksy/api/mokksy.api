@@ -46,6 +46,7 @@ public class dev/mokksy/mokksy/MokksyServer {
 	public static synthetic fun get$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
 	protected final fun getHttpFormatter ()Ldev/mokksy/mokksy/utils/logger/HttpFormatter;
 	public final fun getLogger ()Lorg/slf4j/Logger;
+	protected final fun getServer ()Lio/ktor/server/engine/EmbeddedServer;
 	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
@@ -72,12 +73,23 @@ public class dev/mokksy/mokksy/MokksyServer {
 	public static synthetic fun put$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun resetMatchCounts ()V
 	public final fun setLogger (Lorg/slf4j/Logger;)V
-	public final fun shutdown ()V
-	public final fun shutdown (J)V
-	public final fun shutdown (JJ)V
-	public static synthetic fun shutdown$default (Ldev/mokksy/mokksy/MokksyServer;JJILjava/lang/Object;)V
+	public final fun shutdownSuspend (JJLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun shutdownSuspend$default (Ldev/mokksy/mokksy/MokksyServer;JJLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun startSuspend (ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun startSuspend$default (Ldev/mokksy/mokksy/MokksyServer;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun verifyNoUnexpectedRequests ()V
 	public final fun verifyNoUnmatchedStubs ()V
+}
+
+public final class dev/mokksy/mokksy/MokksyServer_jvmKt {
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;)V
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;J)V
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;JJ)V
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;)V
+	public static synthetic fun shutdown$default (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
+	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;)V
+	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;)V
+	public static synthetic fun start$default (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
 }
 
 public final class dev/mokksy/mokksy/ServerConfiguration {

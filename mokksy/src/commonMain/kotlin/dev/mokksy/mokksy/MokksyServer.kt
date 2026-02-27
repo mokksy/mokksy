@@ -25,14 +25,16 @@ import io.ktor.server.plugins.doublereceive.DoubleReceive
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.sse.SSE
-import kotlinx.coroutines.runBlocking
+import io.ktor.util.logging.Logger
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.serialization.json.Json
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
-private const val DEFAULT_HOST = "127.0.0.1"
+private const val DEFAULT_HOST: String = "127.0.0.1"
 
 /**
  * Creates and returns an embedded Ktor server instance
@@ -45,7 +47,6 @@ private const val DEFAULT_HOST = "127.0.0.1"
  * @param configuration The [ServerConfiguration] settings.
  * @param module The application module to install in the server.
  * @return An embedded server instance configured with the provided parameters.
- * @author Konstantin Pavlov
  */
 internal expect fun createEmbeddedServer(
     host: String = DEFAULT_HOST,
@@ -58,11 +59,10 @@ internal expect fun createEmbeddedServer(
 >
 
 /**
- * Configures content negotiation for the server using the provided configuration.
+ * Configures JSON content negotiation with [Json.ignoreUnknownKeys] enabled.
+ * Used as the default [ServerConfiguration.contentNegotiationConfigurer].
  *
- * Platform-specific implementations should install and set up content negotiation plugins as needed.
- *
- * @param config The content negotiation configuration to apply.
+ * @param config The [ContentNegotiationConfig] to configure.
  */
 internal fun configureContentNegotiation(config: ContentNegotiationConfig) {
     config.json(
@@ -75,35 +75,49 @@ internal fun configureContentNegotiation(config: ContentNegotiationConfig) {
 public typealias ApplicationConfigurer = (Application.() -> Unit)
 
 /**
- * Represents an embedded mock server capable of handling various HTTP requests and responses for testing purposes.
- * Provides functionality to configure request specifications for different HTTP methods and manage request matching.
+ * An embedded mock HTTP server for testing. Registers stubs for any HTTP method and verifies
+ * request expectations after the test.
  *
- * @constructor Initializes the server with the specified parameters and starts it.
- * @param host The host name on which the server will run. Default value is [DEFAULT_HOST] (`127.0.0.1`).
- * @param port The port number on which the server will run. Default value is `0` - randomly assigned port.
- * @param configuration [ServerConfiguration] options
- * @param wait Determines whether the server startup process should block the current thread. Defaults to false.
- * @param configurer A lambda function for setting custom configurations for the server's application module.
+ * Call [start] or [startSuspend] to begin processing requests after construction.
+ *
+ * Example:
+ * ```kotlin
+ * val mokksy = Mokksy().apply { start() }
+ *
+ * mokksy.get {
+ *     path("/ping")
+ * } respondsWith {
+ *     body = """{"response":"Pong"}"""
+ * }
+ * ```
+ *
+ * @constructor Creates a [MokksyServer] instance. Call [start] or [startSuspend] to begin processing requests.
+ * @param host The host to bind to. Defaults to `127.0.0.1`.
+ * @param port The port to bind to. Defaults to `0` (randomly assigned).
+ * @param configuration [ServerConfiguration] options.
+ * @param wait Unused. Pass `wait` to [startSuspend] instead.
+ * @param configurer Additional Ktor [Application] configuration applied after the default routing setup.
  * @author Konstantin Pavlov
  */
 @Suppress("TooManyFunctions")
-@OptIn(ExperimentalAtomicApi::class)
+@OptIn(ExperimentalAtomicApi::class, DelicateCoroutinesApi::class)
 public open class MokksyServer
     @JvmOverloads
     constructor(
-        host: String = DEFAULT_HOST,
+        private val host: String = DEFAULT_HOST,
         port: Int = 0,
         configuration: ServerConfiguration,
         wait: Boolean = false,
         configurer: ApplicationConfigurer = {},
     ) {
         /**
-         *  @constructor Initializes the server with the specified parameters and starts it.
-         *  @param port The port number on which the server will run. Defaults to 0 (randomly assigned port).
-         *  @param verbose A flag indicating whether detailed logs should be printed. Defaults to false.
-         *  @param wait Determines whether the server startup process should block the current thread.
-         *  Defaults to false.
-         *  @param configurer A lambda function for setting custom configurations for the server's application module.
+         * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
+         * Call [start] or [startSuspend] to begin processing requests.
+         *
+         * @param port The port to bind to. Defaults to `0` (randomly assigned).
+         * @param host The host to bind to. Defaults to `127.0.0.1`.
+         * @param verbose Enables `DEBUG`-level request logging when `true`. Defaults to `false`.
+         * @param configurer Additional Ktor [Application] configuration applied after the default routing setup.
          */
         @JvmOverloads
         public constructor(
@@ -121,13 +135,16 @@ public open class MokksyServer
 
         private val resolvedPort: AtomicInt = AtomicInt(-1)
 
-        public lateinit var logger: io.ktor.util.logging.Logger
+        public lateinit var logger: Logger
         protected val httpFormatter: HttpFormatter = HttpFormatter()
 
         private val stubRegistry = StubRegistry()
         private val requestJournal = RequestJournal(configuration.journalMode)
 
-        private val server =
+        private val started = CompletableDeferred<Unit>()
+
+        protected val server:
+            EmbeddedServer<out ApplicationEngine, out ApplicationEngine.Configuration> =
             createEmbeddedServer(
                 host = host,
                 port = port,
@@ -158,16 +175,23 @@ public open class MokksyServer
                 configurer(this)
             }
 
-        init {
-            server.start(wait = wait)
-            runBlocking {
-                resolvedPort.store(
-                    server.engine
-                        .resolvedConnectors()
-                        .single()
-                        .port,
-                )
-            }
+        /**
+         * Initiates the server to begin processing requests asynchronously.
+         *
+         * @param wait Determines whether the method should wait for the server to start
+         * completely before returning.
+         * If true, the method will wait; if false, it will return immediately
+         * after initiating the server start process.
+         */
+        public suspend fun startSuspend(wait: Boolean = false) {
+            server.startSuspend(wait = wait)
+            val port =
+                server.engine
+                    .resolvedConnectors()
+                    .single()
+                    .port
+            resolvedPort.compareAndSet(-1, port)
+            started.complete(Unit)
         }
 
         /**
@@ -187,9 +211,22 @@ public open class MokksyServer
          */
         public fun port(): Int = resolvedPort.load()
 
-        private val baseUrlCached: String by lazy { "http://$host:${port()}" }
-
-        public fun baseUrl(): String = baseUrlCached
+        /**
+         * Constructs and returns the base URL for the server.
+         *
+         * This method composes the base URL using the host and the current port.
+         * It ensures that the server is started by checking if the current port is valid.
+         *
+         * @return the base URL of the server in the format "http://host:port".
+         * @throws IllegalStateException if the server is not started.
+         */
+        public fun baseUrl(): String {
+            val currentPort = port()
+            check(
+                currentPort >= 0,
+            ) { "Server is not started. Call startSuspend()/start() first." }
+            return "http://$host:$currentPort"
+        }
 
         /**
          * Creates a [RequestSpecification] for the given HTTP method and request type,
@@ -248,6 +285,7 @@ public open class MokksyServer
         /**
          * Registers a stub for an HTTP GET request with the specified configuration and request type.
          *
+         * @param configuration Stub configuration (name, removal behaviour, verbosity).
          * @param requestType The class representing the expected request body type.
          * @param block Lambda to configure the [RequestSpecificationBuilder] for the GET request.
          * @return A [BuildingStep] for further customization and response definition.
@@ -338,7 +376,7 @@ public open class MokksyServer
         /**
          * Defines a POST request stub with the specified configuration and request type.
          *
-         * @param configuration Stub configuration specifying endpoint and matching criteria.
+         * @param configuration Stub configuration (name, removal behaviour, verbosity).
          * @param requestType The class of the expected request body.
          * @param block Lambda to configure the request specification details.
          * @return A [BuildingStep] for further stub setup or response definition.
@@ -388,7 +426,10 @@ public open class MokksyServer
         /**
          * Registers a stub for an HTTP DELETE request with the specified configuration and request type.
          *
-         * @return A BuildingStep for further configuration or response definition of the DELETE request stub.
+         * @param configuration Stub configuration (name, removal behaviour, verbosity).
+         * @param requestType The class of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for further configuration or response definition.
          */
         public fun <P : Any> delete(
             configuration: StubConfiguration,
@@ -434,9 +475,11 @@ public open class MokksyServer
             )
 
         /**
-         * Creates a stub for a PATCH HTTP request with the specified configuration, request type,
-         * and request specification.
+         * Registers a stub for an HTTP PATCH request with the specified configuration and request type.
          *
+         * @param configuration Stub configuration (name, removal behaviour, verbosity).
+         * @param requestType The class of the expected request payload.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
          * @return A [BuildingStep] for further configuring the PATCH request stub.
          */
         public fun <P : Any> patch(
@@ -516,7 +559,7 @@ public open class MokksyServer
          * Defines a stub for an HTTP HEAD request with the specified request type and configuration block.
          *
          * @param name Optional name for the stub.
-         * @param requestType The class of the request body.
+         * @param requestType The class used to deserialise the request payload (typically unused for HEAD).
          * @param block Lambda to configure the request specification.
          * @return A `BuildingStep` for further customization of the stub.
          */
@@ -535,8 +578,8 @@ public open class MokksyServer
         /**
          * Defines a stub for a HEAD HTTP request with the specified configuration and request type.
          *
-         * @param configuration The stub configuration for this request.
-         * @param requestType The class representing the request payload type.
+         * @param configuration Stub configuration (name, removal behaviour, verbosity).
+         * @param requestType The class used to deserialise the request payload (typically unused for HEAD).
          * @param block Lambda to configure the request specification.
          * @return A [BuildingStep] for further stub setup.
          */
@@ -750,8 +793,7 @@ public open class MokksyServer
          * @param timeoutMillis The maximum duration in milliseconds
          * to wait for the shutdown process to complete. Default is 1000 milliseconds.
          */
-        @JvmOverloads
-        public fun shutdown(
+        public suspend fun shutdownSuspend(
             gracePeriodMillis: Long = 500,
             timeoutMillis: Long = 1000,
         ) {
@@ -761,7 +803,7 @@ public open class MokksyServer
                 timeoutMillis >= gracePeriodMillis,
             ) { "timeoutMillis must be >= gracePeriodMillis" }
 
-            server.stop(
+            server.stopSuspend(
                 gracePeriodMillis = gracePeriodMillis,
                 timeoutMillis = timeoutMillis,
             )

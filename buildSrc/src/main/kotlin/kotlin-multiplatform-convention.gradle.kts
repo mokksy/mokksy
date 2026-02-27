@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsSubTargetDsl
 
 plugins {
     kotlin("multiplatform")
@@ -28,6 +29,7 @@ kotlin {
             listOf(
                 "-Wextra",
                 "-Xmulti-dollar-interpolation",
+                "-Xexpect-actual-classes",
             )
         optIn.add("kotlin.time.ExperimentalTime")
     }
@@ -53,6 +55,29 @@ kotlin {
             useJUnitPlatform()
         }
     }
+
+    fun KotlinJsSubTargetDsl.configureJsTesting() {
+        testTask {
+            useMocha {
+                timeout = "20s"
+            }
+        }
+    }
+
+    wasmJs {
+        nodejs()
+    }
+
+    js {
+        nodejs {
+            configureJsTesting()
+        }
+    }
+
+    macosArm64()
+    iosSimulatorArm64()
+    watchosSimulatorArm64()
+    tvosSimulatorArm64()
 }
 
 // Run tests in parallel to some degree.
