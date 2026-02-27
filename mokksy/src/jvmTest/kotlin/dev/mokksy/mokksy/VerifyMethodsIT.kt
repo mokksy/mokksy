@@ -19,7 +19,7 @@ internal class VerifyMethodsIT {
         client = createKtorClient(mokksy.port())
     }
 
-    `@AfterTest`
+    @AfterTest
     fun tearDown() {
         client.close()
         mokksy.shutdown()
