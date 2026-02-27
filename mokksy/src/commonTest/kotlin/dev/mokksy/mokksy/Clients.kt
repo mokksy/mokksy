@@ -13,8 +13,12 @@ import kotlinx.serialization.json.Json
  * @return A configured instance of `HttpClient` with JSON serialization, SSE support,
  *         and a default request base URL pointing to the specified port.
  */
-internal fun createKtorSSEClient(port: Int): HttpClient =
-    HttpClient {
+internal fun createKtorSSEClient(port: Int): HttpClient {
+    require(port > 0) {
+        "Port value should be positive."
+    }
+
+    return HttpClient {
         install(ContentNegotiation) {
             Json {
                 prettyPrint = true
@@ -30,10 +34,11 @@ internal fun createKtorSSEClient(port: Int): HttpClient =
             url("http://127.0.0.1:$port") // Set the base URL
         }
     }
+}
 
 /**
  * Creates and configures a Ktor HTTP client using the specified port to set the base URL.
- * The client leverages the `Java` engine and installs plugins such as `ContentNegotiation` for JSON handling
+ * The client installs plugins such as `ContentNegotiation` for JSON handling
  * and `DefaultRequest` for setting default request parameters.
  *
  * @param port The server port number used to set the base URL for the client.

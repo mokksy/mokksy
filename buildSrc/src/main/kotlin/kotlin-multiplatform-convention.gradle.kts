@@ -65,9 +65,7 @@ kotlin {
     }
 
     wasmJs {
-        nodejs {
-            configureJsTesting()
-        }
+        nodejs()
     }
 
     js {
@@ -77,15 +75,9 @@ kotlin {
     }
 
     macosArm64()
-//    iosArm64()
-//    iosSimulatorArm64()
-//    watchosSimulatorArm64()
-//    tvosSimulatorArm64()
-
-//    linuxX64()
-//    linuxArm64()
-
-//    mingwX64()
+    iosSimulatorArm64()
+    watchosSimulatorArm64()
+    tvosSimulatorArm64()
 }
 
 // Run tests in parallel to some degree.

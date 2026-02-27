@@ -16,10 +16,13 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import kotlin.random.Random
 import kotlin.test.AfterTest
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class JacksonSerializationIT {
     val mokksy =
         MokksyServer(
@@ -76,5 +79,11 @@ internal class JacksonSerializationIT {
     fun afterEach() {
         mokksy.verifyNoUnexpectedRequests()
         mokksy.verifyNoUnmatchedStubs()
+    }
+
+    @AfterAll
+    suspend fun afterAll() {
+        jacksonClient.close()
+        mokksy.shutdownSuspend()
     }
 }

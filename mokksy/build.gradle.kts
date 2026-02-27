@@ -18,6 +18,12 @@ dokka {
     dokkaSourceSets.configureEach {
         // includes.from("README.md")
     }
+
+    moduleName.set("Mokksy")
+
+    pluginsConfiguration.html {
+        footerMessage = "Copyright © 2025-2026 Konstantin Pavlov"
+    }
 }
 
 kotlin {
