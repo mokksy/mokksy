@@ -7,7 +7,7 @@ import kotlin.random.Random
 import kotlin.test.BeforeTest
 
 internal open class AbstractIT(
-    clientSupplier: (Int) -> HttpClient = {
+    private val clientSupplier: (Int) -> HttpClient = {
         createKtorClient(it)
     },
 ) {
@@ -16,7 +16,7 @@ internal open class AbstractIT(
             it.log.info("Running Mokksy server with ${it.engine} engine")
         }
 
-    protected val client: HttpClient = clientSupplier(mokksy.port())
+    protected lateinit var client: HttpClient
 
     protected val logger = KotlinLogging.logger(name = this::class.simpleName!!)
 
@@ -28,7 +28,9 @@ internal open class AbstractIT(
     protected var seed: Int = -1
 
     @BeforeTest
-    fun beforeEach() {
+    suspend fun beforeEach() {
+        mokksy.start()
+        client = clientSupplier(mokksy.port())
         seed = Random.nextInt(42, 100500)
     }
 }

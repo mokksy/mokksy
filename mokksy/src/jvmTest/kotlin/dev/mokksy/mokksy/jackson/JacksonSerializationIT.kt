@@ -1,8 +1,8 @@
 package dev.mokksy.mokksy.jackson
 
-import dev.mokksy.mokksy.AbstractIT
 import dev.mokksy.mokksy.MokksyServer
 import dev.mokksy.mokksy.ServerConfiguration
+import dev.mokksy.mokksy.start
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -17,35 +17,38 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 import kotlin.test.AfterTest
 
-private val mokksyWithJackson: MokksyServer =
-    MokksyServer(
-        configuration =
-            ServerConfiguration(
-                verbose = true,
-                contentNegotiationConfigurer = {
-                    it.jackson {
-                        findAndRegisterModules()
-                    }
-                },
-            ),
-    )
+internal class JacksonSerializationIT {
+    val mokksy =
+        MokksyServer(
+            configuration =
+                ServerConfiguration(
+                    verbose = true,
+                    contentNegotiationConfigurer = {
+                        it.jackson {
+                            findAndRegisterModules()
+                        }
+                    },
+                ),
+        ).apply { start() }
 
-internal class JacksonSerializationIT : AbstractIT() {
     private val jacksonClient =
         HttpClient(Java) {
             install(ContentNegotiation) {
                 jackson()
             }
             install(DefaultRequest) {
-                url("http://127.0.0.1:${mokksyWithJackson.port()}") // Set the base URL
+                url("http://127.0.0.1:${mokksy.port()}") // Set the base URL
             }
         }
 
+    val seed = Random.nextInt(42, 100500)
+
     @Test
     suspend fun `Should respond to POST with Jackson`() {
-        mokksyWithJackson
+        mokksy
             .post(
                 requestType = JacksonInput::class,
             ) {

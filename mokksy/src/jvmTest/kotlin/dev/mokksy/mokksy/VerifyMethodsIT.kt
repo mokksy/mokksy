@@ -14,15 +14,16 @@ internal class VerifyMethodsIT {
     private lateinit var client: HttpClient
 
     @BeforeTest
-    fun setUp() {
+    suspend fun setUp() {
         mokksy = Mokksy()
+        mokksy.startSuspend()
         client = createKtorClient(mokksy.port())
     }
 
     @AfterTest
-    fun tearDown() {
+    suspend fun tearDown() {
         client.close()
-        mokksy.shutdown()
+        mokksy.shutdownSuspend()
     }
 
     // region: verifyNoUnexpectedRequests

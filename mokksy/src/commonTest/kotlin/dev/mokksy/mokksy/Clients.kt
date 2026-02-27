@@ -39,8 +39,11 @@ internal fun createKtorSSEClient(port: Int): HttpClient =
  * @param port The server port number used to set the base URL for the client.
  * @return A configured instance of [HttpClient].
  */
-internal fun createKtorClient(port: Int): HttpClient =
-    HttpClient {
+internal fun createKtorClient(port: Int): HttpClient {
+    require(port > 0) {
+        "Port value should be positive."
+    }
+    return HttpClient {
         install(ContentNegotiation) {
             Json {
                 // Configure JSON serialization
@@ -53,3 +56,4 @@ internal fun createKtorClient(port: Int): HttpClient =
             url("http://127.0.0.1:$port") // Set the base URL
         }
     }
+}
