@@ -71,7 +71,6 @@ public typealias ApplicationConfigurer = (Application.() -> Unit)
  * @param host The host to bind to. Defaults to `127.0.0.1`.
  * @param port The port to bind to. Defaults to `0` (randomly assigned).
  * @param configuration [ServerConfiguration] options.
- * @param wait Unused. Pass `wait` to [startSuspend] instead.
  * @param configurer Additional Ktor [Application] configuration applied after the default routing setup.
  * @author Konstantin Pavlov
  */
@@ -83,7 +82,6 @@ public open class MokksyServer
         private val host: String = DEFAULT_HOST,
         port: Int = 0,
         configuration: ServerConfiguration,
-        wait: Boolean = false,
         configurer: ApplicationConfigurer = {},
     ) {
         /**
@@ -105,13 +103,12 @@ public open class MokksyServer
             port = port,
             host = host,
             configuration = ServerConfiguration(verbose = verbose),
-            wait = false,
             configurer = configurer,
         )
 
         private val resolvedPort: AtomicInt = AtomicInt(-1)
 
-        public lateinit var logger: Logger
+        private lateinit var logger: Logger
         protected val httpFormatter: HttpFormatter = HttpFormatter()
 
         private val stubRegistry = StubRegistry()

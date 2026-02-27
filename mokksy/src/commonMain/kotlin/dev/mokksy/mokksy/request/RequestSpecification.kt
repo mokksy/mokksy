@@ -13,6 +13,7 @@ import io.ktor.server.request.path
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveText
 import kotlinx.coroutines.CancellationException
+import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 /**
@@ -206,6 +207,7 @@ public open class RequestSpecificationBuilder<P : Any>(
      * @return The same instance of [RequestSpecificationBuilder] with the predicate applied
      *         for further customization.
      */
+    @JvmOverloads
     public fun bodyMatchesPredicate(
         description: String? = null,
         predicate: (P?) -> Boolean,

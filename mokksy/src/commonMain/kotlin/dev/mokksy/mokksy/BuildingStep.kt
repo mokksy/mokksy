@@ -93,10 +93,13 @@ public class BuildingStep<P : Any> internal constructor(
 
     /**
      * Associates the current [RequestSpecification] with a response definition.
-     * This method is part of a fluent API for defining mappings between requests and responses.
+     *
+     * This overload accepts an explicit [responseType] class token to help the compiler infer
+     * the type parameter `T` when it cannot be determined from the [block] alone (type-witness pattern).
+     * The [responseType] value itself is not used at runtime.
      *
      * @param T The type of the response body.
-     * @param responseType The class of the response type, used to infer type information.
+     * @param responseType A [KClass] token for `T`, used only for type inference at the call site.
      * @param block A suspend lambda applied to a [ResponseDefinitionBuilder],
      * used to configure the response definition.
      */
@@ -139,11 +142,13 @@ public class BuildingStep<P : Any> internal constructor(
 
     /**
      * Associates the current [RequestSpecification] with a streaming response definition.
-     * This method is part of a fluent API for defining mappings between requests and streaming responses.
      *
-     * @param T The type of the elements in the streaming response data.
-     * @param responseType The class of the response type, used to infer type information
-     * for the response data.
+     * This overload accepts an explicit [responseType] class token to help the compiler infer
+     * the type parameter `T` when it cannot be determined from the [block] alone (type-witness pattern).
+     * The [responseType] value itself is not used at runtime.
+     *
+     * @param T The type of elements in the streaming response.
+     * @param responseType A [KClass] token for `T`, used only for type inference at the call site.
      * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder],
      * used to configure the streaming response definition.
      */
@@ -170,6 +175,17 @@ public class BuildingStep<P : Any> internal constructor(
             block,
         )
 
+    /**
+     * Associates the current [RequestSpecification] with an SSE streaming response definition.
+     *
+     * This overload accepts an explicit [responseType] class token to help the compiler infer
+     * the type parameter `T` (type-witness pattern).
+     * The [responseType] value itself is not used at runtime.
+     *
+     * @param T The type of `data` field in the [ServerSentEventMetadata].
+     * @param responseType A [KClass] token for `T`, used only for type inference at the call site.
+     * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder].
+     */
     public fun <T : Any> respondsWithSseStream(
         @Suppress("unused") responseType: KClass<T>,
         block: suspend StreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<T>>.() -> Unit,

@@ -10,8 +10,10 @@ import kotlin.jvm.JvmOverloads
  *           Defaults to `false`.
  * @property verbose Enables per-stub `DEBUG`-level logging when `true`. Defaults to `false`.
  */
-public data class StubConfiguration @JvmOverloads constructor(
-    val name: String? = null,
-    val removeAfterMatch: Boolean = false,
-    val verbose: Boolean = false,
-)
+public data class StubConfiguration
+    @JvmOverloads
+    constructor(
+        val name: String? = null,
+        val removeAfterMatch: Boolean = false,
+        val verbose: Boolean = false,
+    )

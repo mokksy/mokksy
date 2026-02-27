@@ -54,10 +54,12 @@ final enum class dev.mokksy.mokksy/JournalMode : kotlin/Enum<dev.mokksy.mokksy/J
 }
 
 abstract class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder { // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder|null[0]
-    constructor <init>(kotlin/Int = ..., io.ktor.http/HttpStatusCode = ..., kotlin.collections/MutableList<kotlin/Pair<kotlin/String, kotlin/String>>, kotlin.time/Duration = ...) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.<init>|<init>(kotlin.Int;io.ktor.http.HttpStatusCode;kotlin.collections.MutableList<kotlin.Pair<kotlin.String,kotlin.String>>;kotlin.time.Duration){}[0]
+    constructor <init>(kotlin.collections/MutableList<kotlin/Pair<kotlin/String, kotlin/String>>, kotlin.time/Duration = ...) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.<init>|<init>(kotlin.collections.MutableList<kotlin.Pair<kotlin.String,kotlin.String>>;kotlin.time.Duration){}[0]
 
     final val headers // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.headers|{}headers[0]
         final fun <get-headers>(): kotlin.collections/MutableList<kotlin/Pair<kotlin/String, kotlin/String>> // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.headers.<get-headers>|<get-headers>(){}[0]
+    final val httpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode|{}httpStatusCode[0]
+        final fun <get-httpStatusCode>(): kotlin/Int // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode.<get-httpStatusCode>|<get-httpStatusCode>(){}[0]
 
     final var delay // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delay|{}delay[0]
         final fun <get-delay>(): kotlin.time/Duration // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delay.<get-delay>|<get-delay>(){}[0]
@@ -68,11 +70,7 @@ abstract class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.response/Abs
     final var httpStatus // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus|{}httpStatus[0]
         final fun <get-httpStatus>(): io.ktor.http/HttpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<get-httpStatus>|<get-httpStatus>(){}[0]
         final fun <set-httpStatus>(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<set-httpStatus>|<set-httpStatus>(io.ktor.http.HttpStatusCode){}[0]
-    final var httpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode|{}httpStatusCode[0]
-        final fun <get-httpStatusCode>(): kotlin/Int // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode.<get-httpStatusCode>|<get-httpStatusCode>(){}[0]
-        final fun <set-httpStatusCode>(kotlin/Int) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode.<set-httpStatusCode>|<set-httpStatusCode>(kotlin.Int){}[0]
 
-    abstract fun build(): dev.mokksy.mokksy.response/AbstractResponseDefinition<#B> // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.build|build(){}[0]
     final fun addHeader(kotlin/String, kotlin/String) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.addHeader|addHeader(kotlin.String;kotlin.String){}[0]
     final fun delayMillis(kotlin/Long) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delayMillis|delayMillis(kotlin.Long){}[0]
     final fun headers(kotlin/Function1<io.ktor.server.response/ResponseHeaders, kotlin/Unit>) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.headers|headers(kotlin.Function1<io.ktor.server.response.ResponseHeaders,kotlin.Unit>){}[0]
@@ -204,8 +202,6 @@ open class <#A: kotlin/Any, #B: kotlin/Any> dev.mokksy.mokksy.response/ResponseD
     final var contentType // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType|{}contentType[0]
         final fun <get-contentType>(): io.ktor.http/ContentType? // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<get-contentType>|<get-contentType>(){}[0]
         final fun <set-contentType>(io.ktor.http/ContentType?) // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<set-contentType>|<set-contentType>(io.ktor.http.ContentType?){}[0]
-
-    open fun build(): dev.mokksy.mokksy.response/ResponseDefinition<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.build|build(){}[0]
 }
 
 open class <#A: kotlin/Any, #B: kotlin/Any?> dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder : dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder<#A, #B> { // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder|null[0]
@@ -225,8 +221,6 @@ open class <#A: kotlin/Any, #B: kotlin/Any?> dev.mokksy.mokksy.response/Streamin
     final var flow // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow|{}flow[0]
         final fun <get-flow>(): kotlinx.coroutines.flow/Flow<#B>? // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow.<get-flow>|<get-flow>(){}[0]
         final fun <set-flow>(kotlinx.coroutines.flow/Flow<#B>?) // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow.<set-flow>|<set-flow>(kotlinx.coroutines.flow.Flow<1:1>?){}[0]
-
-    open fun build(): dev.mokksy.mokksy.response/StreamResponseDefinition<#A, #B> // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.build|build(){}[0]
 }
 
 open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecification { // dev.mokksy.mokksy.request/RequestSpecification|null[0]
@@ -347,16 +341,12 @@ open class dev.mokksy.mokksy.utils.logger/HttpFormatter { // dev.mokksy.mokksy.u
 
 open class dev.mokksy.mokksy/MokksyServer { // dev.mokksy.mokksy/MokksyServer|null[0]
     constructor <init>(kotlin/Int = ..., kotlin/String = ..., kotlin/Boolean = ..., kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...) // dev.mokksy.mokksy/MokksyServer.<init>|<init>(kotlin.Int;kotlin.String;kotlin.Boolean;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]
-    constructor <init>(kotlin/String = ..., kotlin/Int = ..., dev.mokksy.mokksy/ServerConfiguration, kotlin/Boolean = ..., kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...) // dev.mokksy.mokksy/MokksyServer.<init>|<init>(kotlin.String;kotlin.Int;dev.mokksy.mokksy.ServerConfiguration;kotlin.Boolean;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]
+    constructor <init>(kotlin/String = ..., kotlin/Int = ..., dev.mokksy.mokksy/ServerConfiguration, kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...) // dev.mokksy.mokksy/MokksyServer.<init>|<init>(kotlin.String;kotlin.Int;dev.mokksy.mokksy.ServerConfiguration;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]
 
     final val httpFormatter // dev.mokksy.mokksy/MokksyServer.httpFormatter|{}httpFormatter[0]
         final fun <get-httpFormatter>(): dev.mokksy.mokksy.utils.logger/HttpFormatter // dev.mokksy.mokksy/MokksyServer.httpFormatter.<get-httpFormatter>|<get-httpFormatter>(){}[0]
     final val server // dev.mokksy.mokksy/MokksyServer.server|{}server[0]
         final fun <get-server>(): io.ktor.server.engine/EmbeddedServer<out io.ktor.server.engine/ApplicationEngine, out io.ktor.server.engine/ApplicationEngine.Configuration> // dev.mokksy.mokksy/MokksyServer.server.<get-server>|<get-server>(){}[0]
-
-    final var logger // dev.mokksy.mokksy/MokksyServer.logger|{}logger[0]
-        final fun <get-logger>(): io.ktor.util.logging/Logger // dev.mokksy.mokksy/MokksyServer.logger.<get-logger>|<get-logger>(){}[0]
-        final fun <set-logger>(io.ktor.util.logging/Logger) // dev.mokksy.mokksy/MokksyServer.logger.<set-logger>|<set-logger>(io.ktor.util.logging.Logger){}[0]
 
     final fun <#A1: kotlin/Any> delete(dev.mokksy.mokksy/StubConfiguration, kotlin.reflect/KClass<#A1>, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A1>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A1> // dev.mokksy.mokksy/MokksyServer.delete|delete(dev.mokksy.mokksy.StubConfiguration;kotlin.reflect.KClass<0:0>;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun <#A1: kotlin/Any> delete(kotlin/String? = ..., kotlin.reflect/KClass<#A1>, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A1>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A1> // dev.mokksy.mokksy/MokksyServer.delete|delete(kotlin.String?;kotlin.reflect.KClass<0:0>;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
