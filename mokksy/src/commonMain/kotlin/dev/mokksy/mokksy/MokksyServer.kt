@@ -6,7 +6,6 @@ import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import dev.mokksy.mokksy.request.methodEqual
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
-import io.kotest.assertions.failure
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
@@ -635,6 +634,10 @@ public open class MokksyServer
          * @return A list of [RecordedRequest] snapshots.
          */
         @Suppress("DEPRECATION")
+        @Deprecated(
+            "Use findAllUnexpectedRequests() instead",
+            ReplaceWith("findAllUnexpectedRequests()"),
+        )
         public fun findAllUnmatchedRequests(): List<RecordedRequest> = findAllUnexpectedRequests()
 
         /**
@@ -642,10 +645,6 @@ public open class MokksyServer
          *
          * @return A list of [RecordedRequest] snapshots.
          */
-        @Deprecated(
-            "Use findAllUnexpectedRequests instead for clarity",
-            replaceWith = ReplaceWith("findAllUnexpectedRequests()"),
-        )
         public fun findAllUnexpectedRequests(): List<RecordedRequest> =
             requestJournal.getUnmatched()
 
@@ -666,12 +665,26 @@ public open class MokksyServer
         /**
          * Verifies that all registered stubs have been matched at least once.
          *
-         * Throws an error if any stub was registered but never triggered during execution.
+         * Example:
+         * ```kotlin
+         * // given
+         * mokksy.get {
+         *     path("/api/resource")
+         * } respondsWith(String::class) {
+         *     body = "ok"
+         * }
+         * // when
+         * client.get("/api/resource")
+         * // then
+         * mokksy.verifyNoUnmatchedStubs() // passes — stub was triggered
+         * ```
+         *
+         * @throws AssertionError If any stub was registered but never triggered during execution.
          */
-        public fun checkForUnmatchedStubs() {
+        public fun verifyNoUnmatchedStubs() {
             val unmatchedStubs = findAllUnmatchedStubs()
             if (unmatchedStubs.isNotEmpty()) {
-                failure(
+                throw AssertionError(
                     "The following stubs were not matched: ${
                         unmatchedStubs.joinToString { it.toLogString() }
                     }",
@@ -680,20 +693,53 @@ public open class MokksyServer
         }
 
         /**
-         * Verifies that all incoming HTTP requests were matched by a registered stub.
-         *
-         * Throws an error if any request arrived with no matching stub, listing all such requests.
+         * @suppress Use [verifyNoUnmatchedStubs] instead.
          */
-        public fun checkForUnmatchedRequests() {
-            val unmatched = findAllUnmatchedRequests()
+        @Deprecated(
+            "Use verifyNoUnmatchedStubs instead for clarity",
+            replaceWith = ReplaceWith("verifyNoUnmatchedStubs()"),
+        )
+        public fun checkForUnmatchedStubs(): Unit = verifyNoUnmatchedStubs()
+
+        /**
+         * Verifies that every request received by the server was matched by a stub.
+         *
+         * Typically called in a test tear-down to ensure that no unregistered request slipped through.
+         *
+         * Example:
+         * ```kotlin
+         * mokksy.get {
+         *     path("/api/resource")
+         * }.respondsWith(String::class) {
+         *     body = "ok"
+         * }
+         * // when
+         * client.get("/api/resource")
+         * // then
+         * mokksy.verifyNoUnexpectedRequests() // passes — all requests matched a stub
+         * ```
+         *
+         * @throws AssertionError If there are any requests that have not been matched by a stub.
+         */
+        public fun verifyNoUnexpectedRequests() {
+            val unmatched = findAllUnexpectedRequests()
             if (unmatched.isNotEmpty()) {
-                failure(
-                    "The following requests were not matched by any stub: ${
+                throw AssertionError(
+                    "The following requests were unexpected: ${
                         unmatched.joinToString()
                     }",
                 )
             }
         }
+
+        /**
+         * @suppress Use [verifyNoUnexpectedRequests] instead.
+         */
+        @Deprecated(
+            "Use verifyNoUnexpectedRequests() instead for clarity",
+            replaceWith = ReplaceWith("verifyNoUnexpectedRequests()"),
+        )
+        public fun checkForUnmatchedRequests(): Unit = verifyNoUnexpectedRequests()
 
         /**
          * Stops the embedded server and releases its resources

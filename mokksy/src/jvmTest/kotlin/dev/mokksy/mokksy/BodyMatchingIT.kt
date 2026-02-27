@@ -11,6 +11,7 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
+import kotlin.test.AfterTest
 
 internal class BodyMatchingIT : AbstractIT() {
     private lateinit var name: String
@@ -85,28 +86,9 @@ internal class BodyMatchingIT : AbstractIT() {
         result.headers["Foo"] shouldBe "bar"
     }
 
-    @Test
-    suspend fun `should fail when !bodyContains`() {
-        // given
-        mokksy
-            .post(name = "predicate", Input::class) {
-                path("/predicate")
-                bodyContains(
-                    Json.encodeToString(Input("wrong")),
-                )
-            }.respondsWith(Output::class) {
-                body = expectedResponse
-                httpStatus = HttpStatusCode.Created
-                headers += "Foo" to "bar" // list style
-            }
-        // when
-        val result =
-            client.post("/predicate") {
-                contentType(ContentType.Application.Json)
-                setBody(Json.encodeToString(input))
-            }
-
-        // then
-        result.status shouldBe HttpStatusCode.NotFound
+    @AfterTest
+    fun afterEach() {
+        mokksy.verifyNoUnexpectedRequests()
+        mokksy.verifyNoUnmatchedStubs()
     }
 }

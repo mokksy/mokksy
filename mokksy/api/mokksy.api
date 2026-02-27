@@ -76,6 +76,8 @@ public class dev/mokksy/mokksy/MokksyServer {
 	public final fun shutdown (J)V
 	public final fun shutdown (JJ)V
 	public static synthetic fun shutdown$default (Ldev/mokksy/mokksy/MokksyServer;JJILjava/lang/Object;)V
+	public final fun verifyNoUnexpectedRequests ()V
+	public final fun verifyNoUnmatchedStubs ()V
 }
 
 public final class dev/mokksy/mokksy/ServerConfiguration {
