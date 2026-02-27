@@ -30,7 +30,7 @@
 
 <!--- TOC -->
 
-  * [Why Mokksy?](#why-mokksy?)
+* [Why Mokksy?](#why-mokksy?)
 * [Key Features](#key-features)
 * [Quick start](#quick-start)
 * [Responding with predefined responses](#responding-with-predefined-responses)
@@ -47,7 +47,7 @@
 
 <!--- END -->
 
-### Why Mokksy?
+## Why Mokksy?
 
 Wiremock does not support true SSE and streaming responses.
 

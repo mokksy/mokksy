@@ -1,6 +1,7 @@
 package dev.mokksy.mokksy
 
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig
+import kotlin.jvm.JvmOverloads
 
 /**
  * Controls which requests are recorded in the [dev.mokksy.mokksy.request.RequestJournal].
@@ -30,11 +31,13 @@ public enum class JournalMode {
  * @property contentNegotiationConfigurer Configures the Ktor [ContentNegotiationConfig] installed on the server.
  *                                        Defaults to JSON with [Json.ignoreUnknownKeys] enabled.
  */
-public data class ServerConfiguration(
-    val verbose: Boolean = false,
-    val name: String? = "Mokksy",
-    val journalMode: JournalMode = JournalMode.LEAN,
-    val contentNegotiationConfigurer: (
-        ContentNegotiationConfig,
-    ) -> Unit = ::configureContentNegotiation,
-)
+public data class ServerConfiguration
+    @JvmOverloads
+    constructor(
+        val verbose: Boolean = false,
+        val name: String? = "Mokksy",
+        val journalMode: JournalMode = JournalMode.LEAN,
+        val contentNegotiationConfigurer: (
+            ContentNegotiationConfig,
+        ) -> Unit = ::configureContentNegotiation,
+    )

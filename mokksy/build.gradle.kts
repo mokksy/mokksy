@@ -74,6 +74,7 @@ kotlin {
 
         jvmTest {
             dependencies {
+                implementation(libs.assertj.core)
                 implementation(libs.datafaker)
                 implementation(libs.junit.jupiter.params)
                 implementation(libs.ktor.client.java)
@@ -133,6 +134,7 @@ knit {
 tasks.named("jvmTestClasses").configure {
     dependsOn(tasks.named("knit"))
 }
+
 
 // Decouple knit tasks from the standard build lifecycle.
 // Run on demand: ./gradlew :docs:knit  or  ./gradlew :docs:knitCheck

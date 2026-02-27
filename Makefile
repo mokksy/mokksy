@@ -6,6 +6,7 @@ build:
 clean:
 	@echo "🧽 Cleaning..."
 	@./gradlew clean
+	@rm -rf kotlin-js-store
 
 .PHONY: test
 test:
