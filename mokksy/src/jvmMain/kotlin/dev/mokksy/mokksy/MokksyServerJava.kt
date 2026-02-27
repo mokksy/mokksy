@@ -11,6 +11,7 @@ import io.ktor.http.HttpMethod.Companion.Options
 import io.ktor.http.HttpMethod.Companion.Patch
 import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
+import kotlinx.coroutines.runBlocking
 import java.util.function.Consumer
 import kotlin.reflect.KClass
 
@@ -18,7 +19,7 @@ import kotlin.reflect.KClass
  * Java-friendly wrapper around [MokksyServer] that provides a fully instance-method-based API.
  *
  * Eliminates Kotlin-specific boilerplate from Java test code:
- * - `start()` and `shutdown()` are instance methods (no static [MokksyJava] import needed)
+ * - `start()` and `shutdown()` are instance methods
  * - HTTP stub methods (`get`, `post`, etc.) accept `Consumer<RequestSpecificationBuilder<P>>`
  *   instead of Kotlin lambdas with receivers (no `return Unit.INSTANCE`)
  * - Returns [JavaBuildingStep], which exposes `respondsWith` and `respondsWithStream`
@@ -53,40 +54,111 @@ public class MokksyServerJava(
     /**
      * Creates a [MokksyServerJava] backed by a new [MokksyServer].
      *
-     * @param port Port to bind to. Defaults to `0` (randomly assigned by the OS).
-     * @param host Host to bind to. Defaults to `127.0.0.1`.
-     * @param verbose Enables `DEBUG`-level request logging. Defaults to `false`.
+     * The server is **not** started automatically; call [start] before registering stubs or
+     * making requests.
+     *
+     * Example:
+     * ```java
+     * // Random port (default) — suitable for parallel test runs:
+     * MokksyServerJava mokksy = new MokksyServerJava();
+     *
+     * // Fixed port with verbose logging:
+     * MokksyServerJava mokksy = new MokksyServerJava(8080, "127.0.0.1", true);
+     * ```
+     *
+     * @param port Port to bind to. Defaults to `0` (OS-assigned ephemeral port). Use a fixed
+     *   value only when the port must be predictable; prefer `0` to avoid conflicts in
+     *   parallel test runs.
+     * @param host Network interface to bind to. Defaults to `"127.0.0.1"` (loopback only).
+     * @param verbose When `true`, enables `DEBUG`-level request/response logging via the
+     *   configured [MokksyServer] logger. Defaults to `false`.
      */
     @JvmOverloads
     public constructor(
         port: Int = 0,
-        host: String = "127.0.0.1",
+        host: String = DEFAULT_HOST,
         verbose: Boolean = false,
     ) : this(MokksyServer(port = port, host = host, verbose = verbose))
 
     // region Lifecycle
 
     /**
-     * Starts the server and blocks until the port is bound and ready to accept requests.
+     * Starts the server and blocks the calling thread until the port is bound and the server
+     * is ready to accept requests.
+     *
+     * Call this method once before registering stubs or issuing test requests, typically in
+     * a `@BeforeAll` (JUnit 5) or `@Before` (JUnit 4) setup method.
+     *
+     * Example:
+     * ```java
+     * @BeforeAll
+     * void setUp() {
+     *     mokksy.start();
+     * }
+     * ```
      */
-    public fun start(): Unit = delegate.start()
+    public fun start(): Unit =
+        runBlocking {
+            delegate.startSuspend()
+            delegate.awaitStarted()
+        }
 
     /**
-     * Stops the server, blocking until shutdown is complete.
+     * Stops the server and blocks the calling thread until shutdown is complete.
      *
-     * @param gracePeriodMillis Duration in milliseconds for graceful shutdown. Defaults to 500.
-     * @param timeoutMillis Maximum duration in milliseconds to wait for shutdown. Defaults to 1000.
+     * Active connections are given [gracePeriodMillis] milliseconds to finish before the server
+     * stops accepting new work. If connections do not close within [timeoutMillis] milliseconds,
+     * shutdown is forced.
+     *
+     * Call this method in a `@AfterAll` (JUnit 5) or `@After` (JUnit 4) teardown method.
+     *
+     * Example:
+     * ```java
+     * @AfterAll
+     * void tearDown() {
+     *     mokksy.shutdown();          // gracePeriodMillis=500, timeoutMillis=1000
+     *     mokksy.shutdown(200, 400);  // custom timings
+     * }
+     * ```
+     *
+     * @param gracePeriodMillis Milliseconds to wait for active connections to finish before
+     *   the server stops accepting new work. Defaults to `500`.
+     * @param timeoutMillis Maximum milliseconds to wait for all connections to close before
+     *   forcing shutdown. Must be ≥ [gracePeriodMillis]. Defaults to `1000`.
      */
     @JvmOverloads
     public fun shutdown(
         gracePeriodMillis: Long = 500,
         timeoutMillis: Long = 1000,
-    ): Unit = delegate.shutdown(gracePeriodMillis, timeoutMillis)
+    ): Unit =
+        runBlocking {
+            delegate.shutdownSuspend(gracePeriodMillis, timeoutMillis)
+        }
 
-    /** Returns the base URL of the server (e.g. `http://127.0.0.1:8080`). */
+    /**
+     * Returns the base URL of the server in the form `http://<host>:<port>`.
+     *
+     * Use this URL as the root for all HTTP requests in tests:
+     * ```java
+     * HttpRequest request = HttpRequest.newBuilder()
+     *     .uri(URI.create(mokksy.baseUrl() + "/ping"))
+     *     .GET()
+     *     .build();
+     * ```
+     *
+     * @return The base URL string, e.g. `"http://127.0.0.1:8080"`.
+     * @throws IllegalStateException if [start] has not been called yet.
+     */
     public fun baseUrl(): String = delegate.baseUrl()
 
-    /** Returns the port the server is bound to after [start]. */
+    /**
+     * Returns the port the server is bound to.
+     *
+     * The value is available only after [start] has returned. When the server was created
+     * with `port = 0` (the default), this returns the ephemeral port assigned by the OS.
+     *
+     * @return The bound port number, e.g. `8080`.
+     */
     public fun port(): Int = delegate.port()
 
     // endregion

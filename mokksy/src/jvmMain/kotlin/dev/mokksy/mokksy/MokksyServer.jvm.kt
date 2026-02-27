@@ -17,10 +17,11 @@ import java.util.function.Consumer
  * Intended for Java callers and blocking JVM test setups. Kotlin callers should prefer
  * [startSuspend] combined with [awaitStarted].
  */
-public fun Mokksy.start(): Unit = runBlocking {
-    this@start.startSuspend()
-    this@start.awaitStarted()
-}
+public fun Mokksy.start(): Unit =
+    runBlocking {
+        this@start.startSuspend()
+        this@start.awaitStarted()
+    }
 
 /**
  * Starts the Mokksy server on the given dispatcher, blocking until the port is bound.
@@ -32,10 +33,11 @@ public fun Mokksy.start(): Unit = runBlocking {
  * @param dispatcher The [CoroutineDispatcher] for the [runBlocking] coroutine context.
  */
 @JvmSynthetic
-public fun Mokksy.start(dispatcher: CoroutineDispatcher): Unit = runBlocking(dispatcher) {
-    this@start.startSuspend()
-    this@start.awaitStarted()
-}
+public fun Mokksy.start(dispatcher: CoroutineDispatcher): Unit =
+    runBlocking(dispatcher) {
+        this@start.startSuspend()
+        this@start.awaitStarted()
+    }
 
 /**
  * Stops the Mokksy server, blocking until shutdown is complete.
@@ -47,9 +49,10 @@ public fun Mokksy.start(dispatcher: CoroutineDispatcher): Unit = runBlocking(dis
 public fun Mokksy.shutdown(
     gracePeriodMillis: Long = 500,
     timeoutMillis: Long = 1000,
-): Unit = runBlocking {
-    this@shutdown.shutdownSuspend(gracePeriodMillis, timeoutMillis)
-}
+): Unit =
+    runBlocking {
+        this@shutdown.shutdownSuspend(gracePeriodMillis, timeoutMillis)
+    }
 
 /**
  * Stops the Mokksy server on the given dispatcher, blocking until shutdown is complete.
@@ -66,9 +69,10 @@ public fun Mokksy.shutdown(
     gracePeriodMillis: Long = 500,
     timeoutMillis: Long = 1000,
     dispatcher: CoroutineDispatcher,
-): Unit = runBlocking(dispatcher) {
-    this@shutdown.shutdownSuspend(gracePeriodMillis, timeoutMillis)
-}
+): Unit =
+    runBlocking(dispatcher) {
+        this@shutdown.shutdownSuspend(gracePeriodMillis, timeoutMillis)
+    }
 
 // endregion
 
@@ -77,15 +81,16 @@ public fun Mokksy.shutdown(
 /**
  * Java-friendly overload for [BuildingStep.respondsWith].
  *
- * Accepts a [Class] and a [Consumer] in place of a Kotlin suspend lambda, removing
- * `Continuation`, `Unit.INSTANCE`, and [kotlin.jvm.JvmClassMappingKt.getKotlinClass]
- * from Java call sites.
+ * Accepts a [Class] and a [Consumer] in place of a Kotlin suspend lambda.
  *
- * Example (Java):
+ * **Prefer [MokksyServerJava]**, which returns [JavaBuildingStep] and allows fluent chaining:
  * ```java
- * BuildingStep<String> step = mokksy.get(spec -> { spec.path("/ping"); return Unit.INSTANCE; });
- * MokksyJava.respondsWith(step, String.class, builder -> builder.setBody("Pong"));
+ * mokksy.get(spec -> spec.path("/ping"))
+ *       .respondsWith(builder -> builder.setBody("Pong"));
  * ```
+ *
+ * Use this extension only when working directly with a [BuildingStep] obtained from
+ * the Kotlin [MokksyServer] API.
  *
  * @param T The type of the response body.
  * @param responseType The Java [Class] of the response type.
