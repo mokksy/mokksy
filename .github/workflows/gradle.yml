@@ -16,6 +16,7 @@ on:
     branches: [ "main" ]
     paths-ignore:
       - AGENTS.md
+  workflow_dispatch:
 
 env:
   JVM_VERSION: 25

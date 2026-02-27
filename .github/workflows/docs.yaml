@@ -1,0 +1,56 @@
+name: Docs to GitHub Pages
+
+on:
+  release:
+    types:
+      - created
+  push:
+    branches: [ "main" ]
+  # Allow running this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  JVM_VERSION: 25
+  JVM_DISTRIBUTION: temurin
+
+jobs:
+  deploy:
+
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Set up JDK ${{ env.JVM_VERSION }}
+        uses: actions/setup-java@v5
+        with:
+          java-version: ${{ env.JVM_VERSION }}
+          distribution: ${{ env.JVM_DISTRIBUTION }}
+          cache: gradle
+
+      - name: 🐘Setup Gradle
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+
+      - name: Generate Dokka Site
+        run: |-
+          ./gradlew clean
+          make knit
+          ./gradlew dokkaGenerate
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: build/dokka/html
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
