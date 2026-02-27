@@ -85,8 +85,11 @@ public final class dev/mokksy/mokksy/MokksyServer_jvmKt {
 	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;)V
 	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;J)V
 	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;JJ)V
-	public static synthetic fun shutdown$default (Ldev/mokksy/mokksy/MokksyServer;JJILjava/lang/Object;)V
+	public static final fun shutdown (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;)V
+	public static synthetic fun shutdown$default (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
 	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;)V
+	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;)V
+	public static synthetic fun start$default (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
 }
 
 public final class dev/mokksy/mokksy/ServerConfiguration {
