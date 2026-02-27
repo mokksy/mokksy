@@ -13,6 +13,7 @@ import io.ktor.sse.TypedServerSentEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import org.junit.jupiter.api.Test
+import kotlin.test.AfterTest
 import kotlin.text.Charsets.UTF_8
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -63,6 +64,13 @@ internal class MokksySseIT : AbstractIT({ createKtorSSEClient(it) }) {
         result.status shouldBe HttpStatusCode.OK
         result.contentType() shouldBe ContentType.Text.EventStream.withCharset(UTF_8)
         result.bodyAsText() shouldBe "data: One\r\ndata: Two\r\n"
+    }
+
+    @AfterTest
+    @Suppress("DEPRECATION")
+    fun afterEach() {
+        mokksy.checkForUnmatchedRequests()
+        mokksy.checkForUnmatchedStubs()
     }
 }
 

@@ -11,6 +11,7 @@ import io.ktor.http.withCharset
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import org.junit.jupiter.api.Test
+import kotlin.test.AfterTest
 import kotlin.text.Charsets.UTF_8
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -54,5 +55,12 @@ internal class MokksyStreamingIT : AbstractIT({ createKtorSSEClient(it) }) {
 
         // when-then
         verifyStream("/streaming-chunks-$seed")
+    }
+
+    @AfterTest
+    @Suppress("DEPRECATION")
+    fun afterEach() {
+        mokksy.checkForUnmatchedRequests()
+        mokksy.checkForUnmatchedStubs()
     }
 }

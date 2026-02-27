@@ -14,6 +14,7 @@ import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
 @Suppress("UastIncorrectHttpHeaderInspection")
@@ -113,5 +114,12 @@ internal class ShortcutMethodsIT : AbstractIT() {
         } else {
             result.bodyAsText() shouldBe ""
         }
+    }
+
+    @AfterTest
+    @Suppress("DEPRECATION")
+    fun afterEach() {
+        mokksy.checkForUnmatchedRequests()
+        mokksy.checkForUnmatchedStubs()
     }
 }

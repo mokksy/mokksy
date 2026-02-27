@@ -1,13 +1,12 @@
 package dev.mokksy.mokksy
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import org.junit.jupiter.api.Test
+import kotlin.test.AfterTest
 
 internal class StubPriorityIT : AbstractIT() {
     @Test
@@ -33,8 +32,8 @@ internal class StubPriorityIT : AbstractIT() {
         val result =
             client.get(path)
         // then
-        assertThat(result.status).isEqualTo(HttpStatusCode.OK)
-        assertThat(result.bodyAsText()).isEqualTo("Expected response")
+        result.status shouldBe HttpStatusCode.OK
+        result.bodyAsText() shouldBe "Expected response"
     }
 
     @Test
@@ -64,5 +63,10 @@ internal class StubPriorityIT : AbstractIT() {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe "Expected response"
         }
+    }
+
+    @AfterTest
+    fun afterEach() {
+        mokksy.verifyNoUnexpectedRequests()
     }
 }

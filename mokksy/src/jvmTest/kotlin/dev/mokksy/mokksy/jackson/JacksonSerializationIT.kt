@@ -17,6 +17,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.jackson.jackson
 import org.junit.jupiter.api.Test
+import kotlin.test.AfterTest
 
 private val mokksyWithJackson: MokksyServer =
     MokksyServer(
@@ -66,5 +67,12 @@ internal class JacksonSerializationIT : AbstractIT() {
             """
             {"pikka-hi":"Hello, Bob"}
             """.trimIndent()
+    }
+
+    @AfterTest
+    @Suppress("DEPRECATION")
+    fun afterEach() {
+        mokksy.checkForUnmatchedRequests()
+        mokksy.checkForUnmatchedStubs()
     }
 }

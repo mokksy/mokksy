@@ -38,7 +38,7 @@ internal class TypesafeMethodsIT : AbstractIT() {
         requestPayload = TestPerson.random()
     }
 
-    @ParameterizedTest()
+    @ParameterizedTest
     @ValueSource(
         strings = [
             "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS",

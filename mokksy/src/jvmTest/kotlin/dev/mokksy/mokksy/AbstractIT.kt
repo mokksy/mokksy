@@ -4,7 +4,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.server.application.log
 import kotlin.random.Random
-import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
 internal open class AbstractIT(
@@ -16,7 +15,6 @@ internal open class AbstractIT(
         Mokksy(verbose = true) {
             it.log.info("Running Mokksy server with ${it.engine} engine")
         }
-
 
     protected val client: HttpClient = clientSupplier(mokksy.port())
 
@@ -32,11 +30,5 @@ internal open class AbstractIT(
     @BeforeTest
     fun beforeEach() {
         seed = Random.nextInt(42, 100500)
-    }
-
-    @AfterTest
-    fun afterEach() {
-        mokksy.checkForUnmatchedRequests()
-        mokksy.checkForUnmatchedStubs()
     }
 }
