@@ -1,5 +1,7 @@
 package dev.mokksy.mokksy
 
+import kotlin.jvm.JvmOverloads
+
 /**
  * Configuration for a stub's lifecycle and logging behaviour.
  *
@@ -8,7 +10,7 @@ package dev.mokksy.mokksy
  *           Defaults to `false`.
  * @property verbose Enables per-stub `DEBUG`-level logging when `true`. Defaults to `false`.
  */
-public data class StubConfiguration(
+public data class StubConfiguration @JvmOverloads constructor(
     val name: String? = null,
     val removeAfterMatch: Boolean = false,
     val verbose: Boolean = false,

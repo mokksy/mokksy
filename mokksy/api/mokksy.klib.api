@@ -73,6 +73,7 @@ abstract class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.response/Abs
         final fun <set-httpStatusCode>(kotlin/Int) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode.<set-httpStatusCode>|<set-httpStatusCode>(kotlin.Int){}[0]
 
     abstract fun build(): dev.mokksy.mokksy.response/AbstractResponseDefinition<#B> // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.build|build(){}[0]
+    final fun addHeader(kotlin/String, kotlin/String) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.addHeader|addHeader(kotlin.String;kotlin.String){}[0]
     final fun delayMillis(kotlin/Long) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delayMillis|delayMillis(kotlin.Long){}[0]
     final fun headers(kotlin/Function1<io.ktor.server.response/ResponseHeaders, kotlin/Unit>) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.headers|headers(kotlin.Function1<io.ktor.server.response.ResponseHeaders,kotlin.Unit>){}[0]
     final fun httpStatus(kotlin/Int) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus|httpStatus(kotlin.Int){}[0]

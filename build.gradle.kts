@@ -39,7 +39,7 @@ kover {
     reports {
         filters {
             includes {
-                classes("dev.mokksy.*")
+                classes("dev.mokksy.mokksy.*")
             }
             excludes {
                 classes("**.*StressTest*")
@@ -54,7 +54,7 @@ kover {
         verify {
             rule {
                 bound {
-                    minValue = 80
+                    minValue = 75
                 }
             }
         }

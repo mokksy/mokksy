@@ -151,6 +151,8 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
+kotlin-js-store/
+
 ## Junie
 /test_*.*
 /debug_*.*

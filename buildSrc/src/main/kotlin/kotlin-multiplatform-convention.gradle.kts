@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
-import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsSubTargetDsl
 
 plugins {
     kotlin("multiplatform")
@@ -56,21 +55,17 @@ kotlin {
         }
     }
 
-    fun KotlinJsSubTargetDsl.configureJsTesting() {
-        testTask {
-            useMocha {
-                timeout = "20s"
-            }
-        }
-    }
-
     wasmJs {
         nodejs()
     }
 
     js {
         nodejs {
-            configureJsTesting()
+            testTask {
+                useMocha {
+                    timeout = "15s"
+                }
+            }
         }
     }
 

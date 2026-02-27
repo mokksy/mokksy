@@ -51,6 +51,30 @@ Read the project overview from README.md
 - Prioritize test readability
 - When asked to write tests in Java: use JUnit5, Mockito, AssertJ core
 
+#### Mocking generic functions with MockK
+
+When verifying calls to **generic functions** (e.g. `method<P>(config, httpMethod, klass, block)`) inside
+`every { }` or `verify { }` blocks, Kotlin K2's type inference often fails with
+_"Cannot infer type for type parameter 'T'. Specify it explicitly."_
+
+The reliable fix is to declare private `MockKMatcherScope` extension helpers that encode the concrete type
+in their return type, then call those helpers instead of a bare `any()`:
+
+```kotlin
+// Each helper resolves any() to an exact parameter type of method<String>()
+private fun MockKMatcherScope.anyConfig(): StubConfiguration = any()
+private fun MockKMatcherScope.anyMethod(): HttpMethod = any()
+private fun MockKMatcherScope.anyKClass(): KClass<String> = any()
+private fun MockKMatcherScope.anySpecBlock(): RequestSpecificationBuilder<String>.() -> Unit = any()
+
+// Usage — note explicit <String> on the generic method call:
+verify { delegate.method<String>(anyConfig(), HttpMethod.Put, anyKClass(), anySpecBlock()) }
+```
+
+- Always specify the generic type parameter explicitly on the mocked call (`method<String>(...)`).
+- Declare one helper per parameter whose type the compiler cannot infer from context.
+- Do **not** use `any<T>()` with explicit type arguments inline — the IDE formatter strips them, re-introducing the compile error.
+
 #### Testing Ktor request/response handling
 
 - **Never mock Ktor internal classes** (`ApplicationRequest`, `ApplicationCall`, `Headers`, etc.) with mockk.

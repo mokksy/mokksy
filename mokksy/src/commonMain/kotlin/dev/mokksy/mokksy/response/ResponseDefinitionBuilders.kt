@@ -33,6 +33,16 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
     protected var headersLambda: (ResponseHeaders.() -> Unit)? = null
 
     /**
+     * Adds a single response header.
+     *
+     * @param name The header name.
+     * @param value The header value.
+     */
+    public fun addHeader(name: String, value: String) {
+        headers.add(name to value)
+    }
+
+    /**
      * Configures additional headers for the response using the specified lambda block.
      *
      * @param block A lambda function applied to the ResponseHeaders object to configure headers.
