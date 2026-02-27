@@ -23,9 +23,21 @@ kotlin {
         }
     }
 
+    js {
+        nodejs {
+            testTask {
+                useMocha {
+                    timeout = "15s"
+                }
+            }
+        }
+    }
+
     wasmJs {
         nodejs()
     }
+
+    macosArm64()
 
     sourceSets {
         commonTest {
@@ -42,12 +54,25 @@ kotlin {
             dependencies {
                 implementation(libs.assertj.core)
                 runtimeOnly(libs.slf4j.simple)
+                runtimeOnly(libs.ktor.client.apache5)
             }
         }
 
         wasmJsTest {
             dependencies {
                 implementation(libs.ktor.client.js)
+            }
+        }
+
+        jsTest {
+            dependencies {
+                implementation(libs.ktor.client.js)
+            }
+        }
+
+        nativeTest {
+            dependencies {
+                implementation(libs.ktor.client.darwin)
             }
         }
     }
