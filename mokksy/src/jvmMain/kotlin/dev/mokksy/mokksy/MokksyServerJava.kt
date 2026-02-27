@@ -254,11 +254,24 @@ public class MokksyServerJava(
         spec: Consumer<RequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(StubConfiguration(), Head, spec)
 
+    /** Registers a HEAD stub with a typed request body. */
+    public fun <P : Any> head(
+        requestType: Class<P>,
+        spec: Consumer<RequestSpecificationBuilder<P>>,
+    ): JavaBuildingStep<P> = method(StubConfiguration(), Head, requestType.kotlin, spec)
+
     /** Registers a HEAD stub with [StubConfiguration]. */
     public fun head(
         configuration: StubConfiguration,
         spec: Consumer<RequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Head, spec)
+
+    /** Registers a HEAD stub with a typed request body and [StubConfiguration]. */
+    public fun <P : Any> head(
+        configuration: StubConfiguration,
+        requestType: Class<P>,
+        spec: Consumer<RequestSpecificationBuilder<P>>,
+    ): JavaBuildingStep<P> = method(configuration, Head, requestType.kotlin, spec)
 
     // endregion
 
@@ -269,11 +282,24 @@ public class MokksyServerJava(
         spec: Consumer<RequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(StubConfiguration(), Options, spec)
 
+    /** Registers an OPTIONS stub with a typed request body. */
+    public fun <P : Any> options(
+        requestType: Class<P>,
+        spec: Consumer<RequestSpecificationBuilder<P>>,
+    ): JavaBuildingStep<P> = method(StubConfiguration(), Options, requestType.kotlin, spec)
+
     /** Registers an OPTIONS stub with [StubConfiguration]. */
     public fun options(
         configuration: StubConfiguration,
         spec: Consumer<RequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Options, spec)
+
+    /** Registers an OPTIONS stub with a typed request body and [StubConfiguration]. */
+    public fun <P : Any> options(
+        configuration: StubConfiguration,
+        requestType: Class<P>,
+        spec: Consumer<RequestSpecificationBuilder<P>>,
+    ): JavaBuildingStep<P> = method(configuration, Options, requestType.kotlin, spec)
 
     // endregion
 
