@@ -125,7 +125,10 @@ knit {
     rootDir = project.rootDir
     files =
         fileTree(project.rootDir) {
-            include("README.md")
+            include(
+                "README.md",
+                "docs/**/*.md",
+            )
             exclude("**/build/**")
         }
     siteRoot = "https://mokksy.dev/"
@@ -134,7 +137,6 @@ knit {
 tasks.named("jvmTestClasses").configure {
     dependsOn(tasks.named("knit"))
 }
-
 
 // Decouple knit tasks from the standard build lifecycle.
 // Run on demand: ./gradlew :docs:knit  or  ./gradlew :docs:knitCheck

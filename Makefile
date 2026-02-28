@@ -19,8 +19,8 @@ apidocs:
 .PHONY: knit
 knit:
 	@echo "🪡🧶 Running Knit..."
-	@rm -rf mokksy/build/generated/knit
-	@./gradlew knit jvmTest
+	@./gradlew :mokksy:clean
+	@./gradlew knit :mokksy:jvmTest --rerun-tasks
 	@echo "✅ Knit completed!"
 
 .PHONY: lint
