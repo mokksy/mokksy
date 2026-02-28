@@ -89,7 +89,6 @@ Particularly, it might be useful for integration testing LLM clients.
 <!--- CLEAR -->
 <!--- INCLUDE 
 import dev.mokksy.mokksy.Mokksy
-import dev.mokksy.mokksy.start
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -98,17 +97,18 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import org.junit.jupiter.api.Test
-import kotlin.random.Random
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.withCharsetIfNeeded
 import io.ktor.sse.ServerSentEvent
+import kotlin.random.Random
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
-import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
 
 class ReadmeTest {
 -->
@@ -118,7 +118,9 @@ class ReadmeTest {
    **JVM (blocking):**
    ```kotlin
    val mokksy = Mokksy().apply {
-       start()
+       runBlocking { 
+           startSuspend() 
+       }
    }
    ```
 3. Configure http client using Mokksy server's as baseUrl in your application:
