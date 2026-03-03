@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy
 
+import dev.mokksy.mokksy.request.DEFAULT_STUB_PRIORITY
 import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.response.AbstractResponseDefinition
 import dev.mokksy.mokksy.response.ResponseDefinitionSupplier
@@ -25,7 +26,7 @@ internal inline fun <reified T : Any> okResponseSupplier(): ResponseDefinitionSu
 @Suppress("LongParameterList")
 internal inline fun <P : Any, reified T : Any> createStub(
     name: String? = null,
-    priority: Int? = null,
+    priority: Int = DEFAULT_STUB_PRIORITY,
     removeAfterMatch: Boolean = false,
     requestType: KClass<P>,
     path: String? = null,
