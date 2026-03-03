@@ -84,24 +84,24 @@ public open class MokksyServer
         configuration: ServerConfiguration,
         configurer: ApplicationConfigurer = {},
     ) {
-        /**
-         * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
-         * Call [start] or [startSuspend] to begin processing requests.
-         *
-         * @param port The port to bind to. Defaults to `0` (randomly assigned).
-         * @param host The host to bind to. Defaults to `127.0.0.1`.
-         * @param verbose Enables `DEBUG`-level request logging when `true`. Defaults to `false`.
-         * @param configurer Additional Ktor [Application] configuration applied after the default routing setup.
-         */
         @JvmOverloads
         public constructor(
-            port: Int = 0,
+            /**
+             * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
+             * Call [start] or [startSuspend] to begin processing requests.
+             *
+             * @param host The host to bind to. Defaults to `127.0.0.1`.
+             * @param port The port to bind to. Defaults to `0` (randomly assigned).
+             * @param verbose Enables `DEBUG`-level request logging when `true`. Defaults to `false`.
+             * @param configurer Additional Ktor [Application] configuration applied after the default routing setup.
+             */
             host: String = DEFAULT_HOST,
+            port: Int = 0,
             verbose: Boolean = false,
-            configurer: (Application) -> Unit = {},
+            configurer: ApplicationConfigurer = {},
         ) : this(
-            port = port,
             host = host,
+            port = port,
             configuration = ServerConfiguration(verbose = verbose),
             configurer = configurer,
         )
