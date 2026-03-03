@@ -79,7 +79,7 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
      *
      * @return An instance of [AbstractResponseDefinition].
      */
-    internal abstract fun build(): AbstractResponseDefinition<T>
+    protected abstract fun build(): AbstractResponseDefinition<T>
 }
 
 /**
@@ -111,7 +111,16 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
         this.httpStatus = httpStatus
     }
 
-    override fun build(): ResponseDefinition<P, T> =
+    /**
+     * Constructs a new instance of [ResponseDefinition] with the configured attributes of the builder.
+     *
+     * This method uses the current state of the builder to create a concrete definition
+     * of an HTTP response, including the body, content type, status code, headers, delay,
+     * and formatter for enhanced response handling.
+     *
+     * @return A new instance of [ResponseDefinition] containing the response attributes defined in the builder.
+     */
+    public override fun build(): ResponseDefinition<P, T> =
         ResponseDefinition(
             body = body,
             contentType = contentType ?: ContentType.Application.Json,
@@ -164,7 +173,7 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
      * @param T The type of data being streamed.
      * @return A fully constructed [StreamResponseDefinition] instance containing the configured response details.
      */
-    override fun build(): StreamResponseDefinition<P, T> =
+    public override fun build(): StreamResponseDefinition<P, T> =
         StreamResponseDefinition(
             chunkFlow = flow,
             chunks = chunks.toList(),
