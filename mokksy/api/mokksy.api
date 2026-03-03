@@ -276,11 +276,10 @@ public final class dev/mokksy/mokksy/request/RequestSpecificationKt {
 }
 
 public abstract class dev/mokksy/mokksy/response/AbstractResponseDefinition {
-	public synthetic fun <init> (Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;Ljava/util/List;JLjava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;Ljava/util/List;JLjava/lang/Object;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLjava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLjava/lang/Object;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getContentType ()Lio/ktor/http/ContentType;
 	public fun getDelay-UwyO8pc ()J
-	public final fun getHeaderList ()Ljava/util/List;
 	public final fun getHeaders ()Lkotlin/jvm/functions/Function1;
 	public final fun getHttpStatus ()Lio/ktor/http/HttpStatusCode;
 	public final fun getHttpStatusCode ()I
@@ -290,32 +289,35 @@ public abstract class dev/mokksy/mokksy/response/AbstractResponseDefinition {
 }
 
 public abstract class dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder {
-	public synthetic fun <init> (Ljava/util/List;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/util/List;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun addHeader (Ljava/lang/String;Ljava/lang/String;)V
 	protected abstract fun build ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
+	protected final fun buildCombinedHeaders ()Lkotlin/jvm/functions/Function1;
 	public final fun delayMillis (J)V
 	public final fun getDelay-UwyO8pc ()J
-	public final fun getHeaders ()Ljava/util/List;
-	protected final fun getHeadersLambda ()Lkotlin/jvm/functions/Function1;
+	public final fun getHeaders ()Ldev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder$HeadersConfigurer;
 	public final fun getHttpStatus ()Lio/ktor/http/HttpStatusCode;
 	public final fun getHttpStatusCode ()I
-	public final fun headers (Lkotlin/jvm/functions/Function1;)V
 	public final fun httpStatus (I)V
 	public final fun setDelay-LRDsOJo (J)V
-	protected final fun setHeadersLambda (Lkotlin/jvm/functions/Function1;)V
 	public final fun setHttpStatus (Lio/ktor/http/HttpStatusCode;)V
 }
 
+public final class dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder$HeadersConfigurer {
+	public final fun invoke (Lkotlin/jvm/functions/Function1;)V
+	public final fun plusAssign (Lkotlin/Pair;)V
+}
+
 public class dev/mokksy/mokksy/response/ResponseDefinition : dev/mokksy/mokksy/response/AbstractResponseDefinition {
-	public synthetic fun <init> (Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;Ljava/util/List;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;Ljava/util/List;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getBody ()Ljava/lang/Object;
 }
 
 public class dev/mokksy/mokksy/response/ResponseDefinitionBuilder : dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder {
-	public fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Ljava/util/List;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;)V
-	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Ljava/util/List;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;)V
+	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun build ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
 	public fun build ()Ldev/mokksy/mokksy/response/ResponseDefinition;
 	public final fun getBody ()Ljava/lang/Object;
@@ -332,16 +334,16 @@ public class dev/mokksy/mokksy/response/SseStreamResponseDefinition : dev/mokksy
 }
 
 public class dev/mokksy/mokksy/response/StreamResponseDefinition : dev/mokksy/mokksy/response/AbstractResponseDefinition {
-	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;Ljava/util/List;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;Ljava/util/List;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChunkFlow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getChunks ()Ljava/util/List;
 	public final fun getDelayBetweenChunks-UwyO8pc ()J
 }
 
 public class dev/mokksy/mokksy/response/StreamingResponseDefinitionBuilder : dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder {
-	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/HttpStatusCode;Ljava/util/List;Lio/ktor/http/ContentType;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/HttpStatusCode;Ljava/util/List;Lio/ktor/http/ContentType;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/HttpStatusCode;Lio/ktor/http/ContentType;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/HttpStatusCode;Lio/ktor/http/ContentType;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun build ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
 	public fun build ()Ldev/mokksy/mokksy/response/StreamResponseDefinition;
 	public final fun getChunkContentType ()Lio/ktor/http/ContentType;

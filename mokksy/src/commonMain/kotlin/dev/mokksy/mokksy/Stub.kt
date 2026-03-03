@@ -64,12 +64,7 @@ internal data class Stub<P : Any, T : Any>(
         verbose: Boolean,
     ) {
         val responseDefinition = responseDefinitionSupplier.invoke(call)
-        call.response.headers.let {
-            responseDefinition.headers?.invoke(it)
-            it.apply {
-                responseDefinition.headerList.forEach { (name, value) -> this.append(name, value) }
-            }
-        }
+        responseDefinition.headers?.invoke(call.response.headers)
         call.response.status(responseDefinition.httpStatus)
 
         responseDefinition.writeResponse(call, verbose)

@@ -23,9 +23,7 @@ import kotlin.time.Duration
  * @property body The body of the response, which can be null.
  * @property httpStatusCode The HTTP status code of the response as Int, defaulting to 200.
  * @property httpStatus The HTTP status code of the response, defaulting to HttpStatusCode.OK.
- * @property headers A lambda function for configuring additional response headers using ResponseHeaders.
- * Defaults to null.
- * @property headerList A list of additional header key-value pairs. Defaults to an empty list.
+ * @property headers A lambda that configures additional response headers. Defaults to `null`.
  * @property delay Delay before the response is sent. The default value is zero.
  * @property formatter A utility class to format HTTP requests and responses into colorized strings
  * for better readability.
@@ -38,7 +36,6 @@ public open class ResponseDefinition<P, T>(
     httpStatusCode: Int = 200,
     httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
     headers: (ResponseHeaders.() -> Unit)? = null,
-    headerList: List<Pair<String, String>> = emptyList<Pair<String, String>>(),
     delay: Duration,
     private val formatter: HttpFormatter,
 ) : AbstractResponseDefinition<T>(
@@ -46,7 +43,6 @@ public open class ResponseDefinition<P, T>(
         httpStatusCode = httpStatusCode,
         httpStatus = httpStatus,
         headers = headers,
-        headerList = headerList,
         delay = delay,
     ) {
     override suspend fun writeResponse(

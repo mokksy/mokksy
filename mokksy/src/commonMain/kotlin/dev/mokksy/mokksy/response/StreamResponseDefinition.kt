@@ -58,7 +58,6 @@ public open class StreamResponseDefinition<P, T>(
     httpStatusCode: Int = 200,
     httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
     headers: (ResponseHeaders.() -> Unit)? = null,
-    headerList: List<Pair<String, String>> = emptyList<Pair<String, String>>(),
     delay: Duration,
     private val formatter: HttpFormatter,
 ) : AbstractResponseDefinition<T>(
@@ -66,7 +65,6 @@ public open class StreamResponseDefinition<P, T>(
         httpStatusCode = httpStatusCode,
         httpStatus = httpStatus,
         headers = headers,
-        headerList = headerList,
         delay = delay,
     ) {
     internal suspend fun writeChunksFromFlow(
@@ -182,11 +180,6 @@ public open class StreamResponseDefinition<P, T>(
         call: ApplicationCall,
         verbose: Boolean,
     ) {
-        // Apply configured headers
-        headers?.invoke(call.response.headers)
-        for ((name, value) in headerList) {
-            call.response.headers.append(name, value)
-        }
         when {
             chunkFlow != null -> {
                 call.response.cacheControl(CacheControl.NoCache(null))

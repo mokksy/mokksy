@@ -17,11 +17,9 @@ import kotlin.time.Duration.Companion.milliseconds
  * @param P The type of the request body. This determines the input type for which the response is being defined.
  * @param T The type of the response data, which is returned to the client.
  * @property httpStatus The HTTP status code to be associated with the response.
- * @property headers A mutable list of header key-value pairs to be included in the response.
  * @author Konstantin Pavlov
  */
 public abstract class AbstractResponseDefinitionBuilder<P, T>(
-    public val headers: MutableList<Pair<String, String>>,
     public var delay: Duration = Duration.ZERO,
 ) {
     private var _httpStatusCode: Int = HttpStatusCode.OK.value
@@ -33,11 +31,8 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
             _httpStatusCode = value.value
         }
 
-    /**
-     * A lambda function for configuring additional response headers.
-     * This function can define custom headers or override existing ones.
-     */
-    protected var headersLambda: (ResponseHeaders.() -> Unit)? = null
+    private val headerPairs: MutableList<Pair<String, String>> = mutableListOf()
+    private var headersLambda: (ResponseHeaders.() -> Unit)? = null
 
     /**
      * Adds a single response header.
@@ -49,16 +44,48 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
         name: String,
         value: String,
     ) {
-        headers.add(name to value)
+        headerPairs.add(name to value)
     }
 
     /**
-     * Configures additional headers for the response using the specified lambda block.
+     * Entry point for header configuration. Supports two syntaxes:
      *
-     * @param block A lambda function applied to the ResponseHeaders object to configure headers.
+     * **Lambda block** — for full [ResponseHeaders] access:
+     * ```kotlin
+     * headers {
+     *     append(HttpHeaders.Location, "/things/$id")
+     * }
+     * ```
+     *
+     * **`+=` shorthand** — for simple name/value pairs:
+     * ```kotlin
+     * headers += "Foo" to "bar"
+     * ```
      */
-    public fun headers(block: ResponseHeaders.() -> Unit) {
-        this.headersLambda = block
+    public val headers: HeadersConfigurer = HeadersConfigurer()
+
+    /**
+     * Provides the `headers { }` lambda and `headers +=` pair-shorthand syntax
+     * for configuring response headers within a [AbstractResponseDefinitionBuilder].
+     */
+    public inner class HeadersConfigurer internal constructor() {
+        /**
+         * Configures headers via a [ResponseHeaders] lambda block.
+         *
+         * @param block A lambda applied to [ResponseHeaders] to configure headers.
+         */
+        public operator fun invoke(block: ResponseHeaders.() -> Unit) {
+            headersLambda = block
+        }
+
+        /**
+         * Adds a single header via `+=` syntax.
+         *
+         * @param header A [Pair] of header name to header value.
+         */
+        public operator fun plusAssign(header: Pair<String, String>) {
+            headerPairs.add(header)
+        }
     }
 
     /**
@@ -72,6 +99,23 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
 
     public fun httpStatus(status: Int) {
         this.httpStatus = HttpStatusCode.fromValue(status)
+    }
+
+    /**
+     * Merges [addHeader] pairs and the [headers] lambda into a single [ResponseHeaders] configurator.
+     * Returns `null` when no headers have been configured.
+     */
+    protected fun buildCombinedHeaders(): (ResponseHeaders.() -> Unit)? {
+        val pairs = headerPairs.toList()
+        val lambda = headersLambda
+        return if (pairs.isEmpty() && lambda == null) {
+            null
+        } else {
+            {
+                pairs.forEach { (name, value) -> append(name, value) }
+                lambda?.invoke(this)
+            }
+        }
     }
 
     /**
@@ -104,9 +148,8 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
     public var body: T? = null,
     httpStatusCode: Int = 200,
     httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
-    headers: MutableList<Pair<String, String>> = mutableListOf(),
     private val formatter: HttpFormatter,
-) : AbstractResponseDefinitionBuilder<P, T>(headers = headers) {
+) : AbstractResponseDefinitionBuilder<P, T>() {
     init {
         this.httpStatus = httpStatus
     }
@@ -126,8 +169,7 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
             contentType = contentType ?: ContentType.Application.Json,
             httpStatusCode = httpStatusCode,
             httpStatus = httpStatus,
-            headers = headersLambda,
-            headerList = headers.toList(),
+            headers = buildCombinedHeaders(),
             delay = delay,
             formatter = formatter,
         )
@@ -153,10 +195,9 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
     public var chunks: MutableList<T> = mutableListOf(),
     public var delayBetweenChunks: Duration = Duration.ZERO,
     httpStatus: HttpStatusCode = HttpStatusCode.OK,
-    headers: MutableList<Pair<String, String>> = mutableListOf(),
     public val chunkContentType: ContentType? = null,
     private val formatter: HttpFormatter,
-) : AbstractResponseDefinitionBuilder<P, T>(headers = headers) {
+) : AbstractResponseDefinitionBuilder<P, T>() {
     init {
         this.httpStatus = httpStatus
     }
@@ -178,8 +219,7 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
             chunkFlow = flow,
             chunks = chunks.toList(),
             httpStatus = httpStatus,
-            headers = headersLambda,
-            headerList = headers.toList(),
+            headers = buildCombinedHeaders(),
             delayBetweenChunks = delayBetweenChunks,
             delay = delay,
             formatter = formatter,

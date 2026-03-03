@@ -26,8 +26,7 @@ internal typealias ResponseDefinitionSupplier<T> = suspend (
  * @property contentType The MIME type of the response content.
  * @property httpStatusCode The HTTP status code of the response as Int, defaulting to 200.
  * @property httpStatus The HTTP status code of the response. Defaults to HttpStatusCode.OK.
- * @property headers A lambda function for configuring the response headers. Defaults to `null`.
- * @property headerList A list of header key-value pairs to populate the response headers. Defaults to an empty list.
+ * @property headers A lambda that configures the response headers. Defaults to `null`.
  * @property delay A delay applied before sending the response. Defaults to Duration.ZERO.
  * @property responseBody The optional response payload associated with this definition.
  * @author Konstantin Pavlov
@@ -38,7 +37,6 @@ public abstract class AbstractResponseDefinition<T>(
     public val httpStatusCode: Int = 200,
     public val httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
     public val headers: (ResponseHeaders.() -> Unit)? = null,
-    public val headerList: List<Pair<String, String>> = emptyList(),
     public open val delay: Duration = Duration.ZERO,
     public var responseBody: T? = null,
 ) {
