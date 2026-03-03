@@ -120,18 +120,12 @@ internal class StubRegistry {
      * @return true if stub was removed, false if it wasn't present
      */
     fun remove(stub: Stub<*, *>): Boolean {
-        var removed = false
-        stubs.update { currentList ->
-            val index = currentList.indexOf(stub)
-            if (index != -1) {
-                removed = true
-                currentList.removeAt(index)
-            } else {
-                removed = false
-                currentList
-            }
+        while (true) {
+            val current = stubs.value
+            val idx = current.indexOf(stub)
+            if (idx == -1) return false
+            if (stubs.compareAndSet(current, current.removeAt(idx))) return true
         }
-        return removed
     }
 
     /**
