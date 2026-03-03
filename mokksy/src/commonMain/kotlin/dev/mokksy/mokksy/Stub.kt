@@ -111,8 +111,8 @@ internal object StubComparator : Comparator<Stub<*, *>> {
         b: Stub<*, *>,
     ): Int {
         val result =
-            a.requestSpecification.priority().compareTo(
-                b.requestSpecification.priority(),
+            a.requestSpecification.priority.compareTo(
+                b.requestSpecification.priority,
             )
         return if (result != 0) {
             result

@@ -53,11 +53,9 @@ public open class RequestSpecification<P : Any>(
     public val headers: List<Matcher<Headers>> = listOf(),
     public val body: List<Matcher<P?>> = listOf(),
     public val bodyString: List<Matcher<String?>> = listOf(),
-    public val priority: Int? = DEFAULT_STUB_PRIORITY,
+    public val priority: Int = DEFAULT_STUB_PRIORITY,
     private val requestType: KClass<P>,
 ) {
-    internal fun priority(): Int = priority ?: DEFAULT_STUB_PRIORITY
-
     public suspend fun matches(request: ApplicationRequest): Result<Boolean> =
         runCatching {
             matchMethod(request) &&
@@ -174,7 +172,7 @@ public open class RequestSpecificationBuilder<P : Any>(
     public val headers: MutableList<Matcher<Headers>> = mutableListOf()
     public val body: MutableList<Matcher<P?>> = mutableListOf()
     public val bodyString: MutableList<Matcher<String?>> = mutableListOf()
-    public var priority: Int? = DEFAULT_STUB_PRIORITY
+    public var priority: Int = DEFAULT_STUB_PRIORITY
 
     public fun method(matcher: Matcher<HttpMethod>): RequestSpecificationBuilder<P> {
         this.method = matcher
@@ -264,6 +262,6 @@ public open class RequestSpecificationBuilder<P : Any>(
             requestType = requestType,
             body = body,
             bodyString = bodyString,
-            priority = priority ?: DEFAULT_STUB_PRIORITY,
+            priority = priority,
         )
 }
