@@ -122,6 +122,7 @@ public class BuildingStep<P : Any> internal constructor(
      * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder],
      * used to configure the streaming response definition.
      */
+    @Suppress("ThrowsCount")
     public infix fun <T : Any> respondsWithStream(
         block: suspend StreamingResponseDefinitionBuilder<P, T>.() -> Unit,
     ) {
@@ -131,10 +132,20 @@ public class BuildingStep<P : Any> internal constructor(
                 requestSpecification = requestSpecification,
             ) { call ->
                 val req = CapturedRequest(call.request, requestType)
-                val builder =
-                    StreamingResponseDefinitionBuilder<P, T>(request = req, formatter = formatter)
-                builder.block()
-                builder.build()
+                @Suppress("TooGenericExceptionCaught")
+                try {
+                    val builder =
+                        StreamingResponseDefinitionBuilder<P, T>(request = req, formatter = formatter)
+                    builder.block()
+                    builder.build()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: IOException) {
+                    throw e
+                } catch (e: Exception) {
+                    call.application.log.error("Failed to build streaming response for request: $req", e)
+                    throw e
+                }
             }
 
         registerStub(stub)

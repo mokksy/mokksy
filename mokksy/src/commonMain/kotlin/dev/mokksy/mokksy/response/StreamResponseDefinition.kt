@@ -83,8 +83,10 @@ public open class StreamResponseDefinition<P, T>(
             ?.buffer(
                 capacity = SEND_BUFFER_CAPACITY,
                 onBufferOverflow = BufferOverflow.SUSPEND,
-            )?.catch { logger.warn("Error while sending chunks: $it") }
-            ?.collect {
+            )?.catch { e ->
+                logger.warn("Error while sending chunks", e)
+                throw e
+            }?.collect {
                 writeChunk(
                     writer = writer,
                     value = it,
@@ -140,9 +142,10 @@ public open class StreamResponseDefinition<P, T>(
             ?.buffer(
                 capacity = SEND_BUFFER_CAPACITY,
                 onBufferOverflow = BufferOverflow.SUSPEND,
-            )?.catch {
+            )?.catch { e ->
                 session.call.application.log
-                    .warn("Error while sending chunks: $it")
+                    .warn("Error while sending chunks", e)
+                throw e
             }?.collect {
                 val chunk = "$it"
                 session.send(
