@@ -1,6 +1,5 @@
 package dev.mokksy.mokksy
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.server.application.log
 import org.junit.jupiter.api.AfterAll
@@ -17,12 +16,10 @@ internal open class AbstractIT(
 ) {
     val mokksy: Mokksy =
         Mokksy(verbose = true) {
-            it.log.info("Running Mokksy server with ${it.engine} engine")
+            log.info("Running Mokksy server with $engine engine")
         }
 
     protected lateinit var client: HttpClient
-
-    protected val logger = KotlinLogging.logger(name = this::class.simpleName!!)
 
     /**
      * Represents a seed value is used for random number generation in tests.

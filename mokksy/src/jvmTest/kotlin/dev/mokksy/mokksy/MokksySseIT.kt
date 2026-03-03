@@ -77,7 +77,7 @@ internal class MokksySseIT : AbstractIT({ createKtorSSEClient(it) }) {
 suspend fun main() {
     val mokksy =
         MokksyServer(verbose = true, port = 8080) {
-            println("Running server with ${it.engine} engine")
+            println("Running server with $engine engine")
         }
     mokksy.get {
         path = beEqual("/sse")
