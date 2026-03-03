@@ -37,15 +37,15 @@ public final class dev/mokksy/mokksy/MokksyJava {
 
 public class dev/mokksy/mokksy/MokksyServer {
 	public fun <init> ()V
-	public fun <init> (I)V
-	public fun <init> (ILjava/lang/String;)V
-	public fun <init> (ILjava/lang/String;Z)V
-	public fun <init> (ILjava/lang/String;ZLkotlin/jvm/functions/Function1;)V
-	public synthetic fun <init> (ILjava/lang/String;ZLkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ldev/mokksy/mokksy/ServerConfiguration;)V
+	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/lang/String;I)V
 	public fun <init> (Ljava/lang/String;ILdev/mokksy/mokksy/ServerConfiguration;)V
 	public fun <init> (Ljava/lang/String;ILdev/mokksy/mokksy/ServerConfiguration;Lkotlin/jvm/functions/Function1;)V
 	public synthetic fun <init> (Ljava/lang/String;ILdev/mokksy/mokksy/ServerConfiguration;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;IZ)V
+	public fun <init> (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/lang/String;Ldev/mokksy/mokksy/ServerConfiguration;)V
 	public final fun awaitStarted (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun baseUrl ()Ljava/lang/String;
@@ -232,14 +232,14 @@ public final class dev/mokksy/mokksy/request/RequestMatchersKt {
 }
 
 public class dev/mokksy/mokksy/request/RequestSpecification {
-	public fun <init> (Lio/kotest/matchers/Matcher;Lio/kotest/matchers/Matcher;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Lkotlin/reflect/KClass;)V
-	public synthetic fun <init> (Lio/kotest/matchers/Matcher;Lio/kotest/matchers/Matcher;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Lkotlin/reflect/KClass;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lio/kotest/matchers/Matcher;Lio/kotest/matchers/Matcher;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/reflect/KClass;)V
+	public synthetic fun <init> (Lio/kotest/matchers/Matcher;Lio/kotest/matchers/Matcher;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/reflect/KClass;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getBody ()Ljava/util/List;
 	public final fun getBodyString ()Ljava/util/List;
 	public final fun getHeaders ()Ljava/util/List;
 	public final fun getMethod ()Lio/kotest/matchers/Matcher;
 	public final fun getPath ()Lio/kotest/matchers/Matcher;
-	public final fun getPriority ()Ljava/lang/Integer;
+	public final fun getPriority ()I
 	protected final fun matchBody (Ljava/util/List;Lio/ktor/server/request/ApplicationRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	protected final fun matchBodyString (Ljava/util/List;Lio/ktor/server/request/ApplicationRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	protected final fun matchHeaders (Ljava/util/List;Lio/ktor/server/request/ApplicationRequest;)Z
@@ -260,7 +260,7 @@ public class dev/mokksy/mokksy/request/RequestSpecificationBuilder {
 	public final fun getHeaders ()Ljava/util/List;
 	protected final fun getMethod ()Lio/kotest/matchers/Matcher;
 	public final fun getPath ()Lio/kotest/matchers/Matcher;
-	public final fun getPriority ()Ljava/lang/Integer;
+	public final fun getPriority ()I
 	protected final fun getRequestType ()Lkotlin/reflect/KClass;
 	public final fun method (Lio/kotest/matchers/Matcher;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun path (Lio/kotest/matchers/Matcher;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
@@ -268,7 +268,7 @@ public class dev/mokksy/mokksy/request/RequestSpecificationBuilder {
 	public final fun priority (I)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	protected final fun setMethod (Lio/kotest/matchers/Matcher;)V
 	public final fun setPath (Lio/kotest/matchers/Matcher;)V
-	public final fun setPriority (Ljava/lang/Integer;)V
+	public final fun setPriority (I)V
 }
 
 public final class dev/mokksy/mokksy/request/RequestSpecificationKt {
@@ -293,6 +293,7 @@ public abstract class dev/mokksy/mokksy/response/AbstractResponseDefinitionBuild
 	public synthetic fun <init> (Ljava/util/List;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ljava/util/List;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun addHeader (Ljava/lang/String;Ljava/lang/String;)V
+	protected abstract fun build ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
 	public final fun delayMillis (J)V
 	public final fun getDelay-UwyO8pc ()J
 	public final fun getHeaders ()Ljava/util/List;
@@ -315,7 +316,8 @@ public class dev/mokksy/mokksy/response/ResponseDefinition : dev/mokksy/mokksy/r
 public class dev/mokksy/mokksy/response/ResponseDefinitionBuilder : dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder {
 	public fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Ljava/util/List;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;)V
 	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lio/ktor/http/ContentType;Ljava/lang/Object;ILio/ktor/http/HttpStatusCode;Ljava/util/List;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun build$mokksy ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
+	public synthetic fun build ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
+	public fun build ()Ldev/mokksy/mokksy/response/ResponseDefinition;
 	public final fun getBody ()Ljava/lang/Object;
 	public final fun getContentType ()Lio/ktor/http/ContentType;
 	public final fun getRequest ()Ldev/mokksy/mokksy/request/CapturedRequest;
@@ -340,7 +342,8 @@ public class dev/mokksy/mokksy/response/StreamResponseDefinition : dev/mokksy/mo
 public class dev/mokksy/mokksy/response/StreamingResponseDefinitionBuilder : dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder {
 	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/HttpStatusCode;Ljava/util/List;Lio/ktor/http/ContentType;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Ldev/mokksy/mokksy/request/CapturedRequest;Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/HttpStatusCode;Ljava/util/List;Lio/ktor/http/ContentType;Ldev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun build$mokksy ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
+	public synthetic fun build ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
+	public fun build ()Ldev/mokksy/mokksy/response/StreamResponseDefinition;
 	public final fun getChunkContentType ()Lio/ktor/http/ContentType;
 	public final fun getChunks ()Ljava/util/List;
 	public final fun getDelayBetweenChunks-UwyO8pc ()J
