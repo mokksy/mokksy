@@ -77,6 +77,22 @@ internal class BuildingStepTest {
         verifyStub()
     }
 
+    @Test
+    fun `Should handle respondsWithStream with typed KClass overload`() {
+        subject.respondsWithStream(OutputChunk::class) {
+            httpStatus = expectedHttpStatus
+        }
+        verifyStub()
+    }
+
+    @Test
+    fun `Should handle respondsWithSseStream with typed KClass overload`() {
+        subject.respondsWithSseStream(Output::class) {
+            httpStatus = expectedHttpStatus
+        }
+        verifyStub()
+    }
+
     private fun verifyStub() {
         assertSoftly(stub.captured) {
             configuration.name shouldBe name
