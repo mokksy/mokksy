@@ -8,7 +8,10 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 
 internal class MokksyServerJavaLifecycleIT {
     @Test
@@ -50,15 +53,16 @@ internal class MokksyServerJavaLifecycleIT {
     fun `server responds after start via createKtorClient`() {
         val mokksy = MokksyServerJava()
         mokksy.start()
+        val client = createKtorClient(mokksy.port())
 
         try {
-            mokksy.get { spec ->
-                spec.path("/java-lifecycle-test")
-            }.respondsWith { builder ->
-                builder.body = "alive"
-            }
+            mokksy
+                .get { spec ->
+                    spec.path("/java-lifecycle-test")
+                }.respondsWith { builder ->
+                    builder.body = "alive"
+                }
 
-            val client = createKtorClient(mokksy.port())
             val result = runBlocking { client.get("/java-lifecycle-test") }
             val responseBody = runBlocking { result.bodyAsText() }
 
@@ -66,9 +70,8 @@ internal class MokksyServerJavaLifecycleIT {
                 result.status shouldBe HttpStatusCode.OK
                 responseBody shouldBe "alive"
             }
-
-            client.close()
         } finally {
+            client.close()
             mokksy.shutdown()
         }
     }
