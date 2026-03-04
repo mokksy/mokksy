@@ -4,29 +4,29 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
 import kotlin.test.assertFailsWith
 
 internal class VerifyMethodsIT {
     private lateinit var mokksy: Mokksy
     private lateinit var client: HttpClient
 
-    @BeforeTest
+    @BeforeEach
     suspend fun setUp() {
         mokksy = Mokksy()
         mokksy.startSuspend()
         client = createKtorClient(mokksy.port())
     }
 
-    @AfterTest
+    @AfterEach
     suspend fun tearDown() {
         client.close()
         mokksy.shutdownSuspend()
     }
 
-    // region: verifyNoUnexpectedRequests
+    // region verifyNoUnexpectedRequests
 
     @Test
     fun `verifyNoUnexpectedRequests - should pass when no requests were made`() {
@@ -48,7 +48,7 @@ internal class VerifyMethodsIT {
     }
 
     @Test
-    suspend fun `verifyNoUnexpectedRequests - should throw AssertionError stub not matching`() {
+    suspend fun `verifyNoUnexpectedRequests - should throw when stub not matched`() {
         val path = "/no-stub-path"
         client.get(path)
 
@@ -62,7 +62,7 @@ internal class VerifyMethodsIT {
 
     // endregion
 
-    // region: verifyNoUnmatchedStubs
+    // region verifyNoUnmatchedStubs
 
     @Test
     fun `verifyNoUnmatchedStubs - should pass when no stubs were registered`() {
@@ -101,5 +101,6 @@ internal class VerifyMethodsIT {
 
         error.message shouldContain path
     }
+
     // endregion
 }

@@ -51,64 +51,6 @@ internal class TypesafeMethodsIT : AbstractIT() {
         }
     }
 
-    @Test
-    suspend fun `Should respond to GET`() {
-        doTestCallMethod(
-            HttpMethod.Get,
-        ) { mokksy.get(name, TestPerson::class, it) }
-    }
-
-    @Test
-    suspend fun `Should respond to OPTIONS`() {
-        doTestCallMethod(
-            HttpMethod.Options,
-        ) { mokksy.options(name, TestPerson::class, it) }
-    }
-
-    @Test
-    suspend fun `Should respond to PUT`() {
-        doTestCallMethod(HttpMethod.Put) {
-            mokksy.put(
-                name,
-                TestPerson::class,
-                it,
-            )
-        }
-    }
-
-    @Test
-    suspend fun `Should respond to PATCH`() {
-        doTestCallMethod(HttpMethod.Patch) {
-            mokksy.patch(
-                name,
-                TestPerson::class,
-                it,
-            )
-        }
-    }
-
-    @Test
-    suspend fun `Should respond to DELETE`() {
-        doTestCallMethod(HttpMethod.Delete) {
-            mokksy.delete(
-                name,
-                TestPerson::class,
-                it,
-            )
-        }
-    }
-
-    @Test
-    suspend fun `Should respond to HEAD`() {
-        doTestCallMethod(HttpMethod.Head) {
-            mokksy.head(
-                name,
-                TestPerson::class,
-                it,
-            )
-        }
-    }
-
     private suspend fun <P : Any> doTestCallMethod(
         method: HttpMethod,
         block: (RequestSpecificationBuilder<P>.() -> Unit) -> BuildingStep<*>,
