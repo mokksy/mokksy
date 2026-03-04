@@ -269,6 +269,48 @@ class AbstractResponseDefinitionBuilderTest {
             response.bodyAsText() shouldBe "X-Lambda=yes"
         }
 
+    @Test
+    fun `multiple headers lambda calls are accumulated in built response`() =
+        testApplication {
+            routing {
+                post("/test") {
+                    val builder =
+                        ResponseDefinitionBuilder<String, String>(
+                            request = CapturedRequest(call.request, String::class),
+                            formatter = formatter,
+                        )
+                    builder.headers {
+                        append("X-First", "1")
+                    }
+                    builder.headers {
+                        append("X-Second", "2")
+                    }
+
+                    val definition = builder.build()
+                    val headers = mutableListOf<String>()
+                    definition.headers?.invoke(
+                        object : io.ktor.server.response.ResponseHeaders() {
+                            override fun engineAppendHeader(
+                                name: String,
+                                value: String,
+                            ) {
+                                headers.add("$name=$value")
+                            }
+
+                            override fun getEngineHeaderNames(): List<String> = emptyList()
+
+                            override fun getEngineHeaderValues(name: String): List<String> =
+                                emptyList()
+                        },
+                    )
+                    call.respondText(headers.joinToString(","))
+                }
+            }
+
+            val response = client.post("/test") { setBody("") }
+            response.bodyAsText() shouldBe "X-First=1,X-Second=2"
+        }
+
     // endregion
 
     // region build with no headers

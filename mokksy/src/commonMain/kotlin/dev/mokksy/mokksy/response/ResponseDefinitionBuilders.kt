@@ -75,7 +75,11 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
          * @param block A lambda applied to [ResponseHeaders] to configure headers.
          */
         public operator fun invoke(block: ResponseHeaders.() -> Unit) {
-            headersLambda = block
+            val previous = headersLambda
+            headersLambda = {
+                previous?.invoke(this)
+                block.invoke(this)
+            }
         }
 
         /**
