@@ -48,6 +48,9 @@ Read the project overview from README.md
   `assertSoftly(subject) { ... }`. Do not split one logical test case across multiple `@Test` functions just to
   have one assertion per function.
 - Use `shouldContain` (from `io.kotest.matchers.string`) for string containment instead of `.contains(...) shouldBe true`.
+- Prefer `@ParameterizedTest` with `@ValueSource` (or `@MethodSource`) over multiple `@Test` methods that repeat the
+  same logic for different inputs. For HTTP method coverage, use `@ValueSource(strings = ["GET", "POST", ...])` and
+  `HttpMethod.parse(methodName)`. Remove individual `@Test` duplicates once a `@ParameterizedTest` covers them.
 - Prioritize test readability
 - When asked to write tests in Java: use JUnit5, Mockito, AssertJ core
 
