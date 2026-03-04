@@ -1,6 +1,7 @@
 package dev.mokksy.mokksy.serializers
 
 import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -29,7 +30,11 @@ class StringOrListSerializerTest {
 
     @Test
     fun `should deserialize array of strings as list`() {
-        val result: List<String> = json.decodeFromString(StringOrListSerializer(), "[\"a\", \"b\", \"c\"]")
+        val result: List<String> =
+            json.decodeFromString(
+                StringOrListSerializer(),
+                "[\"a\", \"b\", \"c\"]",
+            )
 
         result shouldBe listOf("a", "b", "c")
     }
@@ -62,28 +67,28 @@ class StringOrListSerializerTest {
 
     // region serialize
 
-    `@Test`
+    @Test
     fun `should serialize single-element list as plain string`() {
         val result = json.encodeToString(StringOrListSerializer(), listOf("hello"))
 
         result shouldEqualJson "\"hello\""
     }
 
-    `@Test`
+    @Test
     fun `should serialize multi-element list as JSON array`() {
         val result = json.encodeToString(StringOrListSerializer(), listOf("a", "b", "c"))
 
         result shouldEqualJson "[\"a\",\"b\",\"c\"]"
     }
 
-    `@Test`
+    @Test
     fun `should serialize empty list as empty JSON array`() {
         val result = json.encodeToString(StringOrListSerializer(), emptyList())
 
         result shouldEqualJson "[]"
     }
 
-    `@Test`
+    @Test
     fun `should serialize two-element list as JSON array`() {
         val result = json.encodeToString(StringOrListSerializer(), listOf("first", "second"))
 
