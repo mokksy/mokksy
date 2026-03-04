@@ -8,10 +8,12 @@ import io.kotest.assertions.nondeterministic.eventually
 import io.kotest.matchers.shouldBe
 import io.ktor.http.HttpMethod
 import io.mockk.MockKMatcherScope
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -26,6 +28,11 @@ import kotlin.test.Test
 class MokksyServerJavaTest {
     private val delegate = mockk<MokksyServer>(relaxed = true)
     private val sut = MokksyServerJava(delegate)
+
+    @BeforeEach
+    fun resetMocks() {
+        clearMocks(delegate)
+    }
 
     // region Properties and lifecycle
 
