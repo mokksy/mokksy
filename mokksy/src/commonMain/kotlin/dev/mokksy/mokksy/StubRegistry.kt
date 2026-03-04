@@ -122,8 +122,8 @@ internal class StubRegistry {
     fun remove(stub: Stub<*, *>): Boolean {
         while (true) {
             val current = stubs.value
-            val idx = current.indexOf(stub)
-            if (idx == -1) return false
+            val idx = current.binarySearch(stub, StubComparator)
+            if (idx < 0) return false
             if (stubs.compareAndSet(current, current.removeAt(idx))) return true
         }
     }
