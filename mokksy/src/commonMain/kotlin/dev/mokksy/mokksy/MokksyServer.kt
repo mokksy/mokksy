@@ -35,7 +35,7 @@ import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 /**
- * Configures JSON content negotiation with [Json.ignoreUnknownKeys] enabled.
+ * Configures JSON content negotiation with `Json.ignoreUnknownKeys` enabled.
  * Used as the default [ServerConfiguration.contentNegotiationConfigurer].
  *
  * @param config The [ContentNegotiationConfig] to configure.
@@ -54,7 +54,7 @@ public typealias ApplicationConfigurer = (Application.() -> Unit)
  * An embedded mock HTTP server for testing. Registers stubs for any HTTP method and verifies
  * request expectations after the test.
  *
- * Call [start] or [startSuspend] to begin processing requests after construction.
+ * Call `start()` (on JVM) or [startSuspend] to begin processing requests after construction.
  *
  * Example:
  * ```kotlin
@@ -67,7 +67,7 @@ public typealias ApplicationConfigurer = (Application.() -> Unit)
  * }
  * ```
  *
- * @constructor Creates a [MokksyServer] instance. Call [start] or [startSuspend] to begin processing requests.
+ * @constructor Creates a [MokksyServer] instance. Call `start()` (on JVM) or [startSuspend] to begin processing requests.
  * @param host The host to bind to. Defaults to `127.0.0.1`.
  * @param port The port to bind to. Defaults to `0` (randomly assigned).
  * @param configuration [ServerConfiguration] options.
@@ -84,17 +84,17 @@ public open class MokksyServer
         configuration: ServerConfiguration,
         configurer: ApplicationConfigurer = {},
     ) {
+        /**
+         * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
+         * Call `start()` (on JVM) or [startSuspend] to begin processing requests.
+         *
+         * @param host The host to bind to. Defaults to `127.0.0.1`.
+         * @param port The port to bind to. Defaults to `0` (randomly assigned).
+         * @param verbose Enables `DEBUG`-level request logging when `true`. Defaults to `false`.
+         * @param configurer Additional Ktor [Application] configuration applied after the default routing setup.
+         */
         @JvmOverloads
         public constructor(
-            /**
-             * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
-             * Call [start] or [startSuspend] to begin processing requests.
-             *
-             * @param host The host to bind to. Defaults to `127.0.0.1`.
-             * @param port The port to bind to. Defaults to `0` (randomly assigned).
-             * @param verbose Enables `DEBUG`-level request logging when `true`. Defaults to `false`.
-             * @param configurer Additional Ktor [Application] configuration applied after the default routing setup.
-             */
             host: String = DEFAULT_HOST,
             port: Int = 0,
             verbose: Boolean = false,

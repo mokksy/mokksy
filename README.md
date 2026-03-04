@@ -38,6 +38,7 @@
   * [POST request](#post-request)
 * [Server-Side Events (SSE) response](#server-side-events-sse-response)
 * [Request Specification Matchers](#request-specification-matchers)
+  * [Priority Example](#priority-example)
 * [Verifying Requests](#verifying-requests)
   * [Verify all stubs were triggered](#verify-all-stubs-were-triggered)
   * [Verify no unexpected requests arrived](#verify-no-unexpected-requests-arrived)
@@ -313,6 +314,49 @@ Mokksy provides various matcher types to specify conditions for matching incomin
 - **Predicate matchers** — `bodyMatchesPredicate { it?.name == "foo" }` matches against the typed,
   deserialized request body
 - **Call matchers** — `successCallMatcher` matches if a function called with the body does not throw
+- **Priority** — `priority = 10` on `RequestSpecificationBuilder` sets the `RequestSpecification.priority`
+  of the stub; lower values indicate higher priority.
+  Default is `Int.MAX_VALUE`. When multiple stubs match a request, the one with the highest priority
+  (lowest numerical value) is selected.
+
+### Priority Example
+
+If multiple stubs match, the one with the lower `priority` value wins:
+
+<!--- INCLUDE
+  @Test
+  suspend fun testPriority() {
+-->
+
+```kotlin
+// Catch-all stub with low priority (high value)
+mokksy.get {
+  path = contain("/things")
+  priority = 99
+} respondsWith {
+  body = "Generic Thing"
+}
+
+// Specific stub with high priority (low value)
+mokksy.get {
+  path = beEqual("/things/special")
+  priority = 1
+} respondsWith {
+  body = "Special Thing"
+}
+
+// when
+val generic = client.get("/things/123")
+val special = client.get("/things/special")
+
+// then
+generic.bodyAsText() shouldBe "Generic Thing"
+special.bodyAsText() shouldBe "Special Thing"
+```
+
+<!--- INCLUDE
+  }
+-->
 
 ## Verifying Requests
 
