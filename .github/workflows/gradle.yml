@@ -89,16 +89,15 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: mokksy/mokksy
           directory: ./build/reports/kover
           files: report.xml
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: mokksy/mokksy
+          report_type: test_results
 
   dependency-submission:
 
