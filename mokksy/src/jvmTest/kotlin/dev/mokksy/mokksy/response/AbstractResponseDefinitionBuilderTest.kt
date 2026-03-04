@@ -122,14 +122,29 @@ class AbstractResponseDefinitionBuilderTest {
                             formatter = formatter,
                         )
                     builder.addHeader("X-Custom", "value-1")
-
                     val definition = builder.build()
-                    call.respondText("${definition.headers != null}")
+                    val headers = mutableListOf<String>()
+                    definition.headers?.invoke(
+                        object : io.ktor.server.response.ResponseHeaders() {
+                            override fun engineAppendHeader(
+                                name: String,
+                                value: String,
+                            ) {
+                                headers.add("$name=$value")
+                            }
+
+                            override fun getEngineHeaderNames(): List<String> = emptyList()
+
+                            override fun getEngineHeaderValues(name: String): List<String> =
+                                emptyList()
+                        },
+                    )
+                    call.respondText(headers.joinToString(","))
                 }
             }
 
             val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "true"
+            response.bodyAsText() shouldBe "X-Custom=value-1"
         }
 
     @Test
@@ -146,12 +161,28 @@ class AbstractResponseDefinitionBuilderTest {
                     builder.addHeader("X-Two", "2")
 
                     val definition = builder.build()
-                    call.respondText("${definition.headers != null}")
+                    val headers = mutableListOf<String>()
+                    definition.headers?.invoke(
+                        object : io.ktor.server.response.ResponseHeaders() {
+                            override fun engineAppendHeader(
+                                name: String,
+                                value: String,
+                            ) {
+                                headers.add("$name=$value")
+                            }
+
+                            override fun getEngineHeaderNames(): List<String> = emptyList()
+
+                            override fun getEngineHeaderValues(name: String): List<String> =
+                                emptyList()
+                        },
+                    )
+                    call.respondText(headers.sorted().joinToString(","))
                 }
             }
 
             val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "true"
+            response.bodyAsText() shouldBe "X-One=1,X-Two=2"
         }
 
     // endregion
@@ -171,12 +202,28 @@ class AbstractResponseDefinitionBuilderTest {
                     builder.headers += "Foo" to "bar"
 
                     val definition = builder.build()
-                    call.respondText("${definition.headers != null}")
+                    val headers = mutableListOf<String>()
+                    definition.headers?.invoke(
+                        object : io.ktor.server.response.ResponseHeaders() {
+                            override fun engineAppendHeader(
+                                name: String,
+                                value: String,
+                            ) {
+                                headers.add("$name=$value")
+                            }
+
+                            override fun getEngineHeaderNames(): List<String> = emptyList()
+
+                            override fun getEngineHeaderValues(name: String): List<String> =
+                                emptyList()
+                        },
+                    )
+                    call.respondText(headers.joinToString(","))
                 }
             }
 
             val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "true"
+            response.bodyAsText() shouldBe "Foo=bar"
         }
 
     // endregion
@@ -198,12 +245,28 @@ class AbstractResponseDefinitionBuilderTest {
                     }
 
                     val definition = builder.build()
-                    call.respondText("${definition.headers != null}")
+                    val headers = mutableListOf<String>()
+                    definition.headers?.invoke(
+                        object : io.ktor.server.response.ResponseHeaders() {
+                            override fun engineAppendHeader(
+                                name: String,
+                                value: String,
+                            ) {
+                                headers.add("$name=$value")
+                            }
+
+                            override fun getEngineHeaderNames(): List<String> = emptyList()
+
+                            override fun getEngineHeaderValues(name: String): List<String> =
+                                emptyList()
+                        },
+                    )
+                    call.respondText(headers.joinToString(","))
                 }
             }
 
             val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "true"
+            response.bodyAsText() shouldBe "X-Lambda=yes"
         }
 
     // endregion
