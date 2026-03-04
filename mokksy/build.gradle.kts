@@ -16,7 +16,7 @@ plugins {
 
 dokka {
     dokkaSourceSets.configureEach {
-        // includes.from("README.md")
+        includes.from("Module.md")
     }
 
     moduleName.set("Mokksy")
