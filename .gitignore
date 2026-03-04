@@ -157,3 +157,5 @@ kotlin-js-store/
 /test_*.*
 /debug_*.*
 !/.idea/ktlint-plugin.xml
+
+.claude/
