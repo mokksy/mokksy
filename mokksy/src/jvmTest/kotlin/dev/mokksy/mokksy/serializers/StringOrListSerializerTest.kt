@@ -1,6 +1,5 @@
 package dev.mokksy.mokksy.serializers
 
-import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -105,10 +104,7 @@ class StringOrListSerializerTest {
         val encoded = json.encodeToString(StringOrListSerializer(), original)
         val decoded = json.decodeFromString(StringOrListSerializer(), encoded)
 
-        assertSoftly(decoded) {
-            size shouldBe 1
-            get(0) shouldBe "roundtrip"
-        }
+        decoded shouldBe original
     }
 
     @Test
