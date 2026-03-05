@@ -44,7 +44,7 @@ internal class BodyMatchingIT : AbstractIT() {
             }.respondsWith(Output::class) {
                 body = expectedResponse
                 httpStatus = HttpStatusCode.Created
-                headers += "Foo" to "bar" // list style
+                addHeader("Foo", "bar")
             }
         // when
         val result =
@@ -71,7 +71,7 @@ internal class BodyMatchingIT : AbstractIT() {
             }.respondsWith(Output::class) {
                 body = expectedResponse
                 httpStatus = HttpStatusCode.Created
-                headers += "Foo" to "bar" // list style
+                addHeader("Foo", "bar")
             }
         // when
         val result =
