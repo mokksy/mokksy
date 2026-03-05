@@ -6,6 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <dev.mokksy:mokksy>
+open annotation class dev.mokksy.mokksy/MokksyDsl : kotlin/Annotation { // dev.mokksy.mokksy/MokksyDsl|null[0]
+    constructor <init>() // dev.mokksy.mokksy/MokksyDsl.<init>|<init>(){}[0]
+}
+
 final enum class dev.mokksy.mokksy.utils.highlight/AnsiColor : kotlin/Enum<dev.mokksy.mokksy.utils.highlight/AnsiColor> { // dev.mokksy.mokksy.utils.highlight/AnsiColor|null[0]
     enum entry BLACK // dev.mokksy.mokksy.utils.highlight/AnsiColor.BLACK|null[0]
     enum entry BLUE // dev.mokksy.mokksy.utils.highlight/AnsiColor.BLUE|null[0]
