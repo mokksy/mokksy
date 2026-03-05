@@ -15,6 +15,8 @@
 [![API Reference](https://img.shields.io/badge/API-Reference-blue)](https://mokksy.github.io/mokksy/)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mokksy/mokksy)
 
+![mokksy-mascot-256.png](docs/mokksy-mascot-256.png)
+
 **_Mokksy_** - Mock HTTP Server, built with [Kotlin](https://kotlinlang.org/) and [Ktor](https://ktor.io/).
 
 **Check out the [AI-Mocks][ai-mocks] project for advanced LLM and [A2A protocol][a2a] mocking capabilities.**
@@ -22,7 +24,7 @@
 > [!NOTE]
 > Mokksy server was a part of the [AI-Mocks][ai-mocks] project and has now moved to a separate repository. No artefact relocation is required.
 
-![mokksy-mascot-256.png](docs/mokksy-mascot-256.png)
+
 
 [![Buy me a Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://buymeacoffee.com/mailsk)
 
