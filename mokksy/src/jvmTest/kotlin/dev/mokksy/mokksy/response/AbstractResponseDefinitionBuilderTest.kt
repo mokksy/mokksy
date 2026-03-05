@@ -14,6 +14,7 @@ import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.seconds
 
+@Suppress("UNCHECKED_CAST")
 class AbstractResponseDefinitionBuilderTest {
     private val formatter = HttpFormatter()
 

@@ -149,7 +149,7 @@ internal class TypesafeMethodsIT : AbstractIT() {
                     // type-safe builder style
                     append(HttpHeaders.Location, "/things/$id")
                 }
-                headers += "Foo" to "bar" // list style
+                addHeader("Foo", "bar")
             }
 
         // when

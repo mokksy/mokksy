@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy.request
 
+import dev.mokksy.mokksy.MokksyDsl
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.string.contain
 import io.ktor.http.Headers
@@ -164,6 +165,13 @@ public open class RequestSpecification<P : Any>(
         }
 }
 
+/**
+ * Builder for request-matching rules used when registering Mokksy stubs.
+ *
+ * This type is marked with [MokksyDsl], so nested DSL blocks do not implicitly
+ * expose outer receivers.
+ */
+@MokksyDsl
 public open class RequestSpecificationBuilder<P : Any>(
     protected val requestType: KClass<P>,
 ) {

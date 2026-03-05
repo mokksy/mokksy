@@ -49,6 +49,7 @@ buildNumber.properties
 
 # User-specific stuff
 .idea/
+!.idea/icon.png
 
 # File-based aimocks format
 *.iws

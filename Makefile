@@ -1,6 +1,7 @@
 .PHONY: build
 build:
-	./gradlew checkLegacyAbi build koverVerify koverXmlReport koverHtmlReport koverLog
+	./gradlew checkLegacyAbi detekt
+	./gradlew build koverVerify koverXmlReport koverHtmlReport koverLog
 
 .PHONY: clean
 clean:

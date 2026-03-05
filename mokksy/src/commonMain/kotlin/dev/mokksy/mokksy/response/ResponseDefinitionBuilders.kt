@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy.response
 
+import dev.mokksy.mokksy.MokksyDsl
 import dev.mokksy.mokksy.request.CapturedRequest
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.ContentType
@@ -19,6 +20,8 @@ import kotlin.time.Duration.Companion.milliseconds
  * @property httpStatus The HTTP status code to be associated with the response.
  * @author Konstantin Pavlov
  */
+@MokksyDsl
+@Suppress("AbstractClassCanBeConcreteClass")
 public abstract class AbstractResponseDefinitionBuilder<P, T>(
     public var delay: Duration = Duration.ZERO,
 ) {
@@ -121,13 +124,6 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
             }
         }
     }
-
-    /**
-     * Abstract method to build a concrete response definition.
-     *
-     * @return An instance of [AbstractResponseDefinition].
-     */
-    protected abstract fun build(): AbstractResponseDefinition<T>
 }
 
 /**
@@ -145,8 +141,9 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
  * Inherits functionality from [AbstractResponseDefinitionBuilder] to allow additional header manipulations
  * and provides a concrete implementation of the response building process.
  */
+@MokksyDsl
 @Suppress("LongParameterList")
-public open class ResponseDefinitionBuilder<P : Any, T : Any>(
+public open class ResponseDefinitionBuilder<P : Any, T : Any> internal constructor(
     public val request: CapturedRequest<P>,
     public var contentType: ContentType? = null,
     public var body: T? = null,
@@ -167,7 +164,7 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
      *
      * @return A new instance of [ResponseDefinition] containing the response attributes defined in the builder.
      */
-    public override fun build(): ResponseDefinition<P, T> =
+    internal fun build(): ResponseDefinition<P, T> =
         ResponseDefinition(
             body = body,
             contentType = contentType ?: ContentType.Application.Json,
@@ -192,8 +189,9 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
  * @property chunks A list of data chunks to be sent as part of the stream,
  *          if [flow] is not provided.
  */
+@MokksyDsl
 @Suppress("LongParameterList")
-public open class StreamingResponseDefinitionBuilder<P : Any, T>(
+public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constructor(
     public val request: CapturedRequest<P>,
     public var flow: Flow<T>? = null,
     public var chunks: MutableList<T> = mutableListOf(),
@@ -218,7 +216,7 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
      * @param T The type of data being streamed.
      * @return A fully constructed [StreamResponseDefinition] instance containing the configured response details.
      */
-    public override fun build(): StreamResponseDefinition<P, T> =
+    internal fun build(): StreamResponseDefinition<P, T> =
         StreamResponseDefinition(
             chunkFlow = flow,
             chunks = chunks.toList(),
