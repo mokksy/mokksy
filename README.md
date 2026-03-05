@@ -22,7 +22,8 @@
 **Check out the [AI-Mocks][ai-mocks] project for advanced LLM and [A2A protocol][a2a] mocking capabilities.**
 
 > [!NOTE]
-> Mokksy server was a part of the [AI-Mocks][ai-mocks] project and has now moved to a separate repository. No artefact relocation is required.
+> Mokksy server was a part of the [AI-Mocks][ai-mocks] project and has now moved to a separate repository. No artefact
+> relocation is required.
 
 
 
@@ -38,6 +39,7 @@
 * [Responding with predefined responses](#responding-with-predefined-responses)
   * [GET request](#get-request)
   * [POST request](#post-request)
+  * [Typed request body](#typed-request-body)
 * [Server-Side Events (SSE) response](#server-side-events-sse-response)
 * [Request Specification Matchers](#request-specification-matchers)
   * [Priority Example](#priority-example)
@@ -66,9 +68,9 @@ Particularly, it might be useful for integration testing LLM clients.
 - **Error Simulation**: Ability to mock negative scenarios and error responses
 
 ## Quick start
-      
+
 1. Add dependencies:
- 
+
    Gradle _build.gradle.kts:_
    ```kotlin
    dependencies {               
@@ -88,10 +90,10 @@ Particularly, it might be useful for integration testing LLM clients.
     </dependency>
    ```
 
-
 <!--- CLEAR -->
 <!--- INCLUDE 
 import dev.mokksy.mokksy.Mokksy
+import dev.mokksy.mokksy.post
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -111,6 +113,9 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import org.junit.jupiter.api.Test
 
 class ReadmeTest {
@@ -132,6 +137,9 @@ class ReadmeTest {
 val client = HttpClient {
   install(DefaultRequest) {
     url(mokksy.baseUrl())
+  }
+  install(ContentNegotiation) {
+    json()
   }
 }
 ```
@@ -249,6 +257,47 @@ result.headers["Foo"] shouldBe "bar"
 <!--- INCLUDE
   }
 -->
+
+### Typed request body
+
+When the request body type is known at compile time, use the **reified** overloads to let the
+compiler infer the type — no explicit `::class` argument required:
+
+```kotlin
+@Serializable
+data class CreateItemRequest(val name: String)
+```
+
+<!--- INCLUDE 
+  @Test
+  suspend fun testReified() {
+-->
+
+```kotlin
+mokksy.post<CreateItemRequest>(name = "create-item") {
+  path("/items")
+  bodyMatchesPredicate { it?.name?.isNotBlank() == true }
+} respondsWith {
+  body = """{"id":"1"}"""
+  httpStatus = HttpStatusCode.Created
+}
+
+val result =
+  client.post("/items") {
+    headers.append("Content-Type", "application/json")
+    setBody(CreateItemRequest("Bob"))
+  }
+
+result.status shouldBe HttpStatusCode.Created
+```
+
+<!--- INCLUDE 
+   }
+-->
+Reified overloads are provided for all HTTP verbs (`get`, `post`, `put`, `delete`, `patch`, `head`,
+`options`) and the generic `method` function. Two overloads exist per verb:
+
+The deserialized request body is accessible inside the response lambda as `request.body()`.
 
 ## Server-Side Events (SSE) response
 
@@ -411,53 +460,55 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 -->
+
 ```kotlin
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MyTest {
 
-    val mokksy = Mokksy()
-    lateinit var client: HttpClient
+  val mokksy = Mokksy()
+  lateinit var client: HttpClient
 
-    @BeforeAll
-    suspend fun setup() {
-        mokksy.startSuspend()
-        mokksy.awaitStarted() // port() and baseUrl() are safe after this point
-        client = HttpClient {
-            install(DefaultRequest) {
-                url(mokksy.baseUrl())
-            }
-        }
+  @BeforeAll
+  suspend fun setup() {
+    mokksy.startSuspend()
+    mokksy.awaitStarted() // port() and baseUrl() are safe after this point
+    client = HttpClient {
+      install(DefaultRequest) {
+        url(mokksy.baseUrl())
+      }
+    }
+  }
+
+  @Test
+  suspend fun testSomething() {
+    mokksy.get {
+      path = beEqual("/hi")
+    } respondsWith {
+      body = "Hello"
+      delay(100.milliseconds)
     }
 
-    @Test
-    suspend fun testSomething() {
-        mokksy.get {
-            path = beEqual("/hi")
-        } respondsWith {
-            body = "Hello"
-            delay(100.milliseconds)
-        }
+    // when
+    val response = client.get("/hi")
 
-        // when
-        val response = client.get("/hi")
+    // then
+    response.status shouldBe HttpStatusCode.OK
+    response.bodyAsText() shouldBe "Hello"
+  }
 
-        // then
-        response.status shouldBe HttpStatusCode.OK
-        response.bodyAsText() shouldBe "Hello"
-    }
+  @AfterEach
+  fun afterEach() {
+    mokksy.verifyNoUnexpectedRequests()
+  }
 
-    @AfterEach
-    fun afterEach() {
-        mokksy.verifyNoUnexpectedRequests()
-    }
-
-    @AfterAll
-    suspend fun afterAll() {
-        client.close()
-        mokksy.shutdownSuspend()
-    }
+  @AfterAll
+  suspend fun afterAll() {
+    client.close()
+    mokksy.shutdownSuspend()
+  }
 }
 ```
+
 <!--- KNIT example-readme-02.kt -->
 
 ### Inspecting unmatched items
@@ -479,16 +530,16 @@ val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnmatchedStubs
 Mokksy records incoming requests in a `RequestJournal`. The recording mode is controlled by `JournalMode` in
 `ServerConfiguration`:
 
-| Mode                           | Behaviour                                                                                                  |
-|--------------------------------|------------------------------------------------------------------------------------------------------------|
+| Mode                           | Behaviour                                                                                                   |
+|--------------------------------|-------------------------------------------------------------------------------------------------------------|
 | `JournalMode.LEAN` *(default)* | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`. |
-| `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                |
+| `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                 |
 
 ```kotlin
 val mokksy = Mokksy(
-    configuration = ServerConfiguration(
-        journalMode = JournalMode.FULL,
-    ),
+  configuration = ServerConfiguration(
+    journalMode = JournalMode.FULL,
+  ),
 )
 ```
 
@@ -497,10 +548,12 @@ Call `resetMatchCounts()` between scenarios to clear both stub match counts and 
 ```kotlin
 @AfterTest
 fun afterEach() {
-    mokksy.resetMatchCounts()
+  mokksy.resetMatchCounts()
 }
 ```
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification (HTML Living Standard)"
+
 [ai-mocks]: https://github.com/mokksy/ai-mocks/ "AI-Mock: Mokksy extensions for AI"
+
 [a2a]: https://a2a-protocol.org/ "Agent2Agent (A2A) Protocol, an open standard designed to enable seamless communication and collaboration between AI agents."
