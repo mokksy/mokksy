@@ -1,9 +1,11 @@
+@file:JvmName("MokksyServerMethods")
 @file:Suppress("TooManyFunctions")
 
 package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import io.ktor.http.HttpMethod
+import kotlin.jvm.JvmName
 
 /*
  * Reified overloads of [MokksyServer] stub-registration methods.
