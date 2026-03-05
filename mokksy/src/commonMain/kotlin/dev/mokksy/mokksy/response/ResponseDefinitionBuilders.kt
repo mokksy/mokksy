@@ -164,7 +164,6 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any> internal construct
      *
      * @return A new instance of [ResponseDefinition] containing the response attributes defined in the builder.
      */
-    @PublishedApi
     internal fun build(): ResponseDefinition<P, T> =
         ResponseDefinition(
             body = body,
@@ -217,7 +216,6 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constr
      * @param T The type of data being streamed.
      * @return A fully constructed [StreamResponseDefinition] instance containing the configured response details.
      */
-    @PublishedApi
     internal fun build(): StreamResponseDefinition<P, T> =
         StreamResponseDefinition(
             chunkFlow = flow,

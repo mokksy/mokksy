@@ -170,9 +170,9 @@ public open class RequestSpecification<P : Any>(
  *
  * This type is marked with [MokksyDsl], so nested DSL blocks do not implicitly
  * expose outer receivers.
- *
- * Example:
- *
+ */
+@MokksyDsl
+public open class RequestSpecificationBuilder<P : Any>(
     protected val requestType: KClass<P>,
 ) {
     protected var method: Matcher<HttpMethod>? = null

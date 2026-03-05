@@ -204,8 +204,6 @@ open class <#A: kotlin/Any, #B: kotlin/Any> dev.mokksy.mokksy.response/ResponseD
     final var contentType // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType|{}contentType[0]
         final fun <get-contentType>(): io.ktor.http/ContentType? // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<get-contentType>|<get-contentType>(){}[0]
         final fun <set-contentType>(io.ktor.http/ContentType?) // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<set-contentType>|<set-contentType>(io.ktor.http.ContentType?){}[0]
-
-    final fun build(): dev.mokksy.mokksy.response/ResponseDefinition<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.build|build(){}[0]
 }
 
 open class <#A: kotlin/Any, #B: kotlin/Any?> dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder : dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder<#A, #B> { // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder|null[0]
@@ -223,8 +221,6 @@ open class <#A: kotlin/Any, #B: kotlin/Any?> dev.mokksy.mokksy.response/Streamin
     final var flow // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow|{}flow[0]
         final fun <get-flow>(): kotlinx.coroutines.flow/Flow<#B>? // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow.<get-flow>|<get-flow>(){}[0]
         final fun <set-flow>(kotlinx.coroutines.flow/Flow<#B>?) // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow.<set-flow>|<set-flow>(kotlinx.coroutines.flow.Flow<1:1>?){}[0]
-
-    final fun build(): dev.mokksy.mokksy.response/StreamResponseDefinition<#A, #B> // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.build|build(){}[0]
 }
 
 open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecification { // dev.mokksy.mokksy.request/RequestSpecification|null[0]

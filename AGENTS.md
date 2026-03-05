@@ -14,7 +14,7 @@ Read the project overview from README.md
 #### Kotlin
 
 - Follow Kotlin coding conventions
-- When designing APIs, prioritize readability and usability over strict adherence to design patterns and Kotlin idiomatic style. Consider [these guildelines](https://raw.githubusercontent.com/kpavlov/kmons/refs/heads/main/docs/kotlin-api-design-guidelines.md) when in doubt.
+- When designing APIs, prioritize readability and usability over strict adherence to design patterns and Kotlin idiomatic style. Consider [these guidelines](https://raw.githubusercontent.com/kpavlov/kmons/refs/heads/main/docs/kotlin-api-design-guidelines.md) when in doubt.
 - Use the provided `.editorconfig` for consistent formatting
 - Prefer DSL builder style (method with lambda blocks) over constructors, where it makes API more readable and simple.
 - Use Kotlin's `val` for immutable properties and `var` for mutable properties
