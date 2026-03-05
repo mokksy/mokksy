@@ -135,7 +135,10 @@ public class BuildingStep<P : Any> internal constructor(
                 @Suppress("TooGenericExceptionCaught")
                 try {
                     val builder =
-                        StreamingResponseDefinitionBuilder<P, T>(request = req, formatter = formatter)
+                        StreamingResponseDefinitionBuilder<P, T>(
+                            request = req,
+                            formatter = formatter,
+                        )
                     builder.block()
                     builder.build()
                 } catch (e: CancellationException) {
@@ -143,7 +146,10 @@ public class BuildingStep<P : Any> internal constructor(
                 } catch (e: IOException) {
                     throw e
                 } catch (e: Exception) {
-                    call.application.log.error("Failed to build streaming response for request: $req", e)
+                    call.application.log.error(
+                        "Failed to build streaming response for request: $req",
+                        e,
+                    )
                     throw e
                 }
             }

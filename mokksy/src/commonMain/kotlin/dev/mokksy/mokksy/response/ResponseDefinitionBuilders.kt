@@ -21,6 +21,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * @author Konstantin Pavlov
  */
 @MokksyDsl
+@Suppress("AbstractClassCanBeConcreteClass")
 public abstract class AbstractResponseDefinitionBuilder<P, T>(
     public var delay: Duration = Duration.ZERO,
 ) {
@@ -123,13 +124,6 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
             }
         }
     }
-
-    /**
-     * Abstract method to build a concrete response definition.
-     *
-     * @return An instance of [AbstractResponseDefinition].
-     */
-    protected abstract fun build(): AbstractResponseDefinition<T>
 }
 
 /**
@@ -149,7 +143,7 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
  */
 @MokksyDsl
 @Suppress("LongParameterList")
-public open class ResponseDefinitionBuilder<P : Any, T : Any>(
+public open class ResponseDefinitionBuilder<P : Any, T : Any> internal constructor(
     public val request: CapturedRequest<P>,
     public var contentType: ContentType? = null,
     public var body: T? = null,
@@ -170,7 +164,8 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
      *
      * @return A new instance of [ResponseDefinition] containing the response attributes defined in the builder.
      */
-    public override fun build(): ResponseDefinition<P, T> =
+    @PublishedApi
+    internal fun build(): ResponseDefinition<P, T> =
         ResponseDefinition(
             body = body,
             contentType = contentType ?: ContentType.Application.Json,
@@ -197,7 +192,7 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
  */
 @MokksyDsl
 @Suppress("LongParameterList")
-public open class StreamingResponseDefinitionBuilder<P : Any, T>(
+public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constructor(
     public val request: CapturedRequest<P>,
     public var flow: Flow<T>? = null,
     public var chunks: MutableList<T> = mutableListOf(),
@@ -222,7 +217,8 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
      * @param T The type of data being streamed.
      * @return A fully constructed [StreamResponseDefinition] instance containing the configured response details.
      */
-    public override fun build(): StreamResponseDefinition<P, T> =
+    @PublishedApi
+    internal fun build(): StreamResponseDefinition<P, T> =
         StreamResponseDefinition(
             chunkFlow = flow,
             chunks = chunks.toList(),
