@@ -22,6 +22,9 @@ public final class dev/mokksy/mokksy/JournalMode : java/lang/Enum {
 	public static fun values ()[Ldev/mokksy/mokksy/JournalMode;
 }
 
+public abstract interface annotation class dev/mokksy/mokksy/MokksyDsl : java/lang/annotation/Annotation {
+}
+
 public final class dev/mokksy/mokksy/MokksyJava {
 	public static final fun respondsWith (Ldev/mokksy/mokksy/BuildingStep;Ljava/lang/Class;Ljava/util/function/Consumer;)V
 	public static final fun respondsWithStream (Ldev/mokksy/mokksy/BuildingStep;Ljava/lang/Class;Ljava/util/function/Consumer;)V
