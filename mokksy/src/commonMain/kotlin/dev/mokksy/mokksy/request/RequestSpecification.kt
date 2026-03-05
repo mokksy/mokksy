@@ -165,8 +165,14 @@ public open class RequestSpecification<P : Any>(
         }
 }
 
-@MokksyDsl
-public open class RequestSpecificationBuilder<P : Any>(
+/**
+ * Builder for request-matching rules used when registering Mokksy stubs.
+ *
+ * This type is marked with [MokksyDsl], so nested DSL blocks do not implicitly
+ * expose outer receivers.
+ *
+ * Example:
+ *
     protected val requestType: KClass<P>,
 ) {
     protected var method: Matcher<HttpMethod>? = null
