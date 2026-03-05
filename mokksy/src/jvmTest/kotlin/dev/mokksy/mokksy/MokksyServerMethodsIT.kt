@@ -9,19 +9,19 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.Json
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.test.BeforeTest
 
 internal class MokksyServerMethodsIT : AbstractIT() {
     private lateinit var name: String
 
     private lateinit var requestPayload: TestPerson
 
-    @BeforeTest
+    @BeforeEach
     fun before() {
         name = UUID.randomUUID().toString()
         requestPayload = TestPerson.random()
@@ -30,6 +30,7 @@ internal class MokksyServerMethodsIT : AbstractIT() {
     @ParameterizedTest
     @ValueSource(strings = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"])
     suspend fun `Should respond with reified type to Method`(methodName: String) {
+        val seed = UUID.randomUUID().toString()
         val method = HttpMethod.parse(methodName)
         val requestAsString = Json.encodeToString(requestPayload)
         val capturedError = AtomicReference<Throwable?>()
@@ -37,7 +38,7 @@ internal class MokksyServerMethodsIT : AbstractIT() {
 
         mokksy.method<TestPerson>(name, method) {
             path("/reified-method-$method-$seed")
-            containsHeader("X-Seed", "$seed")
+            containsHeader("X-Seed", seed)
         } respondsWith {
             try {
                 this.request.bodyAsString() shouldBe requestAsString
@@ -53,7 +54,7 @@ internal class MokksyServerMethodsIT : AbstractIT() {
         val result =
             client.request("/reified-method-$method-$seed") {
                 this.method = method
-                headers.append("X-Seed", "$seed")
+                headers.append("X-Seed", seed)
                 contentType(ContentType.Application.Json)
                 setBody(requestAsString)
             }
@@ -69,13 +70,14 @@ internal class MokksyServerMethodsIT : AbstractIT() {
 
     @Test
     suspend fun `get with reified type infers request body type`() {
+        val seed = UUID.randomUUID().toString()
         val capturedPerson = AtomicReference<TestPerson?>()
         val capturedError = AtomicReference<Throwable?>()
         val requestAsString = Json.encodeToString(requestPayload)
 
         mokksy.get<TestPerson>(name = name) {
             path("/reified-get-$seed")
-            containsHeader("X-Seed", "$seed")
+            containsHeader("X-Seed", seed)
         } respondsWith {
             try {
                 capturedPerson.set(request.body())
@@ -87,7 +89,7 @@ internal class MokksyServerMethodsIT : AbstractIT() {
 
         client.request("/reified-get-$seed") {
             method = HttpMethod.Get
-            headers.append("X-Seed", "$seed")
+            headers.append("X-Seed", seed)
             contentType(ContentType.Application.Json)
             setBody(requestAsString)
         }
@@ -125,6 +127,7 @@ internal class MokksyServerMethodsIT : AbstractIT() {
     @ParameterizedTest
     @ValueSource(strings = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"])
     suspend fun `method with StubConfiguration responds with reified type`(methodName: String) {
+        val seed = UUID.randomUUID().toString()
         val method = HttpMethod.parse(methodName)
         val requestAsString = Json.encodeToString(requestPayload)
         val capturedError = AtomicReference<Throwable?>()
@@ -132,7 +135,7 @@ internal class MokksyServerMethodsIT : AbstractIT() {
 
         mokksy.method<TestPerson>(StubConfiguration(name = name), method) {
             path("/reified-config-method-$method-$seed")
-            containsHeader("X-Seed", "$seed")
+            containsHeader("X-Seed", seed)
         } respondsWith {
             try {
                 this.request.body() shouldBe requestPayload
@@ -147,7 +150,7 @@ internal class MokksyServerMethodsIT : AbstractIT() {
         val result =
             client.request("/reified-config-method-$method-$seed") {
                 this.method = method
-                headers.append("X-Seed", "$seed")
+                headers.append("X-Seed", seed)
                 contentType(ContentType.Application.Json)
                 setBody(requestAsString)
             }
@@ -193,6 +196,7 @@ internal class MokksyServerMethodsIT : AbstractIT() {
     suspend fun `verb shortcut with StubConfiguration removes stub after first match`(
         methodName: String,
     ) {
+        val seed = UUID.randomUUID().toString()
         val method = HttpMethod.parse(methodName)
         val path = "/reified-verb-config-$methodName-$seed"
         val config = StubConfiguration(name = name, removeAfterMatch = true)
