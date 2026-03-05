@@ -64,8 +64,8 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          ./gradlew \
-            clean checkLegacyAbi knit build koverXmlReport koverLog
+          ./gradlew clean checkLegacyAbi detekt && \
+          ./gradlew knit build koverXmlReport koverLog
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
