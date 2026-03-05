@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy.response
 
+import dev.mokksy.mokksy.MokksyDsl
 import dev.mokksy.mokksy.request.CapturedRequest
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.ContentType
@@ -19,6 +20,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * @property httpStatus The HTTP status code to be associated with the response.
  * @author Konstantin Pavlov
  */
+@MokksyDsl
 public abstract class AbstractResponseDefinitionBuilder<P, T>(
     public var delay: Duration = Duration.ZERO,
 ) {
@@ -145,6 +147,7 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
  * Inherits functionality from [AbstractResponseDefinitionBuilder] to allow additional header manipulations
  * and provides a concrete implementation of the response building process.
  */
+@MokksyDsl
 @Suppress("LongParameterList")
 public open class ResponseDefinitionBuilder<P : Any, T : Any>(
     public val request: CapturedRequest<P>,
@@ -192,6 +195,7 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
  * @property chunks A list of data chunks to be sent as part of the stream,
  *          if [flow] is not provided.
  */
+@MokksyDsl
 @Suppress("LongParameterList")
 public open class StreamingResponseDefinitionBuilder<P : Any, T>(
     public val request: CapturedRequest<P>,
