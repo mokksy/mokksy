@@ -40,6 +40,7 @@
   * [POST request](#post-request)
 * [Server-Side Events (SSE) response](#server-side-events-sse-response)
 * [Request Specification Matchers](#request-specification-matchers)
+  * [Stub Specificity](#stub-specificity)
   * [Priority Example](#priority-example)
 * [Verifying Requests](#verifying-requests)
   * [Verify all stubs were triggered](#verify-all-stubs-were-triggered)
@@ -64,6 +65,7 @@ Particularly, it might be useful for integration testing LLM clients.
 - **Delay Simulation**: Support for simulating response delays and delays between chunks
 - **Modern API**: Fluent Kotlin DSL API with [Kotest Assertions](https://kotest.io/docs/assertions/assertions.html)
 - **Error Simulation**: Ability to mock negative scenarios and error responses
+- **Specificity-Based Matching**: When multiple stubs match a request, Mokksy automatically selects the most specific one — no explicit priority configuration required for common cases
 
 ## Quick start
       
@@ -300,10 +302,6 @@ result.bodyAsText() shouldBe "data: One\r\ndata: Two\r\n"
 <!--- INCLUDE
   }
 -->
-<!--- SUFFIX
-}
--->
-<!--- KNIT example-readme-01.kt -->
 
 ## Request Specification Matchers
 
@@ -317,13 +315,58 @@ Mokksy provides various matcher types to specify conditions for matching incomin
   deserialized request body
 - **Call matchers** — `successCallMatcher` matches if a function called with the body does not throw
 - **Priority** — `priority = 10` on `RequestSpecificationBuilder` sets the `RequestSpecification.priority`
-  of the stub; lower values indicate higher priority.
-  Default is `Int.MAX_VALUE`. When multiple stubs match a request, the one with the highest priority
-  (lowest numerical value) is selected.
+  of the stub; lower values indicate higher priority. Default is `Int.MAX_VALUE`.
+  Priority is a tiebreaker: it applies only when two stubs match with an equal number of conditions satisfied.
+  For most cases, specificity-based matching (see below) selects the right stub automatically.
+
+### Stub Specificity
+
+When multiple stubs could match the same request, Mokksy scores each one by counting how many conditions
+it satisfies, then selects the highest-scoring stub. A stub with two matching conditions beats a stub with one,
+regardless of registration order.
+
+<!--- INCLUDE 
+  @Test
+  suspend fun testSpecificity() {
+-->
+```kotlin
+// Generic: matches any POST to /users
+mokksy.post {
+    path("/users")
+} respondsWith {
+    body = "any user"
+}
+
+// Specific: matches only requests whose body contains "admin" — two conditions
+mokksy.post {
+    path("/users")
+    bodyContains("admin")
+} respondsWith {
+    body = "admin user"
+}
+
+// Admin request → specific stub wins (score 2 beats score 1)
+val adminResult = client.post("/users") { setBody("admin") }
+adminResult.bodyAsText() shouldBe "admin user"
+
+// Other request → only the generic stub matches
+val genericResult = client.post("/users") { setBody("regular") }
+genericResult.bodyAsText() shouldBe "any user"
+```
+<!--- INCLUDE
+  }
+-->
+<!--- SUFFIX
+}
+-->
+<!--- KNIT example-readme-01.kt -->
+
+When no stub matches and verbose mode is enabled (`Mokksy(verbose = true)`), Mokksy logs the closest
+partial match and its failed conditions to help you diagnose the mismatch.
 
 ### Priority Example
 
-If multiple stubs match, the one with the lower `priority` value wins:
+If multiple stubs match with the same specificity score, the one with the lower `priority` value wins:
 
 <!--- INCLUDE
   @Test

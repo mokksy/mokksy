@@ -122,25 +122,21 @@ final class <#A: kotlin/Any> dev.mokksy.mokksy/BuildingStep { // dev.mokksy.mokk
 }
 
 final class dev.mokksy.mokksy.request/RecordedRequest { // dev.mokksy.mokksy.request/RecordedRequest|null[0]
-    constructor <init>(io.ktor.http/HttpMethod, kotlin/String, kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>>) // dev.mokksy.mokksy.request/RecordedRequest.<init>|<init>(io.ktor.http.HttpMethod;kotlin.String;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>){}[0]
-
     final val headers // dev.mokksy.mokksy.request/RecordedRequest.headers|{}headers[0]
         final fun <get-headers>(): kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> // dev.mokksy.mokksy.request/RecordedRequest.headers.<get-headers>|<get-headers>(){}[0]
+    final val matched // dev.mokksy.mokksy.request/RecordedRequest.matched|{}matched[0]
+        final fun <get-matched>(): kotlin/Boolean // dev.mokksy.mokksy.request/RecordedRequest.matched.<get-matched>|<get-matched>(){}[0]
     final val method // dev.mokksy.mokksy.request/RecordedRequest.method|{}method[0]
         final fun <get-method>(): io.ktor.http/HttpMethod // dev.mokksy.mokksy.request/RecordedRequest.method.<get-method>|<get-method>(){}[0]
     final val uri // dev.mokksy.mokksy.request/RecordedRequest.uri|{}uri[0]
         final fun <get-uri>(): kotlin/String // dev.mokksy.mokksy.request/RecordedRequest.uri.<get-uri>|<get-uri>(){}[0]
 
-    final fun component1(): io.ktor.http/HttpMethod // dev.mokksy.mokksy.request/RecordedRequest.component1|component1(){}[0]
-    final fun component2(): kotlin/String // dev.mokksy.mokksy.request/RecordedRequest.component2|component2(){}[0]
-    final fun component3(): kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> // dev.mokksy.mokksy.request/RecordedRequest.component3|component3(){}[0]
-    final fun copy(io.ktor.http/HttpMethod = ..., kotlin/String = ..., kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> = ...): dev.mokksy.mokksy.request/RecordedRequest // dev.mokksy.mokksy.request/RecordedRequest.copy|copy(io.ktor.http.HttpMethod;kotlin.String;kotlin.collections.Map<kotlin.String,kotlin.collections.List<kotlin.String>>){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy.request/RecordedRequest.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // dev.mokksy.mokksy.request/RecordedRequest.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // dev.mokksy.mokksy.request/RecordedRequest.toString|toString(){}[0]
 
     final object Companion { // dev.mokksy.mokksy.request/RecordedRequest.Companion|null[0]
-        final fun from(io.ktor.server.routing/RoutingRequest): dev.mokksy.mokksy.request/RecordedRequest // dev.mokksy.mokksy.request/RecordedRequest.Companion.from|from(io.ktor.server.routing.RoutingRequest){}[0]
+        final fun from(io.ktor.server.routing/RoutingRequest, kotlin/Boolean): dev.mokksy.mokksy.request/RecordedRequest // dev.mokksy.mokksy.request/RecordedRequest.Companion.from|from(io.ktor.server.routing.RoutingRequest;kotlin.Boolean){}[0]
     }
 }
 
@@ -247,11 +243,6 @@ open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecification { // 
         final fun <get-path>(): io.kotest.matchers/Matcher<kotlin/String>? // dev.mokksy.mokksy.request/RequestSpecification.path.<get-path>|<get-path>(){}[0]
     final val priority // dev.mokksy.mokksy.request/RequestSpecification.priority|{}priority[0]
         final fun <get-priority>(): kotlin/Int // dev.mokksy.mokksy.request/RequestSpecification.priority.<get-priority>|<get-priority>(){}[0]
-
-    final fun matchHeaders(kotlin.collections/List<io.kotest.matchers/Matcher<io.ktor.http/Headers>>, io.ktor.server.request/ApplicationRequest): kotlin/Boolean // dev.mokksy.mokksy.request/RequestSpecification.matchHeaders|matchHeaders(kotlin.collections.List<io.kotest.matchers.Matcher<io.ktor.http.Headers>>;io.ktor.server.request.ApplicationRequest){}[0]
-    final suspend fun matchBody(kotlin.collections/List<io.kotest.matchers/Matcher<#A?>>, io.ktor.server.request/ApplicationRequest): kotlin/Boolean // dev.mokksy.mokksy.request/RequestSpecification.matchBody|matchBody(kotlin.collections.List<io.kotest.matchers.Matcher<1:0?>>;io.ktor.server.request.ApplicationRequest){}[0]
-    final suspend fun matchBodyString(kotlin.collections/List<io.kotest.matchers/Matcher<kotlin/String>>, io.ktor.server.request/ApplicationRequest): kotlin/Boolean // dev.mokksy.mokksy.request/RequestSpecification.matchBodyString|matchBodyString(kotlin.collections.List<io.kotest.matchers.Matcher<kotlin.String>>;io.ktor.server.request.ApplicationRequest){}[0]
-    final suspend fun matches(io.ktor.server.request/ApplicationRequest): kotlin/Result<kotlin/Boolean> // dev.mokksy.mokksy.request/RequestSpecification.matches|matches(io.ktor.server.request.ApplicationRequest){}[0]
 }
 
 open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecificationBuilder { // dev.mokksy.mokksy.request/RequestSpecificationBuilder|null[0]

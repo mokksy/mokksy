@@ -43,7 +43,7 @@ internal suspend fun handleRequest(
             formatter = formatter,
         )
 
-    val recorded = RecordedRequest.from(request)
+    val recorded = RecordedRequest.from(request, matchedStub != null)
 
     if (matchedStub != null) {
         requestJournal.recordMatched(recorded)

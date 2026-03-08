@@ -1,5 +1,7 @@
 package dev.mokksy.mokksy
 
+import dev.mokksy.mokksy.request.MatchResult
+import dev.mokksy.mokksy.request.matches
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.server.routing.RoutingRequest
 import io.ktor.util.logging.Logger
@@ -53,6 +55,7 @@ internal class StubRegistry {
      * @param request The incoming HTTP request to match
      * @return The matched stub, or null if no match found
      */
+    @Suppress("LongMethod")
     suspend fun findMatchingStub(
         request: RoutingRequest,
         verbose: Boolean,
@@ -75,12 +78,15 @@ internal class StubRegistry {
 
         return mutex.withLock {
             val currentSnapshot = stubs.value
-            var match: Stub<*, *>? = null
 
-            for (stub in currentSnapshot) {
-                val result = stub.requestSpecification.matches(request)
+            // Evaluate every stub — no short-circuit — so we can pick the most specific match.
+            val results: List<Pair<Stub<*, *>, Result<MatchResult>>> =
+                currentSnapshot.map { stub ->
+                    stub to stub.requestSpecification.matches(request)
+                }
 
-                if (result.isFailure && verbose) {
+            if (verbose) {
+                results.forEach { (stub, result) ->
                     result.exceptionOrNull()?.let { exception ->
                         logger.warn(
                             "Failed to evaluate condition for stub: ${stub.toLogString()}. " +
@@ -89,21 +95,41 @@ internal class StubRegistry {
                         )
                     }
                 }
-
-                if (result.getOrNull() == true) {
-                    match = stub
-                    break
-                }
             }
+
+            val evaluated: List<Pair<Stub<*, *>, MatchResult>> =
+                results.mapNotNull { (stub, result) -> result.getOrNull()?.let { stub to it } }
+
+            // Phase 1: collect all full matches, pick most specific.
+            val fullMatches = evaluated.filter { (_, mr) -> mr.matched }
+
+            val match: Stub<*, *>? =
+                if (fullMatches.isNotEmpty()) {
+                    fullMatches
+                        .sortedWith(
+                            compareByDescending<Pair<Stub<*, *>, MatchResult>> { (_, r) -> r.score }
+                                .thenBy { (s, _) -> s.requestSpecification.priority }
+                                .thenBy { (s, _) -> s.creationOrder },
+                        ).first()
+                        .first
+                } else {
+                    // Phase 2: nothing matched — log closest stub to aid debugging.
+                    val closest = evaluated.maxByOrNull { (_, r) -> r.score }
+                    if (verbose && closest != null) {
+                        logger.warn(
+                            "No stub matched request. " +
+                                "Closest stub: ${closest.first.toLogString()}\n" +
+                                "Failed matchers: ${closest.second.failedMatchers.joinToString()}",
+                        )
+                    }
+                    null
+                }
 
             if (match == null) return@withLock null
 
-            // 2. Increment match count
             match.incrementMatchCount()
 
-            // 3. Conditional locking for removal
             if (match.configuration.removeAfterMatch) {
-                // Already under lock
                 stubs.update { it.remove(match) }
                 if (verbose) {
                     logger.debug("Removed used stub: ${match.toLogString()}")

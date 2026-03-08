@@ -13,8 +13,8 @@ class RequestJournalStressTest {
     private val journal = RequestJournal(JournalMode.FULL)
 
     // Pre-create requests to avoid lincheck transforming Ktor classes
-    private val matchedRequest = RecordedRequest(HttpMethod.Get, "/matched", emptyMap())
-    private val unmatchedRequest = RecordedRequest(HttpMethod.Get, "/unmatched", emptyMap())
+    private val matchedRequest = RecordedRequest(HttpMethod.Get, "/matched", emptyMap(), true)
+    private val unmatchedRequest = RecordedRequest(HttpMethod.Get, "/unmatched", emptyMap(), false)
 
     @Operation
     fun recordMatched() {

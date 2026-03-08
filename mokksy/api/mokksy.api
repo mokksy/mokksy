@@ -207,14 +207,9 @@ public final class dev/mokksy/mokksy/request/CapturedRequest {
 
 public final class dev/mokksy/mokksy/request/RecordedRequest {
 	public static final field Companion Ldev/mokksy/mokksy/request/RecordedRequest$Companion;
-	public fun <init> (Lio/ktor/http/HttpMethod;Ljava/lang/String;Ljava/util/Map;)V
-	public final fun component1 ()Lio/ktor/http/HttpMethod;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/util/Map;
-	public final fun copy (Lio/ktor/http/HttpMethod;Ljava/lang/String;Ljava/util/Map;)Ldev/mokksy/mokksy/request/RecordedRequest;
-	public static synthetic fun copy$default (Ldev/mokksy/mokksy/request/RecordedRequest;Lio/ktor/http/HttpMethod;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Ldev/mokksy/mokksy/request/RecordedRequest;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getHeaders ()Ljava/util/Map;
+	public final fun getMatched ()Z
 	public final fun getMethod ()Lio/ktor/http/HttpMethod;
 	public final fun getUri ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -222,7 +217,7 @@ public final class dev/mokksy/mokksy/request/RecordedRequest {
 }
 
 public final class dev/mokksy/mokksy/request/RecordedRequest$Companion {
-	public final fun from (Lio/ktor/server/routing/RoutingRequest;)Ldev/mokksy/mokksy/request/RecordedRequest;
+	public final fun from (Lio/ktor/server/routing/RoutingRequest;Z)Ldev/mokksy/mokksy/request/RecordedRequest;
 }
 
 public final class dev/mokksy/mokksy/request/RequestMatchersKt {
@@ -243,10 +238,6 @@ public class dev/mokksy/mokksy/request/RequestSpecification {
 	public final fun getMethod ()Lio/kotest/matchers/Matcher;
 	public final fun getPath ()Lio/kotest/matchers/Matcher;
 	public final fun getPriority ()I
-	protected final fun matchBody (Ljava/util/List;Lio/ktor/server/request/ApplicationRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	protected final fun matchBodyString (Ljava/util/List;Lio/ktor/server/request/ApplicationRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	protected final fun matchHeaders (Ljava/util/List;Lio/ktor/server/request/ApplicationRequest;)Z
-	public final fun matches-gIAlu-s (Lio/ktor/server/request/ApplicationRequest;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public class dev/mokksy/mokksy/request/RequestSpecificationBuilder {

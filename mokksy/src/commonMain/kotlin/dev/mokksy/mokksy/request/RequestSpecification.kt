@@ -5,15 +5,6 @@ import io.kotest.matchers.Matcher
 import io.kotest.matchers.string.contain
 import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
-import io.ktor.server.application.log
-import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.request.ApplicationRequest
-import io.ktor.server.request.ContentTransformationException
-import io.ktor.server.request.httpMethod
-import io.ktor.server.request.path
-import io.ktor.server.request.receive
-import io.ktor.server.request.receiveText
-import kotlinx.coroutines.CancellationException
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
@@ -30,6 +21,19 @@ import kotlin.reflect.KClass
 public const val DEFAULT_STUB_PRIORITY: Int = Int.MAX_VALUE
 
 /**
+ * Result of evaluating a [RequestSpecification] against an incoming request.
+ *
+ * @property matched `true` when every defined matcher passed.
+ * @property score Number of matchers that passed; higher means more specific.
+ * @property failedMatchers Human-readable labels of matchers that did not pass.
+ */
+internal data class MatchResult(
+    val matched: Boolean,
+    val score: Int,
+    val failedMatchers: List<String>,
+)
+
+/**
  * Represents a specification for matching incoming HTTP requests based on defined criteria,
  * such as HTTP method, request path, and request body.
  *
@@ -44,6 +48,10 @@ public const val DEFAULT_STUB_PRIORITY: Int = Int.MAX_VALUE
  * @property body List of matchers for the request body as a [P]. All matchers must pass for a match to succeed.
  * @property bodyString List of matchers for the request body as a String.
  *                      All matchers must pass for a match to succeed.
+ *                      **Note:** when both [body] and [bodyString] matchers are active, the request body is read
+ *                      twice. The Ktor `DoubleReceive` plugin must be installed on the server for this to work
+ *                      correctly; without it the second `receive()` call will fail silently and all matchers in
+ *                      the later group will be treated as not matched.
  * @property priority The priority value used for comparing different specifications.
  * Lower values indicate higher priority. Default value is [DEFAULT_STUB_PRIORITY]
  */
@@ -55,104 +63,8 @@ public open class RequestSpecification<P : Any>(
     public val body: List<Matcher<P?>> = listOf(),
     public val bodyString: List<Matcher<String?>> = listOf(),
     public val priority: Int = DEFAULT_STUB_PRIORITY,
-    private val requestType: KClass<P>,
+    internal val requestType: KClass<P>,
 ) {
-    public suspend fun matches(request: ApplicationRequest): Result<Boolean> =
-        runCatching {
-            matchMethod(request) &&
-                matchPath(request) &&
-                matchHeaders(headers, request) &&
-                matchBody(body, request) &&
-                matchBodyString(bodyString, request)
-        }.onFailure {
-            if (it is CancellationException) throw it
-        }
-
-    private fun matchPath(request: ApplicationRequest): Boolean =
-        (path == null || path.test(request.path()).passed())
-
-    private fun matchMethod(request: ApplicationRequest): Boolean =
-        (method == null || method.test(request.httpMethod).passed())
-
-    protected suspend fun matchBody(
-        matchers: List<Matcher<P?>>,
-        request: ApplicationRequest,
-    ): Boolean {
-        if (matchers.isEmpty()) return true
-        val body: P?
-        return try {
-            body = request.call.receive(requestType)
-            matchers.all {
-                it
-                    .test(body)
-                    .passed()
-            }
-        } catch (e: ContentTransformationException) {
-            @Suppress("TooGenericExceptionCaught")
-            val bodyText =
-                try {
-                    request.call.receiveText()
-                } catch (ex: CancellationException) {
-                    throw ex
-                } catch (ex: Exception) {
-                    "Unable to read body: ${ex.message}"
-                }
-            val causeMessage = e.cause?.message ?: "No cause available"
-            request.call.application.log
-                .debug(
-                    "Request body: $bodyText. Cause: $causeMessage",
-                    e,
-                )
-            false
-        } catch (e: BadRequestException) {
-            request.call.application.log
-                .debug(
-                    "Bad request: ${e.message}. Request body: ${request.call.receiveText()}",
-                    e,
-                )
-            false
-        }
-    }
-
-    /**
-     * Matches the body (string) content of an HTTP request against a provided list of matchers.
-     *
-     * @param matchers A list of matchers used to evaluate the HTTP request body as a string.
-     *                      All matchers must pass for the method to return true.
-     * @param request The HTTP request to be evaluated.
-     * @return True if all matchers successfully match the request body, false otherwise.
-     */
-    protected suspend fun matchBodyString(
-        matchers: List<Matcher<String>>,
-        request: ApplicationRequest,
-    ): Boolean {
-        if (matchers.isEmpty()) return true
-        val bodyString = request.call.receive(type = String::class)
-        return matchers.all {
-            it
-                .test(bodyString)
-                .passed()
-        }
-    }
-
-    /**
-     * Matches the headers of an HTTP request against a provided list of matchers.
-     *
-     * @param headersMatchers A list of matchers used to evaluate the HTTP request headers.
-     *                        All matchers must pass for the method to return true.
-     * @param request The HTTP request whose headers will be evaluated.
-     * @return True if all matchers successfully match the request headers, false otherwise.
-     */
-    protected fun matchHeaders(
-        headersMatchers: List<Matcher<Headers>>,
-        request: ApplicationRequest,
-    ): Boolean =
-        headersMatchers.all {
-            it
-                .test(request.headers)
-                .passed()
-        }
-
     internal fun toLogString(): String =
         buildString {
             if (method != null) {

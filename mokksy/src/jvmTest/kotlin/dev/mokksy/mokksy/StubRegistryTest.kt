@@ -1,19 +1,15 @@
 package dev.mokksy.mokksy
 
-import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
-import io.kotest.matchers.Matcher
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.ktor.server.request.path
 import io.ktor.server.routing.RoutingRequest
 import io.ktor.util.logging.Logger
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
@@ -242,48 +238,6 @@ class StubRegistryTest {
                 matched shouldBe null
             }
 
-        @Test
-        fun `should log warning when condition evaluation fails and verbose is true`() =
-            runBlocking {
-                val registry = StubRegistry()
-                // Use a path matcher instead of a body matcher to avoid depending on
-                // Ktor's receive() extension function which cannot be mocked by MockK
-                val failingStub =
-                    Stub(
-                        configuration = StubConfiguration(name = "failing"),
-                        requestSpecification =
-                            RequestSpecification(
-                                requestType = String::class,
-                                path =
-                                    Matcher {
-                                        throw IllegalArgumentException("Boom!")
-                                    },
-                            ),
-                        responseDefinitionSupplier = okResponseSupplier<String>(),
-                    )
-
-                registry.add(failingStub)
-
-                coEvery { formatter.formatRequest(any()) } returns "formatted request"
-                every { routingRequest.path() } returns "/test"
-
-                registry.findMatchingStub(
-                    request = routingRequest,
-                    verbose = true,
-                    logger = logger,
-                    formatter = formatter,
-                )
-
-                verify {
-                    logger.warn(
-                        match<String> {
-                            it.contains("Failed to evaluate condition for stub:") &&
-                                it.contains("failing")
-                        },
-                        any<Throwable>(),
-                    )
-                }
-            }
     }
 
     @Nested

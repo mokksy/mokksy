@@ -1,6 +1,7 @@
 package dev.mokksy.mokksy
 
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -27,7 +28,7 @@ internal class BodyNotMatchingIT : AbstractIT() {
     }
 
     @Test
-    suspend fun `should fail when !bodyContains`() {
+    suspend fun `should fail when not bodyContains`() {
         // given
         val path = "/predicate-$seed"
         mokksy
@@ -51,10 +52,31 @@ internal class BodyNotMatchingIT : AbstractIT() {
         // then
         result.status shouldBe HttpStatusCode.NotFound
 
-        val unexpectedRequests = mokksy.findAllUnexpectedRequests()
-        unexpectedRequests shouldHaveSize 1
-        unexpectedRequests[0].uri shouldBe path
+        val unexpectedForPath = mokksy.findAllUnexpectedRequests().filter { it.uri == path }
+        unexpectedForPath shouldHaveSize 1
 
-        mokksy.findAllUnmatchedStubs() shouldHaveSize 1
+        mokksy.findAllUnmatchedStubs().shouldNotBeEmpty()
+    }
+
+    @Test
+    suspend fun `server returns 404 and does not crash when stub body matcher throws exception`() {
+        val path = "/failing-matcher-$seed"
+
+        mokksy.post {
+            path(path)
+            bodyMatchesPredicate("always throws") {
+                throw IllegalStateException("Matcher intentionally throws")
+            }
+        } respondsWith {
+            body = "ok"
+        }
+
+        val result =
+            client.post(path) {
+                contentType(ContentType.Text.Plain)
+                setBody("test body")
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
     }
 }

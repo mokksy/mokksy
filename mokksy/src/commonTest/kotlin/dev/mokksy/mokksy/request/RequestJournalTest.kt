@@ -8,12 +8,13 @@ import io.ktor.http.HttpMethod
 import kotlin.test.Test
 
 internal class RequestJournalTest {
-    private val request1 = RecordedRequest(HttpMethod.Get, "/test1", emptyMap())
+    private val request1 = RecordedRequest(HttpMethod.Get, "/test1", emptyMap(), true)
     private val request2 =
         RecordedRequest(
             HttpMethod.Post,
             "/test2",
             mapOf("Content-Type" to listOf("application/json")),
+            false,
         )
 
     @Test

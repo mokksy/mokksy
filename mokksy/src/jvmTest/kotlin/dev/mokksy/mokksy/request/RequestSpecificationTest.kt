@@ -25,7 +25,6 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 
 internal class RequestSpecificationTest {
-
     private fun specTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) =
         testApplication {
             install(DoubleReceive)
@@ -34,7 +33,13 @@ internal class RequestSpecificationTest {
         }
 
     private suspend fun RoutingContext.respondMatchResult(spec: RequestSpecification<*>) =
-        call.respondText(spec.matches(call.request).getOrThrow().toString())
+        call.respondText(
+            spec
+                .matches(call.request)
+                .getOrThrow()
+                .matched
+                .toString(),
+        )
 
     @Test
     fun `should match when only headers are specified`() =
@@ -164,6 +169,58 @@ internal class RequestSpecificationTest {
                 }
 
             response.bodyAsText() shouldBe "false"
+        }
+
+    @Test
+    fun `should not match when body type transformation fails`() =
+        specTestApplication {
+            routing {
+                post("/test") {
+                    respondMatchResult(
+                        RequestSpecification(
+                            body = listOf(beEqual(Input("Alice"))),
+                            requestType = Input::class,
+                        ),
+                    )
+                }
+            }
+
+            val response =
+                client.post("/test") {
+                    contentType(ContentType.Text.Plain)
+                    setBody("not valid json for Input")
+                }
+
+            // ContentTransformationException during receive() is caught; all body matchers fail gracefully
+            response.bodyAsText() shouldBe "false"
+        }
+
+    @Test
+    fun `MatchResult exposes correct score and failedMatchers alongside matched`() =
+        specTestApplication {
+            routing {
+                post("/test") {
+                    val result =
+                        RequestSpecification(
+                            method = beEqual(HttpMethod.Post),
+                            path = contain("test"),
+                            headers = listOf(containsHeader("X-Request-ID", "RequestID")),
+                            requestType = Input::class,
+                        ).matches(call.request)
+                            .getOrThrow()
+                    call.respondText(
+                        "${result.matched}|${result.score}|${result.failedMatchers.joinToString(",")}",
+                    )
+                }
+            }
+
+            // method=POST and path match; X-Request-ID header is absent → headers[0] fails
+            val response = client.post("/test")
+
+            val (matched, score, failed) = response.bodyAsText().split("|")
+            matched shouldBe "false"
+            score shouldBe "2"
+            failed shouldBe "headers[0]"
         }
 
     @Test
