@@ -475,10 +475,10 @@ class MyTest {
     @Test
     suspend fun testSomething() {
         mokksy.get {
-            path = beEqual("/hi")
+            path("/hi")
         } respondsWith {
+            delay = 100.milliseconds // wait 100ms, then reply
             body = "Hello"
-            delay(100.milliseconds)
         }
 
         // when
