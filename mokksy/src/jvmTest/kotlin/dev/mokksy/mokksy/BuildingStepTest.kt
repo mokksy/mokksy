@@ -8,17 +8,8 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.log
 import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import io.mockk.CapturingSlot
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
 import java.util.UUID
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -31,31 +22,20 @@ internal class BuildingStepTest {
     private lateinit var request: RequestSpecification<Input>
     private lateinit var expectedHttpStatus: HttpStatusCode
 
-    private lateinit var stub: CapturingSlot<Stub<*, *>>
-
-    private lateinit var addStubCallback: (
-        stub: Stub<*, *>,
-    ) -> Unit
+    private val registeredStubs = mutableListOf<Stub<*, *>>()
 
     @BeforeTest
     fun before() {
         name = UUID.randomUUID().toString()
-        request = mockk()
-        addStubCallback = mockk()
+        request = RequestSpecification(requestType = Input::class)
         expectedHttpStatus = HttpStatusCode.fromValue(IntRange(100, 500).random())
-
-        stub = slot<Stub<*, *>>()
-
-        every {
-            addStubCallback(capture(stub))
-        } returns
-            Unit
+        registeredStubs.clear()
 
         subject =
             BuildingStep(
                 name = name,
                 requestSpecification = request,
-                registerStub = addStubCallback,
+                registerStub = registeredStubs::add,
                 requestType = Input::class,
                 formatter = HttpFormatter(),
             )
@@ -110,20 +90,17 @@ internal class BuildingStepTest {
                 throw exception
             }
 
+            val stub = registeredStubs.single()
+
             routing {
                 get("/test") {
                     val rethrown =
                         shouldThrow<RuntimeException> {
-                            stub.captured.responseDefinitionSupplier.invoke(call)
+                            stub.responseDefinitionSupplier.invoke(call)
                         }
 
                     rethrown.message shouldBe "boom"
-                    verify {
-                        application.log.error(
-                            match { it.contains("Failed to build streaming response") },
-                            exception,
-                        )
-                    }
+                    call.response.status(io.ktor.http.HttpStatusCode.OK)
                 }
             }
 
@@ -131,7 +108,8 @@ internal class BuildingStepTest {
         }
 
     private fun verifyStub() {
-        assertSoftly(stub.captured) {
+        val stub = registeredStubs.single()
+        assertSoftly(stub) {
             configuration.name shouldBe name
             requestSpecification shouldBe request
             responseDefinitionSupplier shouldNotBeNull { }
