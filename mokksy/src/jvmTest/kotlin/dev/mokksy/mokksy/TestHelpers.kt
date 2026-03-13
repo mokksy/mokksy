@@ -27,7 +27,7 @@ internal inline fun <reified T : Any> okResponseSupplier(): ResponseDefinitionSu
 internal inline fun <P : Any, reified T : Any> createStub(
     name: String? = null,
     priority: Int = DEFAULT_STUB_PRIORITY,
-    removeAfterMatch: Boolean = false,
+    eventuallyRemove: Boolean = false,
     requestType: KClass<P>,
     path: String? = null,
     noinline responseSupplier: ResponseDefinitionSupplier<T>? = null,
@@ -43,7 +43,7 @@ internal inline fun <P : Any, reified T : Any> createStub(
                 },
         )
     return Stub(
-        configuration = StubConfiguration(name = name, removeAfterMatch = removeAfterMatch),
+        configuration = StubConfiguration(name = name, eventuallyRemove = eventuallyRemove),
         requestSpecification = spec,
         responseDefinitionSupplier = responseSupplier ?: okResponseSupplier<T>(),
     )

@@ -13,7 +13,7 @@ internal class RemoveAfterUseIT : AbstractIT() {
             .get(
                 configuration =
                     StubConfiguration(
-                        removeAfterMatch = true,
+                        eventuallyRemove = true,
                         verbose = true,
                     ),
             ) {

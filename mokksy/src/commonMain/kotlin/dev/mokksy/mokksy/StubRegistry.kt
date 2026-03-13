@@ -15,135 +15,166 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * Thread-safe, multiplatform stub registry with atomic operations.
+ * Thread-safe, multiplatform stub registry.
  *
- * Uses kotlinx.atomicfu for lock-free operations where possible,
- * and kotlinx.coroutines Mutex for complex multistep operations that may suspend.
+ * The stub list is kept sorted by (priority, creationOrder) at insertion time so that
+ * [getAll] returns stubs in a stable, human-readable order without an additional sort.
+ *
+ * [add] is lock-free via an [AtomicRef.update] CAS loop and can be called from any context.
+ * Removal inside [findMatchingStub] is serialised by [mutex] (coroutine-only path).
+ * The snapshot read in Phase 1 of [findMatchingStub] is lock-free; [AtomicRef] provides
+ * the necessary visibility guarantees.
+ *
  * @author Konstantin Pavlov
  */
 internal class StubRegistry {
-    // Atomic reference to an immutable sorted list
+    // Written lock-free by add() and under mutex by findMatchingStub's removal step.
+    // AtomicRef provides the visibility guarantees needed for the lock-free Phase 1 snapshot read.
     private val stubs: AtomicRef<PersistentList<Stub<*, *>>> = atomic(persistentListOf())
 
-    // Lock for operations requiring atomicity across multiple steps
+    // Used only for the brief claim-and-remove step inside findMatchingStub.
     private val mutex = Mutex()
 
     /**
-     * Atomically adds a stub to the registry.
+     * Adds a stub to the registry in sorted order.
      *
-     * Uses lock-free update operation that retries until successful.
+     * Lock-free: uses a CAS retry loop. The duplicate check is performed on the snapshot
+     * that wins the CAS, so it is always consistent with the list that was actually written.
      *
-     * @throws IllegalArgumentException if stub is already registered
+     * @throws IllegalArgumentException if the same stub instance is already registered.
      */
     fun add(stub: Stub<*, *>) {
-        stubs.update { currentList ->
-            val index = currentList.binarySearch(stub, StubComparator)
+        stubs.update { current ->
+            val index = current.binarySearch(stub, StubComparator)
             require(index < 0) { "Duplicate stub detected: ${stub.toLogString()}" }
-            val insertionIndex = -(index + 1)
-            currentList.add(insertionIndex, stub)
+            current.add(-(index + 1), stub)
         }
     }
 
     /**
-     * Atomically finds and optionally removes the best matching stub.
+     * Finds the best matching stub for [request] using a two-phase approach:
      *
-     * This operation is atomic to prevent TOCTOU race conditions:
-     * - Match and remove happen in a single critical section
-     * - Match count is incremented atomically
-     * - No other thread can interfere between match and remove
+     * **Phase 1 (lock-free):** Snapshot the current stub list and evaluate all matchers,
+     * including any suspend I/O (body reads). Concurrent requests run in parallel here.
      *
-     * @param request The incoming HTTP request to match
-     * @return The matched stub, or null if no match found
+     * **Phase 2 (locked):** Atomically claim the winner via [Stub.claimMatch].
+     * If another coroutine already claimed it (lost CAS on an [StubConfiguration.eventuallyRemove]
+     * stub), retry from Phase 1 with a fresh snapshot.
+     *
+     * @return The matched stub, or `null` if no stub matched.
      */
-    @Suppress("LongMethod")
     suspend fun findMatchingStub(
         request: RoutingRequest,
         verbose: Boolean,
         logger: Logger,
         formatter: HttpFormatter,
     ): Stub<*, *>? {
-        val formattedRequest =
-            if (verbose) {
-                @Suppress("TooGenericExceptionCaught")
-                try {
-                    formatter.formatRequest(request)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    "<Unable to format request: ${e.message}>"
-                }
+        val formattedRequest = formatRequest(request, verbose, formatter)
+
+        // Retries only when an eventuallyRemove stub is claimed by a concurrent coroutine
+        // between Phase 1 evaluation and the Phase 2 claim — an extremely rare edge case.
+        while (true) {
+            // Phase 1: snapshot + evaluate outside the lock (suspend I/O runs freely).
+            val candidate =
+                evaluate(stubs.value, request, verbose, logger, formattedRequest)
+                    ?: return null
+
+            // Phase 2: claim the winner (lock held only for this brief step).
+            if (candidate.configuration.eventuallyRemove) {
+                // CAS inside the lock: only one coroutine wins; losers retry Phase 1.
+                val claimed =
+                    mutex.withLock {
+                        candidate.claimMatch().also { won ->
+                            if (won) {
+                                stubs.update { it.remove(candidate) }
+                                if (verbose) {
+                                    logger.debug(
+                                        "Removed used stub: ${candidate.toLogString()}",
+                                    )
+                                }
+                            }
+                        }
+                    }
+                if (!claimed) continue
             } else {
-                ""
+                candidate.claimMatch()
             }
 
-        return mutex.withLock {
-            val currentSnapshot = stubs.value
-
-            // Evaluate every stub — no short-circuit — so we can pick the most specific match.
-            val results: List<Pair<Stub<*, *>, Result<MatchResult>>> =
-                currentSnapshot.map { stub ->
-                    stub to stub.requestSpecification.matches(request)
-                }
-
-            if (verbose) {
-                results.forEach { (stub, result) ->
-                    result.exceptionOrNull()?.let { exception ->
-                        logger.warn(
-                            "Failed to evaluate condition for stub: ${stub.toLogString()}. " +
-                                "Request: $formattedRequest",
-                            exception,
-                        )
-                    }
-                }
-            }
-
-            val evaluated: List<Pair<Stub<*, *>, MatchResult>> =
-                results.mapNotNull { (stub, result) -> result.getOrNull()?.let { stub to it } }
-
-            // Phase 1: collect all full matches, pick most specific.
-            val fullMatches = evaluated.filter { (_, mr) -> mr.matched }
-
-            val match: Stub<*, *>? =
-                if (fullMatches.isNotEmpty()) {
-                    fullMatches
-                        .sortedWith(
-                            compareByDescending<Pair<Stub<*, *>, MatchResult>> { (_, r) -> r.score }
-                                .thenBy { (s, _) -> s.requestSpecification.priority }
-                                .thenBy { (s, _) -> s.creationOrder },
-                        ).first()
-                        .first
-                } else {
-                    // Phase 2: nothing matched — log closest stub to aid debugging.
-                    val closest = evaluated.maxByOrNull { (_, r) -> r.score }
-                    if (verbose && closest != null) {
-                        logger.warn(
-                            "No stub matched request. " +
-                                "Closest stub: ${closest.first.toLogString()}\n" +
-                                "Failed matchers: ${closest.second.failedMatchers.joinToString()}",
-                        )
-                    }
-                    null
-                }
-
-            if (match == null) return@withLock null
-
-            match.incrementMatchCount()
-
-            if (match.configuration.removeAfterMatch) {
-                stubs.update { it.remove(match) }
-                if (verbose) {
-                    logger.debug("Removed used stub: ${match.toLogString()}")
-                }
-            }
-
-            match
+            return candidate
         }
     }
 
     /**
      * Returns a snapshot of all registered stubs.
-     *
-     * This is a consistent snapshot at a point in time.
      */
     fun getAll(): List<Stub<*, *>> = stubs.value
+
+    // region Private helpers
+
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun formatRequest(
+        request: RoutingRequest,
+        verbose: Boolean,
+        formatter: HttpFormatter,
+    ): String {
+        if (!verbose) return ""
+        return try {
+            formatter.formatRequest(request)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            "<Unable to format request: ${e.message}>"
+        }
+    }
+
+    private suspend fun evaluate(
+        snapshot: List<Stub<*, *>>,
+        request: RoutingRequest,
+        verbose: Boolean,
+        logger: Logger,
+        formattedRequest: String,
+    ): Stub<*, *>? {
+        val results =
+            snapshot
+                .filter { !it.configuration.eventuallyRemove || !it.hasBeenMatched() }
+                .map { stub -> stub to stub.requestSpecification.matches(request) }
+
+        if (verbose) {
+            results.forEach { (stub, result) ->
+                result.exceptionOrNull()?.let { ex ->
+                    logger.warn(
+                        "Failed to evaluate condition for stub: ${stub.toLogString()}. " +
+                            "Request: $formattedRequest",
+                        ex,
+                    )
+                }
+            }
+        }
+
+        val evaluated =
+            results.mapNotNull { (stub, result) -> result.getOrNull()?.let { stub to it } }
+        val fullMatches = evaluated.filter { (_, mr) -> mr.matched }
+
+        if (fullMatches.isNotEmpty()) {
+            return fullMatches
+                .sortedWith(
+                    compareByDescending<Pair<Stub<*, *>, MatchResult>> { (_, r) -> r.score }
+                        .thenBy { (s, _) -> s.requestSpecification.priority }
+                        .thenBy { (s, _) -> s.creationOrder },
+                ).first()
+                .first
+        }
+
+        if (verbose) {
+            evaluated.maxByOrNull { (_, r) -> r.score }?.let { (stub, mr) ->
+                logger.warn(
+                    "No stub matched request. Closest stub: ${stub.toLogString()}\n" +
+                        "Failed matchers: ${mr.failedMatchers.joinToString()}",
+                )
+            }
+        }
+        return null
+    }
+
+    // endregion
 }

@@ -658,7 +658,7 @@ public open class MokksyServer
             stubRegistry
                 .getAll()
                 .filter {
-                    it.matchCount() == 0
+                    !it.hasBeenMatched()
                 }.map { it.requestSpecification }
                 .toList()
 

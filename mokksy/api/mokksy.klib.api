@@ -175,10 +175,10 @@ final class dev.mokksy.mokksy/ServerConfiguration { // dev.mokksy.mokksy/ServerC
 final class dev.mokksy.mokksy/StubConfiguration { // dev.mokksy.mokksy/StubConfiguration|null[0]
     constructor <init>(kotlin/String? = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // dev.mokksy.mokksy/StubConfiguration.<init>|<init>(kotlin.String?;kotlin.Boolean;kotlin.Boolean){}[0]
 
+    final val eventuallyRemove // dev.mokksy.mokksy/StubConfiguration.eventuallyRemove|{}eventuallyRemove[0]
+        final fun <get-eventuallyRemove>(): kotlin/Boolean // dev.mokksy.mokksy/StubConfiguration.eventuallyRemove.<get-eventuallyRemove>|<get-eventuallyRemove>(){}[0]
     final val name // dev.mokksy.mokksy/StubConfiguration.name|{}name[0]
         final fun <get-name>(): kotlin/String? // dev.mokksy.mokksy/StubConfiguration.name.<get-name>|<get-name>(){}[0]
-    final val removeAfterMatch // dev.mokksy.mokksy/StubConfiguration.removeAfterMatch|{}removeAfterMatch[0]
-        final fun <get-removeAfterMatch>(): kotlin/Boolean // dev.mokksy.mokksy/StubConfiguration.removeAfterMatch.<get-removeAfterMatch>|<get-removeAfterMatch>(){}[0]
     final val verbose // dev.mokksy.mokksy/StubConfiguration.verbose|{}verbose[0]
         final fun <get-verbose>(): kotlin/Boolean // dev.mokksy.mokksy/StubConfiguration.verbose.<get-verbose>|<get-verbose>(){}[0]
 

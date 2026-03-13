@@ -40,12 +40,43 @@ internal data class Stub<P : Any, T : Any>(
      */
     internal val creationOrder = COUNTER.incrementAndGet()
 
+    // region Match tracking
+
     /**
-     * Tracks the number of times a particular stub has been matched with incoming requests.
-     * This counter is used to record the match frequency and can be incremented or reset
-     * through corresponding methods in the class.
+     * Whether this stub has been matched at least once.
+     *
+     * This flag is the single source of truth for match state. It is used by:
+     * - [MokksyServer.findAllUnmatchedStubs] to find stubs that have never been hit.
+     * - [MokksyServer.resetMatchCounts] to re-arm stubs for a new test scenario.
+     * - [claimMatch] to enforce the [StubConfiguration.eventuallyRemove] invariant
+     *   without holding the registry mutex during request evaluation.
      */
-    private val matchCount = atomic(0)
+    private val matched = atomic(false)
+
+    /**
+     * Returns `true` if this stub has been matched at least once.
+     */
+    fun hasBeenMatched(): Boolean = matched.value
+
+    /**
+     * Atomically claims this stub for a match.
+     *
+     * Returns `true` exactly once — the first caller wins and is responsible for
+     * scheduling removal when [StubConfiguration.eventuallyRemove] is set.
+     * Every subsequent call returns `false`.
+     */
+    fun claimMatch(): Boolean = matched.compareAndSet(expect = false, update = true)
+
+    /**
+     * Resets match state to unmatched, re-arming the stub for a new test scenario.
+     *
+     * @see MokksyServer.resetMatchCounts
+     */
+    fun resetMatchCount() {
+        matched.value = false
+    }
+
+    // endregion
 
     /**
      * Compares this [Stub] instance to another [Stub] instance for order.
@@ -69,16 +100,6 @@ internal data class Stub<P : Any, T : Any>(
 
         responseDefinition.writeResponse(call, verbose)
     }
-
-    fun incrementMatchCount() {
-        matchCount.incrementAndGet()
-    }
-
-    fun resetMatchCount() {
-        matchCount.value = 0
-    }
-
-    fun matchCount(): Int = matchCount.value
 
     fun toLogString(): String =
         if (configuration.name?.isNotBlank() == true) {

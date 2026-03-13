@@ -85,7 +85,7 @@ class StubRegistryTest {
     @Nested
     inner class FindMatchingStub {
         @Test
-        fun `should return best match by priority and increment matchCount`() =
+        fun `should return best match by priority and mark it as matched`() =
             runTest {
                 val registry = StubRegistry()
                 val lowPrio =
@@ -114,8 +114,8 @@ class StubRegistryTest {
                     )
 
                 matched shouldBe highPrio
-                highPrio.matchCount() shouldBe 1
-                lowPrio.matchCount() shouldBe 0
+                highPrio.hasBeenMatched() shouldBe true
+                lowPrio.hasBeenMatched() shouldBe false
             }
 
         @Test
@@ -158,7 +158,7 @@ class StubRegistryTest {
                     createStub<String, String>(
                         name = "once",
                         priority = 5,
-                        removeAfterMatch = true,
+                        eventuallyRemove = true,
                         requestType = String::class,
                     )
 
@@ -173,7 +173,7 @@ class StubRegistryTest {
                             HttpFormatter(),
                     )
                 matched1 shouldBe removable
-                removable.matchCount() shouldBe 1
+                removable.hasBeenMatched() shouldBe true
 
                 // Next time it should not be present
                 val matched2 =
@@ -186,6 +186,38 @@ class StubRegistryTest {
                     )
                 matched2 shouldBe null
                 registry.getAll().isEmpty() shouldBe true
+            }
+
+        @Test
+        fun `eventuallyRemove stub is ineligible for matching once hasBeenMatched is true`() =
+            runTest {
+                val registry = StubRegistry()
+                val stub =
+                    createStub<String, String>(
+                        name = "once",
+                        priority = 5,
+                        eventuallyRemove = true,
+                        requestType = String::class,
+                    )
+
+                registry.add(stub)
+
+                // Simulate the claim that the registry itself performs,
+                // without going through findMatchingStub, to verify the predicate alone.
+                stub.claimMatch()
+
+                stub.hasBeenMatched() shouldBe true
+
+                // Registry must not select it even though it is still physically present.
+                val result =
+                    registry.findMatchingStub(
+                        request = routingRequest,
+                        verbose = false,
+                        logger = mockk(relaxed = true),
+                        formatter = HttpFormatter(),
+                    )
+
+                result shouldBe null
             }
     }
 
@@ -245,7 +277,7 @@ class StubRegistryTest {
                         createStub<String, String>(
                             name = "createStub-$it",
                             priority = it,
-                            removeAfterMatch = true,
+                            eventuallyRemove = true,
                             requestType = String::class,
                         )
                     }
