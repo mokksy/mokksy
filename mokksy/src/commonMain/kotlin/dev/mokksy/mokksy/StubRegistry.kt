@@ -141,20 +141,6 @@ internal class StubRegistry {
     }
 
     /**
-     * Atomically removes a specific stub.
-     *
-     * @return true if stub was removed, false if it wasn't present
-     */
-    fun remove(stub: Stub<*, *>): Boolean {
-        while (true) {
-            val current = stubs.value
-            val idx = current.binarySearch(stub, StubComparator)
-            if (idx < 0) return false
-            if (stubs.compareAndSet(current, current.removeAt(idx))) return true
-        }
-    }
-
-    /**
      * Returns a snapshot of all registered stubs.
      *
      * This is a consistent snapshot at a point in time.
