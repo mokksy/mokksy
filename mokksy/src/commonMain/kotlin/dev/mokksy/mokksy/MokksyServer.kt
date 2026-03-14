@@ -114,10 +114,6 @@ public open class MokksyServer
 
         private val started = CompletableDeferred<Unit>()
 
-        init {
-            registerShutdownHook(this)
-        }
-
         protected val server:
             EmbeddedServer<out ApplicationEngine, out ApplicationEngine.Configuration> =
             createEmbeddedServer(
@@ -167,6 +163,7 @@ public open class MokksyServer
                     .port
             resolvedPort.compareAndSet(-1, port)
             started.complete(Unit)
+            registerShutdownHook(this)
         }
 
         /**
@@ -810,6 +807,7 @@ public open class MokksyServer
                 timeoutMillis >= gracePeriodMillis,
             ) { "timeoutMillis must be >= gracePeriodMillis" }
 
+            unregisterShutdownHook(this)
             server.stopSuspend(
                 gracePeriodMillis = gracePeriodMillis,
                 timeoutMillis = timeoutMillis,

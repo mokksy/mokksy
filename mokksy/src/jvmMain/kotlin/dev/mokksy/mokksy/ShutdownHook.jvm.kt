@@ -1,17 +1,35 @@
 package dev.mokksy.mokksy
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.ConcurrentHashMap
+
+private val registeredHooks = ConcurrentHashMap<MokksyServer, Thread>()
 
 internal actual fun registerShutdownHook(server: MokksyServer) {
-    val thread = Thread {
-        runBlocking {
-            try {
-                server.shutdownSuspend()
-            } catch (_: Exception) {
-                // already stopped or error during shutdown — ignore
+    registeredHooks.computeIfAbsent(server) {
+        val thread =
+            Thread {
+                runBlocking {
+                    try {
+                        server.shutdown()
+                    } catch (_: Exception) {
+                        // already stopped or error during shutdown — ignore
+                    }
+                }
             }
+        thread.isDaemon = true
+        Runtime.getRuntime().addShutdownHook(thread)
+        thread
+    }
+}
+
+internal actual fun unregisterShutdownHook(server: MokksyServer) {
+    registeredHooks.remove(server)?.let { thread ->
+        try {
+            Runtime.getRuntime().removeShutdownHook(thread)
+        } catch (_: IllegalStateException) {
+            // JVM is already shutting down — ignore
         }
     }
-    thread.isDaemon = true
-    Runtime.getRuntime().addShutdownHook(thread)
 }
