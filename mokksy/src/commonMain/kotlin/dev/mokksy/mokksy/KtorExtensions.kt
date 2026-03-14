@@ -4,6 +4,7 @@ package dev.mokksy.mokksy
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.application.pluginOrNull
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.doublereceive.DoubleReceive
 import io.ktor.server.routing.Route
@@ -33,10 +34,12 @@ public fun Application.mokksy(
     server: MokksyHandler,
     path: String = "{...}",
 ) {
-    install(SSE)
-    install(DoubleReceive)
-    install(ContentNegotiation) {
-        server.configuration.contentNegotiationConfigurer(this)
+    if (pluginOrNull(SSE) == null) install(SSE)
+    if (pluginOrNull(DoubleReceive) == null) install(DoubleReceive)
+    if (pluginOrNull(ContentNegotiation) == null) {
+        install(ContentNegotiation) {
+            server.configuration.contentNegotiationConfigurer(this)
+        }
     }
     routing {
         mokksy(server, path)
@@ -48,13 +51,16 @@ public fun Application.mokksy(
  *
  * Unlike [Application.mokksy], this extension does **not** install plugins — the caller is
  * responsible for installing [SSE], [DoubleReceive], and [ContentNegotiation] on the surrounding
- * [Application].  This makes it suitable for use behind authentication or other middleware:
+ * [Application].  Pass the handler's content-negotiation setup via
+ * [MokksyServer.configuration]'s `contentNegotiationConfigurer` so the serialization config
+ * matches the handler's expectations.  This overload is suitable for use behind authentication
+ * or other middleware:
  *
  * ```kotlin
  * embeddedServer(Netty, port = 8080) {
  *     install(SSE)
  *     install(DoubleReceive)
- *     install(ContentNegotiation) { json() }
+ *     install(ContentNegotiation) { server.configuration.contentNegotiationConfigurer(this) }
  *
  *     routing {
  *         authenticate(AUTH_REALM) {
