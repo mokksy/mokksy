@@ -679,3 +679,4 @@ mokksy.post(
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification"
 [ai-mocks]: https://github.com/mokksy/ai-mocks/ "AI-Mock: Mokksy extensions for AI integrations"
+[a2a]: https://a2a-protocol.org/ "Agent2Agent (A2A) Protocol, an open standard designed to enable seamless communication and collaboration between AI agents."

@@ -31,6 +31,8 @@ Read the project overview from README.md
 ### Testing
 
 - Write comprehensive tests for new features
+- Always check for correctness
+- Avoid tautological assertions and redundant tests
 - Use function `Names with backticks` for test methods in Kotlin, e.g. "fun `should return 200 OK`()"
 - Avoid writing new KDocs for tests, but don't delete existing. Keep code self-documenting
 - Write Kotlin tests with [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test),
