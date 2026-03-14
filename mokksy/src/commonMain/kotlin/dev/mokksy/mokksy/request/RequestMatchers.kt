@@ -1,3 +1,5 @@
+@file:JvmName("RequestMatchers")
+
 package dev.mokksy.mokksy.request
 
 import io.kotest.matchers.Matcher
@@ -6,6 +8,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldNot
 import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
+import kotlin.jvm.JvmName
 
 /**
  * Custom matcher to verify that the Ktor Headers object contains a header with the specified name and value.

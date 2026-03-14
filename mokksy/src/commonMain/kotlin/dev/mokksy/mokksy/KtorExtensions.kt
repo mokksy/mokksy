@@ -1,3 +1,5 @@
+@file:JvmName("KtorExtensions")
+
 package dev.mokksy.mokksy
 
 import io.ktor.server.application.Application
@@ -8,6 +10,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.sse.SSE
+import kotlin.jvm.JvmName
 
 /**
  * Installs Mokksy request handling into this [Application].

@@ -151,7 +151,7 @@ public final class dev/mokksy/mokksy/JournalMode : java/lang/Enum {
 	public static fun values ()[Ldev/mokksy/mokksy/JournalMode;
 }
 
-public final class dev/mokksy/mokksy/KtorExtensionsKt {
+public final class dev/mokksy/mokksy/KtorExtensions {
 	public static final fun mokksy (Lio/ktor/server/application/Application;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;)V
 	public static final fun mokksy (Lio/ktor/server/routing/Route;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;)V
 	public static synthetic fun mokksy$default (Lio/ktor/server/application/Application;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;ILjava/lang/Object;)V
@@ -307,7 +307,7 @@ public final class dev/mokksy/mokksy/StubConfiguration$Companion {
 	public static synthetic fun removeAfterMatch$default (Ldev/mokksy/mokksy/StubConfiguration$Companion;Ljava/lang/String;ZZILjava/lang/Object;)Ldev/mokksy/mokksy/StubConfiguration;
 }
 
-public final class dev/mokksy/mokksy/kotest/MatchersKt {
+public final class dev/mokksy/mokksy/kotest/Matchers {
 	public static final fun doesNotContain (Ljava/lang/String;)Lio/kotest/matchers/Matcher;
 	public static final fun doesNotContainIgnoringCase (Ljava/lang/String;)Lio/kotest/matchers/Matcher;
 	public static final fun objectEquals (Ljava/lang/Object;Ljava/lang/String;)Lio/kotest/matchers/Matcher;
@@ -322,6 +322,7 @@ public final class dev/mokksy/mokksy/request/CapturedRequest {
 public final class dev/mokksy/mokksy/request/RecordedRequest {
 	public static final field Companion Ldev/mokksy/mokksy/request/RecordedRequest$Companion;
 	public fun equals (Ljava/lang/Object;)Z
+	public static final fun from (Lio/ktor/server/routing/RoutingRequest;Z)Ldev/mokksy/mokksy/request/RecordedRequest;
 	public final fun getHeaders ()Ljava/util/Map;
 	public final fun getMatched ()Z
 	public final fun getMethod ()Lio/ktor/http/HttpMethod;
@@ -334,7 +335,7 @@ public final class dev/mokksy/mokksy/request/RecordedRequest$Companion {
 	public final fun from (Lio/ktor/server/routing/RoutingRequest;Z)Ldev/mokksy/mokksy/request/RecordedRequest;
 }
 
-public final class dev/mokksy/mokksy/request/RequestMatchersKt {
+public final class dev/mokksy/mokksy/request/RequestMatchers {
 	public static final fun predicateMatcher (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/kotest/matchers/Matcher;
 	public static synthetic fun predicateMatcher$default (Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/kotest/matchers/Matcher;
 	public static final fun shouldHaveHeader (Lio/ktor/http/Headers;Lkotlin/Pair;)V
@@ -476,11 +477,7 @@ public final class dev/mokksy/mokksy/serializers/StringOrListSerializer : kotlin
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
 }
 
-public final class dev/mokksy/mokksy/utils/Base64UrlsKt {
-	public static final fun asBase64DataUrl ([BLjava/lang/String;)Ljava/lang/String;
-}
-
-public final class dev/mokksy/mokksy/utils/Base64Urls_jvmKt {
+public final class dev/mokksy/mokksy/utils/Base64Urls {
 	public static final fun asBase64DataUrl (Ljava/io/File;)Ljava/lang/String;
 	public static final fun asBase64DataUrl (Ljava/io/File;Ljava/lang/String;)Ljava/lang/String;
 	public static final fun asBase64DataUrl (Ljava/net/URL;)Ljava/lang/String;
@@ -492,11 +489,15 @@ public final class dev/mokksy/mokksy/utils/Base64Urls_jvmKt {
 	public static synthetic fun asBase64DataUrl$default (Ljava/nio/file/Path;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 }
 
+public final class dev/mokksy/mokksy/utils/Base64UrlsKt {
+	public static final fun asBase64DataUrl ([BLjava/lang/String;)Ljava/lang/String;
+}
+
 public final class dev/mokksy/mokksy/utils/MimeTypesKt {
 	public static final fun asMimeType (Lio/ktor/http/ContentType;)Ljava/lang/String;
 }
 
-public final class dev/mokksy/mokksy/utils/StringsKt {
+public final class dev/mokksy/mokksy/utils/Strings {
 	public static final fun ellipsizeMiddle (Ljava/lang/String;I)Ljava/lang/String;
 }
 

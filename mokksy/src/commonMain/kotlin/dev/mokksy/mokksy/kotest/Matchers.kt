@@ -1,8 +1,11 @@
+@file:JvmName("Matchers")
+
 package dev.mokksy.mokksy.kotest
 
 import io.kotest.assertions.print.print
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
+import kotlin.jvm.JvmName
 
 /**
  * Creates a matcher that checks if a given string does not contain the specified substring,

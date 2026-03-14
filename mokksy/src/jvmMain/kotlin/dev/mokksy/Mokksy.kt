@@ -1,3 +1,5 @@
+@file:JvmName("Mokksy")
+
 package dev.mokksy
 
 import dev.mokksy.Mokksy.Companion.create
