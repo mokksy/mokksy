@@ -103,7 +103,7 @@ internal class MokksyServerIT : AbstractIT() {
 
     @Test
     suspend fun `resetMatchCounts resets all stub match counts to zero`() {
-        val freshMokksy = Mokksy()
+        val freshMokksy = MokksyServer()
         freshMokksy.startSuspend()
         val freshClient = createKtorClient(freshMokksy.port())
         try {

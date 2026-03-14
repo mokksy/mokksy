@@ -14,8 +14,8 @@ internal open class AbstractIT(
         createKtorClient(it)
     },
 ) {
-    val mokksy: Mokksy =
-        Mokksy(verbose = true) {
+    val mokksy: MokksyServer =
+        MokksyServer(verbose = true) {
             log.info("Running Mokksy server with $engine engine")
         }
 

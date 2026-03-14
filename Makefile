@@ -2,8 +2,8 @@
 build:
 	./gradlew checkLegacyAbi build koverVerify koverXmlReport koverHtmlReport koverLog
 
-.PHONY: apiDump
-apiDump:
+.PHONY: apidump
+apidump:
 	./gradlew updateLegacyAbi
 
 

@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy
 
+import dev.mokksy.Mokksy
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 internal class MokksyServerJavaLifecycleIT {
     @Test
     fun `start and shutdown work as blocking lifecycle methods`() {
-        val mokksy = MokksyServerJava()
+        val mokksy = Mokksy.create()
         mokksy.start()
 
         try {
@@ -29,7 +30,7 @@ internal class MokksyServerJavaLifecycleIT {
 
     @Test
     fun `close shuts down the server`() {
-        val mokksy = MokksyServerJava()
+        val mokksy = Mokksy.create()
         mokksy.start()
         val port = mokksy.port()
 
@@ -40,7 +41,7 @@ internal class MokksyServerJavaLifecycleIT {
 
     @Test
     fun `shutdown with custom timings completes without error`() {
-        val mokksy = MokksyServerJava()
+        val mokksy = Mokksy.create()
         mokksy.start()
 
         mokksy.shutdown(gracePeriodMillis = 100, timeoutMillis = 200)
@@ -48,17 +49,16 @@ internal class MokksyServerJavaLifecycleIT {
 
     @Test
     fun `server responds after start via createKtorClient`() {
-        val mokksy = MokksyServerJava()
+        val mokksy = Mokksy.create()
         mokksy.start()
         val client = createKtorClient(mokksy.port())
 
         try {
-            mokksy
-                .get { spec ->
-                    spec.path("/java-lifecycle-test")
-                }.respondsWith {
-                    it.body("alive")
-                }
+            mokksy.get {
+                path("/java-lifecycle-test")
+            } respondsWith {
+                body = "alive"
+            }
 
             val result = runBlocking { client.get("/java-lifecycle-test") }
             val responseBody = runBlocking { result.bodyAsText() }

@@ -92,8 +92,8 @@ Particularly, it might be useful for integration testing LLM clients.
 
 
 <!--- CLEAR -->
-<!--- INCLUDE 
-import dev.mokksy.mokksy.Mokksy
+<!--- INCLUDE
+import dev.mokksy.Mokksy
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -122,11 +122,7 @@ class ReadmeTest {
 
    **JVM (blocking):**
    ```kotlin
-   val mokksy = Mokksy().apply {
-       runBlocking { 
-           startSuspend() 
-       }
-   }
+   val mokksy = Mokksy.create().start()
    ```
 3. Configure http client using Mokksy server's as baseUrl in your application:
 
@@ -361,7 +357,7 @@ genericResult.bodyAsText() shouldBe "any user"
 -->
 <!--- KNIT example-readme-01.kt -->
 
-When no stub matches and verbose mode is enabled (`Mokksy(verbose = true)`), Mokksy logs the closest
+When no stub matches and verbose mode is enabled (`Mokksy.create(verbose = true)`), Mokksy logs the closest
 partial match and its failed conditions to help you diagnose the mismatch.
 
 ### Priority Example
@@ -438,7 +434,7 @@ Run both checks after every test to catch a mismatch in either direction:
 
 <!--- CLEAR -->
 <!--- INCLUDE
-import dev.mokksy.mokksy.Mokksy
+import dev.mokksy.Mokksy
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -458,7 +454,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MyTest {
 
-    val mokksy = Mokksy()
+    val mokksy = Mokksy.create()
     lateinit var client: HttpClient
 
     @BeforeAll
@@ -528,7 +524,7 @@ Mokksy records incoming requests in a `RequestJournal`. The recording mode is co
 | `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                |
 
 ```kotlin
-val mokksy = Mokksy(
+val mokksy = MokksyServer(
     configuration = ServerConfiguration(
         journalMode = JournalMode.FULL,
     ),

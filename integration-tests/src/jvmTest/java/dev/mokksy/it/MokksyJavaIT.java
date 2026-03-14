@@ -1,6 +1,6 @@
 package dev.mokksy.it;
 
-import dev.mokksy.mokksy.MokksyServerJava;
+import dev.mokksy.Mokksy;
 import dev.mokksy.mokksy.StubConfiguration;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MokksyJavaIT {
 
-    private final MokksyServerJava mokksy = new MokksyServerJava();
+    private final Mokksy mokksy = Mokksy.create();
     private HttpClient httpClient;
 
     @BeforeAll

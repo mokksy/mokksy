@@ -58,7 +58,7 @@ public typealias ApplicationConfigurer = (Application.() -> Unit)
  *
  * Example:
  * ```kotlin
- * val mokksy = Mokksy().apply { start() }
+ * val mokksy = Mokksy().start()
  *
  * mokksy.get {
  *     path("/ping")
@@ -814,9 +814,3 @@ public open class MokksyServer
             )
         }
     }
-
-/**
- * A typealias for MokksyServer, allowing the use of `Mokksy`
- * as an alternative, more concise name for referencing the `MokksyServer` class.
- */
-public typealias Mokksy = MokksyServer

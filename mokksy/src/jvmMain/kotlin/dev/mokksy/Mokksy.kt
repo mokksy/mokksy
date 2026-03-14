@@ -1,7 +1,14 @@
-package dev.mokksy.mokksy
+package dev.mokksy
 
+import dev.mokksy.mokksy.BuildingStep
+import dev.mokksy.mokksy.DEFAULT_HOST
+import dev.mokksy.mokksy.JavaBuildingStep
+import dev.mokksy.mokksy.JavaRequestSpecificationBuilder
+import dev.mokksy.mokksy.MokksyServer
+import dev.mokksy.mokksy.StubConfiguration
 import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestSpecification
+import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
@@ -15,157 +22,109 @@ import java.util.function.Consumer
 import kotlin.reflect.KClass
 
 /**
- * Java-friendly wrapper around [MokksyServer] that provides a fully instance-method-based API.
+ * The primary entry point for Mokksy — a lightweight HTTP stub server for JVM tests.
  *
- * Eliminates Kotlin-specific boilerplate from Java test code:
- * - `start()` and `shutdown()` are instance methods
- * - HTTP stub methods (`get`, `post`, etc.) accept `Consumer<JavaRequestSpecificationBuilder<P>>`
- *   instead of Kotlin lambdas with receivers (no `return Unit.INSTANCE`)
- * - Returns [JavaBuildingStep], which exposes `respondsWith` and `respondsWithStream`
- *   as chainable instance methods (no separate `MokksyJava.respondsWith(step, ...)` call)
+ * **Kotlin** — construct directly:
+ * ```kotlin
+ * val mokksy = Mokksy()
+ * mokksy.start()
+ * mokksy.get { path("/ping") }.respondsWith { body("Pong") }
+ * mokksy.shutdown()
+ * ```
  *
- * Example:
+ * **Java** — use [create] for a fluent setup:
  * ```java
- * @TestInstance(TestInstance.Lifecycle.PER_CLASS)
- * class MyTest {
- *     private final MokksyServerJava mokksy = new MokksyServerJava();
+ * Mokksy mokksy = Mokksy.create().start();
  *
- *     @BeforeAll void setUp() { mokksy.start(); }
- *     @AfterAll void tearDown() { mokksy.shutdown(); }
+ * mokksy.get(spec -> spec.path("/ping"))
+ *       .respondsWith(builder -> builder.body("Pong"));
  *
- *     @Test
- *     void myTest() throws Exception {
- *         mokksy.get(spec -> spec.path("/ping"))
- *               .respondsWith(builder -> builder.body("Pong"));
- *         // ... make HTTP call and assert
- *     }
+ * mokksy.shutdown();
+ * ```
+ *
+ * For automatic cleanup in Java, use try-with-resources:
+ * ```java
+ * try (Mokksy mokksy = Mokksy.create().start()) {
+ *     mokksy.post(spec -> spec.path("/items"))
+ *           .respondsWith(builder -> builder.body("ok").status(201));
  * }
  * ```
  *
- * @property delegate The underlying [MokksyServer]. Accessible for advanced configuration and
- *   for Kotlin callers that mix the two APIs.
- * @constructor Wraps an existing [MokksyServer] instance.
+ * @constructor Creates a [Mokksy] backed by a new [MokksyServer]. The server is **not** started
+ *   automatically — call [start] or chain [create] with `.start()`.
  */
 @Suppress("TooManyFunctions")
-public class MokksyServerJava(
+public class Mokksy(
+    /**
+     * The underlying [MokksyServer]. Available for Kotlin callers that need direct access to the
+     * server. Intentionally hidden from Java — use the [Mokksy] methods directly.
+     */
+    @get:JvmSynthetic
     public val delegate: MokksyServer,
 ) : AutoCloseable {
     /**
-     * Creates a [MokksyServerJava] backed by a new [MokksyServer].
-     *
-     * The server is **not** started automatically; call [start] before registering stubs or
-     * making requests.
-     *
-     * Example:
-     * ```java
-     * // Random port (default) — suitable for parallel test runs:
-     * MokksyServerJava mokksy = new MokksyServerJava();
-     *
-     * // Fixed port with verbose logging:
-     * MokksyServerJava mokksy = new MokksyServerJava(8080, "127.0.0.1", true);
-     * ```
-     *
-     * @param port Port to bind to. Defaults to `0` (OS-assigned ephemeral port). Use a fixed
-     *   value only when the port must be predictable; prefer `0` to avoid conflicts in
-     *   parallel test runs.
      * @param host Network interface to bind to. Defaults to `"127.0.0.1"` (loopback only).
-     * @param verbose When `true`, enables `DEBUG`-level request/response logging via the
-     *   configured [MokksyServer] logger. Defaults to `false`.
+     * @param port Port to bind to. Defaults to `0` (OS-assigned ephemeral port).
+     * @param verbose Enables `DEBUG`-level request/response logging. Defaults to `false`.
      */
     @JvmOverloads
     public constructor(
-        port: Int = 0,
         host: String = DEFAULT_HOST,
+        port: Int = 0,
         verbose: Boolean = false,
     ) : this(MokksyServer(port = port, host = host, verbose = verbose))
 
     // region Lifecycle
 
     /**
-     * Starts the server and blocks the calling thread until the port is bound and the server
-     * is ready to accept requests.
+     * Starts the server and blocks until the port is bound and the server is ready.
      *
-     * Call this method once before registering stubs or issuing test requests, typically in
-     * a `@BeforeAll` (JUnit 5) or `@Before` (JUnit 4) setup method.
-     *
-     * Example:
-     * ```java
-     * @BeforeAll
-     * void setUp() {
-     *     mokksy.start();
-     * }
+     * Returns `this` so that construction and startup can be chained:
+     * ```kotlin
+     * val mokksy = Mokksy(8080).start()
      * ```
+     * ```java
+     * Mokksy mokksy = Mokksy.create(8080).start();
+     * ```
+     *
+     * @return This instance, for chaining.
      */
-    public fun start(): Unit =
+    public fun start(): Mokksy {
         runBlocking {
             delegate.startSuspend()
             delegate.awaitStarted()
         }
+        return this
+    }
 
     /**
      * Stops the server and blocks the calling thread until shutdown is complete.
      *
-     * Active connections are given [gracePeriodMillis] milliseconds to finish before the server
-     * stops accepting new work. If connections do not close within [timeoutMillis] milliseconds,
-     * shutdown is forced.
-     *
-     * Call this method in a `@AfterAll` (JUnit 5) or `@After` (JUnit 4) teardown method.
-     *
-     * Example:
-     * ```java
-     * @AfterAll
-     * void tearDown() {
-     *     mokksy.shutdown();          // gracePeriodMillis=500, timeoutMillis=1000
-     *     mokksy.shutdown(200, 400);  // custom timings
-     * }
-     * ```
-     *
-     * @param gracePeriodMillis Milliseconds to wait for active connections to finish before
-     *   the server stops accepting new work. Defaults to `500`.
-     * @param timeoutMillis Maximum milliseconds to wait for all connections to close before
-     *   forcing shutdown. Must be ≥ [gracePeriodMillis]. Defaults to `1000`.
+     * @param gracePeriodMillis Milliseconds to wait for active connections to finish. Defaults to `500`.
+     * @param timeoutMillis Maximum milliseconds before shutdown is forced. Defaults to `1000`.
      */
     @JvmOverloads
     public fun shutdown(
         gracePeriodMillis: Long = 500,
         timeoutMillis: Long = 1000,
-    ): Unit =
+    ) {
         runBlocking {
             delegate.shutdownSuspend(gracePeriodMillis, timeoutMillis)
         }
+    }
 
-    /**
-     * Closes the resource, releasing any underlying resources.
-     *
-     * This method is calling [shutdown] with default timeouts under the hood.
-     *
-     * @return Unit
-     */
+    /** Calls [shutdown] with default timeouts. Enables try-with-resources. */
     override fun close(): Unit = shutdown()
 
     /**
-     * Returns the base URL of the server in the form `http://<host>:<port>`.
+     * Returns the base URL of the server, e.g. `"http://127.0.0.1:8080"`.
      *
-     * Use this URL as the root for all HTTP requests in tests:
-     * ```java
-     * HttpRequest request = HttpRequest.newBuilder()
-     *     .uri(URI.create(mokksy.baseUrl() + "/ping"))
-     *     .GET()
-     *     .build();
-     * ```
-     *
-     * @return The base URL string, e.g. `"http://127.0.0.1:8080"`.
      * @throws IllegalStateException if [start] has not been called yet.
      */
     public fun baseUrl(): String = delegate.baseUrl()
 
     /**
-     * Returns the port the server is bound to.
-     *
-     * The value is available only after [start] has returned. When the server was created
-     * with `port = 0` (the default), this returns the ephemeral port assigned by the OS.
-     *
-     * @return The bound port number, e.g. `8080`.
+     * Returns the port the server is bound to. Available after [start] has returned.
      */
     public fun port(): Int = delegate.port()
 
@@ -194,8 +153,9 @@ public class MokksyServerJava(
     // region GET
 
     /** Registers a GET stub with a [String] request body. */
-    public fun get(spec: Consumer<JavaRequestSpecificationBuilder<String>>): JavaBuildingStep<String> =
-        method(StubConfiguration(), Get, spec)
+    public fun get(
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
+    ): JavaBuildingStep<String> = method(StubConfiguration(), Get, spec)
 
     /** Registers a GET stub with a [String] request body and [StubConfiguration]. */
     public fun get(
@@ -249,8 +209,9 @@ public class MokksyServerJava(
     // region PUT
 
     /** Registers a PUT stub with a [String] request body. */
-    public fun put(spec: Consumer<JavaRequestSpecificationBuilder<String>>): JavaBuildingStep<String> =
-        method(StubConfiguration(), Put, spec)
+    public fun put(
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
+    ): JavaBuildingStep<String> = method(StubConfiguration(), Put, spec)
 
     /** Registers a PUT stub with a [String] request body and [StubConfiguration]. */
     public fun put(
@@ -462,30 +423,191 @@ public class MokksyServerJava(
 
     // endregion
 
+    // region Kotlin DSL
+
+    /**
+     * Starts the server asynchronously. Suspends until the port is bound.
+     *
+     * Prefer this over [start] in coroutine-based test setups (e.g. `@BeforeAll suspend fun`).
+     */
+    @JvmSynthetic
+    public suspend fun startSuspend(wait: Boolean = false): Unit = delegate.startSuspend(wait)
+
+    /** Suspends until the server is fully started and ready to accept connections. */
+    @JvmSynthetic
+    public suspend fun awaitStarted(): Unit = delegate.awaitStarted()
+
+    /**
+     * Stops the server asynchronously.
+     *
+     * @param gracePeriodMillis Milliseconds to wait for active connections to finish.
+     * @param timeoutMillis Maximum milliseconds before shutdown is forced.
+     */
+    @JvmSynthetic
+    public suspend fun shutdownSuspend(
+        gracePeriodMillis: Long = 500,
+        timeoutMillis: Long = 1000,
+    ): Unit = delegate.shutdownSuspend(gracePeriodMillis, timeoutMillis)
+
+    /** Registers a GET stub using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun get(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
+        delegate.get(block)
+
+    /** Registers a GET stub with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun get(
+        configuration: StubConfiguration,
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.get(configuration, block)
+
+    /** Registers a GET stub for a typed request body using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> get(
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.get(requestType = requestType, block = block)
+
+    /** Registers a POST stub using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun post(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
+        delegate.post(block)
+
+    /** Registers a POST stub with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun post(
+        configuration: StubConfiguration,
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.post(configuration, String::class, block)
+
+    /** Registers a POST stub for a typed request body using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> post(
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.post(requestType = requestType, block = block)
+
+    /** Registers a PUT stub using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun put(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
+        delegate.put(block)
+
+    /** Registers a PUT stub with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun put(
+        configuration: StubConfiguration,
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.put(configuration, String::class, block)
+
+    /** Registers a PUT stub for a typed request body using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> put(
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.put(requestType = requestType, block = block)
+
+    /** Registers a DELETE stub using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun delete(
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.delete(block)
+
+    /** Registers a DELETE stub with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun delete(
+        configuration: StubConfiguration,
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.delete(configuration, String::class, block)
+
+    /** Registers a DELETE stub for a typed request body using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> delete(
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.delete(requestType = requestType, block = block)
+
+    /** Registers a PATCH stub using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun patch(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
+        delegate.patch(block)
+
+    /** Registers a PATCH stub with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun patch(
+        configuration: StubConfiguration,
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.patch(configuration, String::class, block)
+
+    /** Registers a PATCH stub for a typed request body using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> patch(
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.patch(requestType = requestType, block = block)
+
+    /** Registers a HEAD stub using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun head(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
+        delegate.head(block)
+
+    /** Registers a HEAD stub with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun head(
+        configuration: StubConfiguration,
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.head(configuration, String::class, block)
+
+    /** Registers a HEAD stub for a typed request body using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> head(
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.head(requestType = requestType, block = block)
+
+    /** Registers an OPTIONS stub using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun options(
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.options(block)
+
+    /** Registers an OPTIONS stub with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun options(
+        configuration: StubConfiguration,
+        block: RequestSpecificationBuilder<String>.() -> Unit,
+    ): BuildingStep<String> = delegate.options(configuration, String::class, block)
+
+    /** Registers an OPTIONS stub for a typed request body using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> options(
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.options(requestType = requestType, block = block)
+
+    // endregion
+
     public companion object {
         /**
-         * Creates a [MokksyServerJava] and immediately starts it.
+         * Creates a [Mokksy] instance backed by a new server.
          *
-         * Named `open` (the complement of [close]) so it pairs naturally with try-with-resources:
+         * The server is **not** started automatically. Chain with [start] to start immediately:
          * ```java
-         * try (MokksyServerJava mokksy = MokksyServerJava.open()) {
-         *     mokksy.get(spec -> spec.path("/ping"))
-         *           .respondsWith(builder -> builder.body("Pong"));
-         *     // ... assert
-         * }
+         * Mokksy mokksy = Mokksy.create().start();
+         * // or, for try-with-resources:
+         * try (Mokksy mokksy = Mokksy.create().start()) { ... }
          * ```
          *
-         * @param port Port to bind to. Defaults to `0` (OS-assigned ephemeral port).
          * @param host Network interface to bind to. Defaults to `"127.0.0.1"`.
+         * @param port Port to bind to. Defaults to `0` (OS-assigned ephemeral port).
          * @param verbose Enables `DEBUG`-level logging. Defaults to `false`.
-         * @return A fully started [MokksyServerJava] instance.
+         * @return A new, not-yet-started [Mokksy] instance.
          */
         @JvmStatic
         @JvmOverloads
-        public fun open(
-            port: Int = 0,
+        public fun create(
             host: String = DEFAULT_HOST,
+            port: Int = 0,
             verbose: Boolean = false,
-        ): MokksyServerJava = MokksyServerJava(port, host, verbose).also { it.start() }
+        ): Mokksy = Mokksy(host, port, verbose)
     }
 }
