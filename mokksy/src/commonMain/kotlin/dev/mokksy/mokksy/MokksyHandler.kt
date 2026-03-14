@@ -22,6 +22,8 @@ public interface MokksyHandler {
      *
      * Called by [Application.mokksy][dev.mokksy.mokksy.mokksy] and
      * [Route.mokksy][dev.mokksy.mokksy.mokksy] for every incoming request.
+     *
+     * @param context The Ktor [RoutingContext] representing the current request.
      */
     public suspend fun handle(context: RoutingContext)
 }

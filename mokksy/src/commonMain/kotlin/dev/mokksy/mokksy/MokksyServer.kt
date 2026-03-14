@@ -76,7 +76,7 @@ public class MokksyServer
     constructor(
         private val host: String = DEFAULT_HOST,
         port: Int = 0,
-        configuration: ServerConfiguration,
+        override val configuration: ServerConfiguration,
         configurer: Application.() -> Unit = {},
     ) : MokksyHandler {
         /**
@@ -105,7 +105,6 @@ public class MokksyServer
 
         private lateinit var logger: Logger
         internal val httpFormatter: HttpFormatter = HttpFormatter()
-        override val configuration: ServerConfiguration = configuration
 
         private val stubRegistry: StubRegistry = StubRegistry()
         private val requestJournal: RequestJournal =
