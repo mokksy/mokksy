@@ -1,5 +1,7 @@
 package dev.mokksy.mokksy
 
+import io.ktor.server.application.Application
+
 /**
  * Creates a [MokksyServer] — idiomatic Kotlin entry point for all platforms.
  *
@@ -21,10 +23,12 @@ package dev.mokksy.mokksy
  * @param host The host to bind to. Defaults to `127.0.0.1`.
  * @param port The port to bind to. Defaults to `0` (randomly assigned).
  * @param verbose Enables `DEBUG`-level request logging when `true`. Defaults to `false`.
+ * @param configurer Additional Ktor [Application] configuration applied after the default routing setup.
  */
 @Suppress("FunctionNaming")
 public expect fun Mokksy(
     host: String = DEFAULT_HOST,
     port: Int = 0,
     verbose: Boolean = false,
+    configurer: (Application.() -> Unit) = {},
 ): MokksyServer

@@ -122,12 +122,18 @@ actual API.
   - `<!--- SUFFIX ... -->` — code appended after all preceding snippets (closing braces)
   - `<!--- KNIT filename.kt -->` — triggers generation of `filename.kt` in `knit.dir`; all
     preceding INCLUDE/SUFFIX/code blocks since the last CLEAR are concatenated into this file
-- Each generated file becomes a compilable test class. Run `./gradlew :mokksy:knit` to regenerate,
-  then `./gradlew :mokksy:jvmTest` to verify examples compile and pass.
+- Each generated file becomes a compilable test class. Run `make knit` (or `./gradlew :mokksy:knit`)
+  to regenerate and verify examples compile and pass in one step.
 - Visible code blocks between INCLUDE and a closing INCLUDE/SUFFIX are included verbatim; the
   surrounding class/function context comes from INCLUDE directives.
 - Code snippets **outside** KNIT blocks (reference sections, bullet examples) are plain Markdown
   fenced code and are not compiled — keep them syntactically correct but they are not executed.
+- **Critical**: place `<!--- CLEAR -->` and the opening `<!--- INCLUDE class Foo { -->` immediately
+  before the first `<!--- INCLUDE @Test ... -->` — never before prose/doc code blocks that should
+  not be compiled. Any visible `kotlin` fenced block between a CLEAR/INCLUDE and the KNIT
+  directive is captured verbatim into the generated file.
+- After editing README.md code examples or KNIT directives, always run `make knit` to confirm the
+  generated file compiles. Inspect `mokksy/build/generated/knit/test/kotlin/` if there are errors.
 
 #### README vs Hugo docs
 

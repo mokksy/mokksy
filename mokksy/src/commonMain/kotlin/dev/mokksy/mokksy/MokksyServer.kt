@@ -48,8 +48,6 @@ internal fun configureContentNegotiation(config: ContentNegotiationConfig) {
     )
 }
 
-public typealias ApplicationConfigurer = (Application.() -> Unit)
-
 /**
  * An embedded mock HTTP server for testing. Registers stubs for any HTTP method and verifies
  * request expectations after the test.
@@ -82,7 +80,7 @@ public open class MokksyServer
         private val host: String = DEFAULT_HOST,
         port: Int = 0,
         configuration: ServerConfiguration,
-        configurer: ApplicationConfigurer = {},
+        configurer: Application.() -> Unit = {},
     ) {
         /**
          * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
@@ -98,7 +96,7 @@ public open class MokksyServer
             host: String = DEFAULT_HOST,
             port: Int = 0,
             verbose: Boolean = false,
-            configurer: ApplicationConfigurer = {},
+            configurer: Application.() -> Unit = {},
         ) : this(
             host = host,
             port = port,

@@ -215,8 +215,8 @@ public class dev/mokksy/mokksy/MokksyServer {
 }
 
 public final class dev/mokksy/mokksy/Mokksy_jvmKt {
-	public static final fun Mokksy (Ljava/lang/String;IZ)Ldev/mokksy/mokksy/MokksyServer;
-	public static synthetic fun Mokksy$default (Ljava/lang/String;IZILjava/lang/Object;)Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun Mokksy (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/MokksyServer;
+	public static synthetic fun Mokksy$default (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/MokksyServer;
 }
 
 public final class dev/mokksy/mokksy/ServerConfiguration {

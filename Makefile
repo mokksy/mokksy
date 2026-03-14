@@ -38,7 +38,7 @@ format:
 	@./gradlew rewriteRun detekt --auto-correct
 
 .PHONY: all
-all: format lint build
+all: clean format lint knit build apidocs
 
 .PHONY: pom
 pom:
