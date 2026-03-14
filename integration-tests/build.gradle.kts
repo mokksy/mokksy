@@ -47,6 +47,11 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(project.dependencies.platform(libs.ktor.bom))
                 implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.server.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.ktor.server.sse)
+                implementation(libs.ktor.server.double.receive)
             }
         }
 

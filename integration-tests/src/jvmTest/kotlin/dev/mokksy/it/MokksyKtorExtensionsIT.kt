@@ -12,14 +12,18 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.UserIdPrincipal
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.basic
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.doublereceive.DoubleReceive
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import io.ktor.server.sse.SSE
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 
@@ -100,6 +104,9 @@ class MokksyKtorExtensionsIT {
 
         testApplication {
             application {
+                install(SSE)
+                install(DoubleReceive)
+                install(ContentNegotiation) { json() }
                 routing {
                     get("/health") { call.respondText("OK") }
                     mokksy(server)
@@ -117,6 +124,9 @@ class MokksyKtorExtensionsIT {
 
         testApplication {
             application {
+                install(SSE)
+                install(DoubleReceive)
+                install(ContentNegotiation) { json() }
                 routing {
                     mokksy(server)
                 }
@@ -133,6 +143,9 @@ class MokksyKtorExtensionsIT {
 
         testApplication {
             application {
+                install(SSE)
+                install(DoubleReceive)
+                install(ContentNegotiation) { json() }
                 install(Authentication) {
                     basic("auth-basic") {
                         validate { credentials ->
