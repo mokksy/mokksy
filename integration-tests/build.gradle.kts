@@ -54,6 +54,7 @@ kotlin {
             dependencies {
                 implementation(libs.assertj.core)
                 implementation(libs.junit.jupiter.params)
+                implementation(libs.ktor.serialization.jackson)
                 runtimeOnly(libs.slf4j.simple)
                 runtimeOnly(libs.ktor.client.apache5)
             }

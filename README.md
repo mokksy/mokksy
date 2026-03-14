@@ -49,6 +49,7 @@
   * [Inspecting unmatched items](#inspecting-unmatched-items)
 * [Request Journal](#request-journal)
 * [Java API](#java-api)
+  * [Jackson support](#jackson-support)
 
 <!--- END -->
 
@@ -450,11 +451,15 @@ mokksy.verifyNoUnexpectedRequests()
 
 ### Recommended AfterEach setup
 
-Run both checks after every test to catch a mismatch in either direction.
+Always run `verifyNoUnexpectedRequests()` in `@AfterEach` to catch requests that arrived but
+matched no stub. For `verifyNoUnmatchedStubs()`, the right placement depends on your fixture strategy:
 
-On JVM, Mokksy registers a shutdown hook automatically — if your test fixture intentionally
-keeps one server alive across all test methods and never calls `shutdown()` explicitly,
-the JVM still exits cleanly when the test suite finishes.
+- **Per-test instance** (`@TestInstance(Lifecycle.PER_METHOD)` or a fresh server per test): call
+  both checks in `@AfterEach` — every stub registered during that test should have been matched
+  before the server is torn down.
+- **Shared instance** (`@TestInstance(Lifecycle.PER_CLASS)` or a companion-object server): call
+  `verifyNoUnmatchedStubs()` in `@AfterAll`, immediately before `shutdown()`. Calling it after
+  each individual test would falsely report stubs registered for *later* tests as unmatched.
 
 <!--- CLEAR -->
 <!--- INCLUDE
@@ -517,6 +522,7 @@ class MyTest {
     @AfterAll
     suspend fun afterAll() {
         client.close()
+        mokksy.verifyNoUnmatchedStubs() // shared instance: check once, after all tests ran
         mokksy.shutdownSuspend()
     }
 }
@@ -632,6 +638,43 @@ mokksy.post(spec -> {
 ```java
 mokksy.method("PATCH", spec -> spec.path("/resource"))
       .respondsWith(builder -> builder.body("patched"));
+```
+
+### Jackson support
+
+Use `MokksyJackson.create()` when your tests match typed Java objects deserialized from the
+request body. The API mirrors `Mokksy.create()` exactly — same `host`, `port`, and `verbose`
+parameters — with an optional `ObjectMapper` configuration callback.
+
+Add the dependency alongside `mokksy`:
+
+```kotlin
+testImplementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
+```
+
+Then create the server:
+
+```java
+import dev.mokksy.MokksyJackson;
+
+// Default Jackson configuration
+Mokksy mokksy = MokksyJackson.create().start();
+
+// Custom ObjectMapper — e.g. register Java time / records support
+Mokksy mokksy = MokksyJackson.create(ObjectMapper::findAndRegisterModules).start();
+```
+
+Typed body matchers work the same way as in the standard API — pass the `Class` token to
+the stub-registration method and use `bodyMatchesPredicate` to assert on the deserialized object:
+
+```java
+record CreateItemRequest(String name, int quantity) {}
+
+mokksy.post(
+    CreateItemRequest.class,
+    spec -> spec.path("/items")
+                .bodyMatchesPredicate(req -> "widget".equals(req.name()))
+).respondsWith(builder -> builder.body("{\"id\":\"1\"}").status(201));
 ```
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification"

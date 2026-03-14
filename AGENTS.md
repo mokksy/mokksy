@@ -32,7 +32,7 @@ Read the project overview from README.md
 
 - Write comprehensive tests for new features
 - Use function `Names with backticks` for test methods in Kotlin, e.g. "fun `should return 200 OK`()"
-- Avoid writing KDocs for tests, keep code self-documenting
+- Avoid writing new KDocs for tests, but don't delete existing. Keep code self-documenting
 - Write Kotlin tests with [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test),
   [mockk](https://mockk.io/) and [Kotest-assertions](https://kotest.io/docs/assertions/assertions.html)
   with infix form assertions `shouldBe` instead of `assertEquals`.

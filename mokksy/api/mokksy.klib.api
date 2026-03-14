@@ -6,6 +6,14 @@
 // - Show declarations: true
 
 // Library unique name: <dev.mokksy:mokksy>
+open annotation class dev.mokksy.mokksy/ExperimentalMokksyApi : kotlin/Annotation { // dev.mokksy.mokksy/ExperimentalMokksyApi|null[0]
+    constructor <init>() // dev.mokksy.mokksy/ExperimentalMokksyApi.<init>|<init>(){}[0]
+}
+
+open annotation class dev.mokksy.mokksy/InternalMokksyApi : kotlin/Annotation { // dev.mokksy.mokksy/InternalMokksyApi|null[0]
+    constructor <init>() // dev.mokksy.mokksy/InternalMokksyApi.<init>|<init>(){}[0]
+}
+
 open annotation class dev.mokksy.mokksy/MokksyDsl : kotlin/Annotation { // dev.mokksy.mokksy/MokksyDsl|null[0]
     constructor <init>() // dev.mokksy.mokksy/MokksyDsl.<init>|<init>(){}[0]
 }

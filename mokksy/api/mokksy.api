@@ -91,6 +91,17 @@ public final class dev/mokksy/Mokksy$Companion {
 	public static synthetic fun create$default (Ldev/mokksy/Mokksy$Companion;Ljava/lang/String;IZILjava/lang/Object;)Ldev/mokksy/Mokksy;
 }
 
+public final class dev/mokksy/MokksyJackson {
+	public static final field INSTANCE Ldev/mokksy/MokksyJackson;
+	public static final fun create ()Ldev/mokksy/Mokksy;
+	public static final fun create (Ljava/lang/String;)Ldev/mokksy/Mokksy;
+	public static final fun create (Ljava/lang/String;I)Ldev/mokksy/Mokksy;
+	public static final fun create (Ljava/lang/String;IZ)Ldev/mokksy/Mokksy;
+	public static final fun create (Ljava/lang/String;IZLjava/util/function/Consumer;)Ldev/mokksy/Mokksy;
+	public static final fun create (Ljava/util/function/Consumer;)Ldev/mokksy/Mokksy;
+	public static synthetic fun create$default (Ljava/lang/String;IZLjava/util/function/Consumer;ILjava/lang/Object;)Ldev/mokksy/Mokksy;
+}
+
 public final class dev/mokksy/mokksy/BuildingStep {
 	public final fun respondsWith (Lkotlin/jvm/functions/Function2;)V
 	public final fun respondsWith (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function2;)V
@@ -98,6 +109,12 @@ public final class dev/mokksy/mokksy/BuildingStep {
 	public final fun respondsWithSseStream (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function2;)V
 	public final fun respondsWithStream (Lkotlin/jvm/functions/Function2;)V
 	public final fun respondsWithStream (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function2;)V
+}
+
+public abstract interface annotation class dev/mokksy/mokksy/ExperimentalMokksyApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class dev/mokksy/mokksy/InternalMokksyApi : java/lang/annotation/Annotation {
 }
 
 public final class dev/mokksy/mokksy/JavaBuildingStep {
