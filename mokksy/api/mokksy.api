@@ -152,13 +152,18 @@ public final class dev/mokksy/mokksy/JournalMode : java/lang/Enum {
 }
 
 public final class dev/mokksy/mokksy/KtorExtensionsKt {
-	public static final fun mokksy (Lio/ktor/server/application/Application;Ldev/mokksy/mokksy/MokksyPlugin;Ljava/lang/String;)V
-	public static final fun mokksy (Lio/ktor/server/routing/Route;Ldev/mokksy/mokksy/MokksyPlugin;Ljava/lang/String;)V
-	public static synthetic fun mokksy$default (Lio/ktor/server/application/Application;Ldev/mokksy/mokksy/MokksyPlugin;Ljava/lang/String;ILjava/lang/Object;)V
-	public static synthetic fun mokksy$default (Lio/ktor/server/routing/Route;Ldev/mokksy/mokksy/MokksyPlugin;Ljava/lang/String;ILjava/lang/Object;)V
+	public static final fun mokksy (Lio/ktor/server/application/Application;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;)V
+	public static final fun mokksy (Lio/ktor/server/routing/Route;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;)V
+	public static synthetic fun mokksy$default (Lio/ktor/server/application/Application;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun mokksy$default (Lio/ktor/server/routing/Route;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;ILjava/lang/Object;)V
 }
 
 public abstract interface annotation class dev/mokksy/mokksy/MokksyDsl : java/lang/annotation/Annotation {
+}
+
+public abstract interface class dev/mokksy/mokksy/MokksyHandler {
+	public abstract fun getConfiguration ()Ldev/mokksy/mokksy/ServerConfiguration;
+	public abstract fun handle (Lio/ktor/server/routing/RoutingContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class dev/mokksy/mokksy/MokksyJava {
@@ -174,12 +179,7 @@ public final class dev/mokksy/mokksy/MokksyJava {
 	public static final synthetic fun start (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;)Ldev/mokksy/mokksy/MokksyServer;
 }
 
-public abstract interface class dev/mokksy/mokksy/MokksyPlugin {
-	public abstract fun getConfiguration ()Ldev/mokksy/mokksy/ServerConfiguration;
-	public abstract fun handle (Lio/ktor/server/routing/RoutingContext;Lio/ktor/server/application/Application;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
-public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyPlugin {
+public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHandler {
 	public fun <init> ()V
 	public fun <init> (Ldev/mokksy/mokksy/ServerConfiguration;)V
 	public fun <init> (Ljava/lang/String;)V
@@ -208,7 +208,7 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyPlug
 	public final fun get (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun get$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
 	public fun getConfiguration ()Ldev/mokksy/mokksy/ServerConfiguration;
-	public fun handle (Lio/ktor/server/routing/RoutingContext;Lio/ktor/server/application/Application;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun handle (Lio/ktor/server/routing/RoutingContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;

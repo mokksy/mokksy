@@ -78,7 +78,7 @@ public class MokksyServer
         port: Int = 0,
         configuration: ServerConfiguration,
         configurer: Application.() -> Unit = {},
-    ) : MokksyPlugin {
+    ) : MokksyHandler {
         /**
          * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
          * Call `start()` (on JVM) or [startSuspend] to begin processing requests.
@@ -107,8 +107,8 @@ public class MokksyServer
         internal val httpFormatter: HttpFormatter = HttpFormatter()
         override val configuration: ServerConfiguration = configuration
 
-        internal val stubRegistry: StubRegistry = StubRegistry()
-        internal val requestJournal: RequestJournal =
+        private val stubRegistry: StubRegistry = StubRegistry()
+        private val requestJournal: RequestJournal =
             RequestJournal(configuration.journalMode)
 
         private val started = CompletableDeferred<Unit>()
@@ -125,13 +125,10 @@ public class MokksyServer
                 configurer(this)
             }
 
-        override suspend fun handle(
-            context: RoutingContext,
-            application: Application,
-        ) {
+        override suspend fun handle(context: RoutingContext) {
             handleRequest(
                 context = context,
-                application = application,
+                application = context.call.application,
                 stubRegistry = stubRegistry,
                 requestJournal = requestJournal,
                 configuration = configuration,

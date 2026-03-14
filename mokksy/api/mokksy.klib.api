@@ -65,11 +65,11 @@ final enum class dev.mokksy.mokksy/JournalMode : kotlin/Enum<dev.mokksy.mokksy/J
     final fun values(): kotlin/Array<dev.mokksy.mokksy/JournalMode> // dev.mokksy.mokksy/JournalMode.values|values#static(){}[0]
 }
 
-abstract interface dev.mokksy.mokksy/MokksyPlugin { // dev.mokksy.mokksy/MokksyPlugin|null[0]
-    abstract val configuration // dev.mokksy.mokksy/MokksyPlugin.configuration|{}configuration[0]
-        abstract fun <get-configuration>(): dev.mokksy.mokksy/ServerConfiguration // dev.mokksy.mokksy/MokksyPlugin.configuration.<get-configuration>|<get-configuration>(){}[0]
+abstract interface dev.mokksy.mokksy/MokksyHandler { // dev.mokksy.mokksy/MokksyHandler|null[0]
+    abstract val configuration // dev.mokksy.mokksy/MokksyHandler.configuration|{}configuration[0]
+        abstract fun <get-configuration>(): dev.mokksy.mokksy/ServerConfiguration // dev.mokksy.mokksy/MokksyHandler.configuration.<get-configuration>|<get-configuration>(){}[0]
 
-    abstract suspend fun handle(io.ktor.server.routing/RoutingContext, io.ktor.server.application/Application) // dev.mokksy.mokksy/MokksyPlugin.handle|handle(io.ktor.server.routing.RoutingContext;io.ktor.server.application.Application){}[0]
+    abstract suspend fun handle(io.ktor.server.routing/RoutingContext) // dev.mokksy.mokksy/MokksyHandler.handle|handle(io.ktor.server.routing.RoutingContext){}[0]
 }
 
 abstract class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder { // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder|null[0]
@@ -165,7 +165,7 @@ final class dev.mokksy.mokksy.serializers/StringOrListSerializer : kotlinx.seria
     final fun serialize(kotlinx.serialization.encoding/Encoder, kotlin.collections/List<kotlin/String>) // dev.mokksy.mokksy.serializers/StringOrListSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;kotlin.collections.List<kotlin.String>){}[0]
 }
 
-final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyPlugin { // dev.mokksy.mokksy/MokksyServer|null[0]
+final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { // dev.mokksy.mokksy/MokksyServer|null[0]
     constructor <init>(kotlin/String = ..., kotlin/Int = ..., dev.mokksy.mokksy/ServerConfiguration, kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...) // dev.mokksy.mokksy/MokksyServer.<init>|<init>(kotlin.String;kotlin.Int;dev.mokksy.mokksy.ServerConfiguration;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]
     constructor <init>(kotlin/String = ..., kotlin/Int = ..., kotlin/Boolean = ..., kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...) // dev.mokksy.mokksy/MokksyServer.<init>|<init>(kotlin.String;kotlin.Int;kotlin.Boolean;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]
 
@@ -208,7 +208,7 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyPlugin { //
     final fun verifyNoUnexpectedRequests() // dev.mokksy.mokksy/MokksyServer.verifyNoUnexpectedRequests|verifyNoUnexpectedRequests(){}[0]
     final fun verifyNoUnmatchedStubs() // dev.mokksy.mokksy/MokksyServer.verifyNoUnmatchedStubs|verifyNoUnmatchedStubs(){}[0]
     final suspend fun awaitStarted() // dev.mokksy.mokksy/MokksyServer.awaitStarted|awaitStarted(){}[0]
-    final suspend fun handle(io.ktor.server.routing/RoutingContext, io.ktor.server.application/Application) // dev.mokksy.mokksy/MokksyServer.handle|handle(io.ktor.server.routing.RoutingContext;io.ktor.server.application.Application){}[0]
+    final suspend fun handle(io.ktor.server.routing/RoutingContext) // dev.mokksy.mokksy/MokksyServer.handle|handle(io.ktor.server.routing.RoutingContext){}[0]
     final suspend fun shutdownSuspend(kotlin/Long = ..., kotlin/Long = ...) // dev.mokksy.mokksy/MokksyServer.shutdownSuspend|shutdownSuspend(kotlin.Long;kotlin.Long){}[0]
     final suspend fun startSuspend(kotlin/Boolean = ...) // dev.mokksy.mokksy/MokksyServer.startSuspend|startSuspend(kotlin.Boolean){}[0]
 }
@@ -421,8 +421,8 @@ final const val dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY // dev.mokksy.mo
 final fun (io.ktor.http/ContentType).dev.mokksy.mokksy.utils/asMimeType(): kotlin/String // dev.mokksy.mokksy.utils/asMimeType|asMimeType@io.ktor.http.ContentType(){}[0]
 final fun (io.ktor.http/Headers).dev.mokksy.mokksy.request/shouldHaveHeader(kotlin/Pair<kotlin/String, kotlin/String>) // dev.mokksy.mokksy.request/shouldHaveHeader|shouldHaveHeader@io.ktor.http.Headers(kotlin.Pair<kotlin.String,kotlin.String>){}[0]
 final fun (io.ktor.http/Headers).dev.mokksy.mokksy.request/shouldNotHaveHeader(kotlin/Pair<kotlin/String, kotlin/String>) // dev.mokksy.mokksy.request/shouldNotHaveHeader|shouldNotHaveHeader@io.ktor.http.Headers(kotlin.Pair<kotlin.String,kotlin.String>){}[0]
-final fun (io.ktor.server.application/Application).dev.mokksy.mokksy/mokksy(dev.mokksy.mokksy/MokksyPlugin, kotlin/String = ...) // dev.mokksy.mokksy/mokksy|mokksy@io.ktor.server.application.Application(dev.mokksy.mokksy.MokksyPlugin;kotlin.String){}[0]
-final fun (io.ktor.server.routing/Route).dev.mokksy.mokksy/mokksy(dev.mokksy.mokksy/MokksyPlugin, kotlin/String = ...) // dev.mokksy.mokksy/mokksy|mokksy@io.ktor.server.routing.Route(dev.mokksy.mokksy.MokksyPlugin;kotlin.String){}[0]
+final fun (io.ktor.server.application/Application).dev.mokksy.mokksy/mokksy(dev.mokksy.mokksy/MokksyHandler, kotlin/String = ...) // dev.mokksy.mokksy/mokksy|mokksy@io.ktor.server.application.Application(dev.mokksy.mokksy.MokksyHandler;kotlin.String){}[0]
+final fun (io.ktor.server.routing/Route).dev.mokksy.mokksy/mokksy(dev.mokksy.mokksy/MokksyHandler, kotlin/String = ...) // dev.mokksy.mokksy/mokksy|mokksy@io.ktor.server.routing.Route(dev.mokksy.mokksy.MokksyHandler;kotlin.String){}[0]
 final fun (kotlin/ByteArray).dev.mokksy.mokksy.utils/asBase64DataUrl(kotlin/String): kotlin/String // dev.mokksy.mokksy.utils/asBase64DataUrl|asBase64DataUrl@kotlin.ByteArray(kotlin.String){}[0]
 final fun (kotlin/String?).dev.mokksy.mokksy.utils/ellipsizeMiddle(kotlin/Int): kotlin/String? // dev.mokksy.mokksy.utils/ellipsizeMiddle|ellipsizeMiddle@kotlin.String?(kotlin.Int){}[0]
 final fun <#A: kotlin/Any> dev.mokksy.mokksy.kotest/objectEquals(#A?, kotlin/String): io.kotest.matchers/Matcher<#A?> // dev.mokksy.mokksy.kotest/objectEquals|objectEquals(0:0?;kotlin.String){0§<kotlin.Any>}[0]
