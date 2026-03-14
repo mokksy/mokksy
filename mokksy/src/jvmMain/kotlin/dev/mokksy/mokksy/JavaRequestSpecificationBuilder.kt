@@ -15,7 +15,7 @@ import java.util.function.Predicate
  * ```java
  * mokksy.post(spec -> spec
  *     .path("/items")
- *     .bodyMatchesPredicate(body -> body != null && body.contains("token")))
+ *     .bodyMatchesPredicate(body -> body.contains("token")))
  *   .respondsWith(builder -> builder.body("ok"));
  * ```
  *
