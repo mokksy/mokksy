@@ -43,7 +43,12 @@ internal inline fun <P : Any, reified T : Any> createStub(
                 },
         )
     return Stub(
-        configuration = StubConfiguration(name = name, eventuallyRemove = eventuallyRemove),
+        configuration =
+            StubConfiguration(
+                name = name,
+                verbose = true,
+                eventuallyRemove = eventuallyRemove,
+            ),
         requestSpecification = spec,
         responseDefinitionSupplier = responseSupplier ?: okResponseSupplier<T>(),
     )

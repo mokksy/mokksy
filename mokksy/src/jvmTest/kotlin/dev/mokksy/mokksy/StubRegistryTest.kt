@@ -107,7 +107,7 @@ class StubRegistryTest {
                 val matched =
                     registry.findMatchingStub(
                         request = routingRequest,
-                        verbose = true,
+                        verbose = false,
                         logger = mockk(relaxed = true),
                         formatter =
                             HttpFormatter(),
@@ -141,7 +141,7 @@ class StubRegistryTest {
                 val matched =
                     registry.findMatchingStub(
                         request = routingRequest,
-                        verbose = true,
+                        verbose = false,
                         logger = mockk(relaxed = true),
                         formatter =
                             HttpFormatter(),
@@ -167,7 +167,7 @@ class StubRegistryTest {
                 val matched1 =
                     registry.findMatchingStub(
                         request = routingRequest,
-                        verbose = true,
+                        verbose = false,
                         logger = mockk(relaxed = true),
                         formatter =
                             HttpFormatter(),
@@ -179,7 +179,7 @@ class StubRegistryTest {
                 val matched2 =
                     registry.findMatchingStub(
                         request = routingRequest,
-                        verbose = true,
+                        verbose = false,
                         logger = mockk(relaxed = true),
                         formatter =
                             HttpFormatter(),
@@ -212,7 +212,7 @@ class StubRegistryTest {
                 val result =
                     registry.findMatchingStub(
                         request = routingRequest,
-                        verbose = true,
+                        verbose = false,
                         logger = mockk(relaxed = true),
                         formatter = HttpFormatter(),
                     )
