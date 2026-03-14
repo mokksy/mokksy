@@ -8,6 +8,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.ResponseHeaders
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.post
 import io.ktor.server.testing.testApplication
@@ -16,6 +17,22 @@ import kotlin.time.Duration.Companion.seconds
 
 class AbstractResponseDefinitionBuilderTest {
     private val formatter = HttpFormatter()
+
+    private fun collectHeaders(headersBlock: (ResponseHeaders.() -> Unit)?): List<String> {
+        val result = mutableListOf<String>()
+        headersBlock?.invoke(
+            object : ResponseHeaders() {
+                override fun engineAppendHeader(name: String, value: String) {
+                    result.add("$name=$value")
+                }
+
+                override fun getEngineHeaderNames(): List<String> = emptyList()
+
+                override fun getEngineHeaderValues(name: String): List<String> = emptyList()
+            },
+        )
+        return result
+    }
 
     // region httpStatus(Int)
 
@@ -123,23 +140,7 @@ class AbstractResponseDefinitionBuilderTest {
                         )
                     builder.addHeader("X-Custom", "value-1")
                     val definition = builder.build()
-                    val headers = mutableListOf<String>()
-                    definition.headers?.invoke(
-                        object : io.ktor.server.response.ResponseHeaders() {
-                            override fun engineAppendHeader(
-                                name: String,
-                                value: String,
-                            ) {
-                                headers.add("$name=$value")
-                            }
-
-                            override fun getEngineHeaderNames(): List<String> = emptyList()
-
-                            override fun getEngineHeaderValues(name: String): List<String> =
-                                emptyList()
-                        },
-                    )
-                    call.respondText(headers.joinToString(","))
+                    call.respondText(collectHeaders(definition.headers).joinToString(","))
                 }
             }
 
@@ -161,23 +162,7 @@ class AbstractResponseDefinitionBuilderTest {
                     builder.addHeader("X-Two", "2")
 
                     val definition = builder.build()
-                    val headers = mutableListOf<String>()
-                    definition.headers?.invoke(
-                        object : io.ktor.server.response.ResponseHeaders() {
-                            override fun engineAppendHeader(
-                                name: String,
-                                value: String,
-                            ) {
-                                headers.add("$name=$value")
-                            }
-
-                            override fun getEngineHeaderNames(): List<String> = emptyList()
-
-                            override fun getEngineHeaderValues(name: String): List<String> =
-                                emptyList()
-                        },
-                    )
-                    call.respondText(headers.sorted().joinToString(","))
+                    call.respondText(collectHeaders(definition.headers).sorted().joinToString(","))
                 }
             }
 
@@ -202,23 +187,7 @@ class AbstractResponseDefinitionBuilderTest {
                     builder.headers += "Foo" to "bar"
 
                     val definition = builder.build()
-                    val headers = mutableListOf<String>()
-                    definition.headers?.invoke(
-                        object : io.ktor.server.response.ResponseHeaders() {
-                            override fun engineAppendHeader(
-                                name: String,
-                                value: String,
-                            ) {
-                                headers.add("$name=$value")
-                            }
-
-                            override fun getEngineHeaderNames(): List<String> = emptyList()
-
-                            override fun getEngineHeaderValues(name: String): List<String> =
-                                emptyList()
-                        },
-                    )
-                    call.respondText(headers.joinToString(","))
+                    call.respondText(collectHeaders(definition.headers).joinToString(","))
                 }
             }
 
@@ -245,23 +214,7 @@ class AbstractResponseDefinitionBuilderTest {
                     }
 
                     val definition = builder.build()
-                    val headers = mutableListOf<String>()
-                    definition.headers?.invoke(
-                        object : io.ktor.server.response.ResponseHeaders() {
-                            override fun engineAppendHeader(
-                                name: String,
-                                value: String,
-                            ) {
-                                headers.add("$name=$value")
-                            }
-
-                            override fun getEngineHeaderNames(): List<String> = emptyList()
-
-                            override fun getEngineHeaderValues(name: String): List<String> =
-                                emptyList()
-                        },
-                    )
-                    call.respondText(headers.joinToString(","))
+                    call.respondText(collectHeaders(definition.headers).joinToString(","))
                 }
             }
 
@@ -287,23 +240,7 @@ class AbstractResponseDefinitionBuilderTest {
                     }
 
                     val definition = builder.build()
-                    val headers = mutableListOf<String>()
-                    definition.headers?.invoke(
-                        object : io.ktor.server.response.ResponseHeaders() {
-                            override fun engineAppendHeader(
-                                name: String,
-                                value: String,
-                            ) {
-                                headers.add("$name=$value")
-                            }
-
-                            override fun getEngineHeaderNames(): List<String> = emptyList()
-
-                            override fun getEngineHeaderValues(name: String): List<String> =
-                                emptyList()
-                        },
-                    )
-                    call.respondText(headers.joinToString(","))
+                    call.respondText(collectHeaders(definition.headers).joinToString(","))
                 }
             }
 
@@ -333,6 +270,70 @@ class AbstractResponseDefinitionBuilderTest {
 
             val response = client.post("/test") { setBody("") }
             response.bodyAsText() shouldBe "true"
+        }
+
+    // endregion
+
+    // region body() fluent method
+
+    @Test
+    fun `body() sets body and returns builder for chaining`() =
+        testApplication {
+            routing {
+                post("/test") {
+                    val builder =
+                        ResponseDefinitionBuilder<String, String>(
+                            request = CapturedRequest(call.request, String::class),
+                            formatter = formatter,
+                        )
+                    val returned = builder.body("fluent-body")
+
+                    call.respondText("${returned === builder}|${builder.body}")
+                }
+            }
+
+            val response = client.post("/test") { setBody("") }
+            response.bodyAsText() shouldBe "true|fluent-body"
+        }
+
+    @Test
+    fun `status() sets http status code and returns builder for chaining`() =
+        testApplication {
+            routing {
+                post("/test") {
+                    val builder =
+                        ResponseDefinitionBuilder<String, String>(
+                            request = CapturedRequest(call.request, String::class),
+                            formatter = formatter,
+                        )
+                    val returned = builder.status(404)
+
+                    call.respondText("${returned === builder}|${builder.httpStatusCode}")
+                }
+            }
+
+            val response = client.post("/test") { setBody("") }
+            response.bodyAsText() shouldBe "true|404"
+        }
+
+    @Test
+    fun `header() adds a header and returns builder for chaining`() =
+        testApplication {
+            routing {
+                post("/test") {
+                    val builder =
+                        ResponseDefinitionBuilder<String, String>(
+                            request = CapturedRequest(call.request, String::class),
+                            formatter = formatter,
+                        )
+                    val returned = builder.header("X-Result", "ok")
+                    val definition = builder.build()
+                    call.respondText("${returned === builder}|${collectHeaders(definition.headers).joinToString()}")
+                }
+            }
+
+            val response = client.post("/test") { setBody("") }
+            response.bodyAsText() shouldBe "true|X-Result=ok"
         }
 
     // endregion

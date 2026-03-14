@@ -8,14 +8,12 @@ import io.kotest.matchers.string.shouldContain
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
 internal class MokksyServerJavaLifecycleIT {
     @Test
     fun `start and shutdown work as blocking lifecycle methods`() {
-        val mokksy = Mokksy.create()
-        mokksy.start()
+        val mokksy = Mokksy.create().start()
 
         try {
             assertSoftly {
@@ -30,27 +28,35 @@ internal class MokksyServerJavaLifecycleIT {
 
     @Test
     fun `close shuts down the server`() {
-        val mokksy = Mokksy.create()
-        mokksy.start()
-        val port = mokksy.port()
-
-        mokksy.close()
-
-        port shouldBeGreaterThan 0
+        val mokksy = Mokksy.create().start()
+        mokksy.port() shouldBeGreaterThan 0
+        mokksy.close() // must not throw
     }
 
     @Test
     fun `shutdown with custom timings completes without error`() {
-        val mokksy = Mokksy.create()
-        mokksy.start()
+        val mokksy = Mokksy.create().start()
 
         mokksy.shutdown(gracePeriodMillis = 100, timeoutMillis = 200)
     }
 
     @Test
-    fun `server responds after start via createKtorClient`() {
-        val mokksy = Mokksy.create()
-        mokksy.start()
+    fun `MokksyServer start extension blocks until port is bound and returns server`() {
+        val server = MokksyServer()
+        val returned = server.start()
+        try {
+            assertSoftly {
+                returned shouldBe server
+                server.port() shouldBeGreaterThan 0
+            }
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
+    suspend fun `server responds after start via createKtorClient`() {
+        val mokksy = Mokksy.create().start()
         val client = createKtorClient(mokksy.port())
 
         try {
@@ -60,8 +66,8 @@ internal class MokksyServerJavaLifecycleIT {
                 body = "alive"
             }
 
-            val result = runBlocking { client.get("/java-lifecycle-test") }
-            val responseBody = runBlocking { result.bodyAsText() }
+            val result = client.get("/java-lifecycle-test")
+            val responseBody = result.bodyAsText()
 
             assertSoftly {
                 result.status shouldBe HttpStatusCode.OK
