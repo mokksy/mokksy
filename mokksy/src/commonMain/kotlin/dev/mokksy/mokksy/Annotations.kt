@@ -24,10 +24,10 @@ public annotation class MokksyDsl
 
 /**
  * This annotation marks the Mokksy API that is considered experimental and is not subject to the
- * general compatibility guarantees. the behavior of such API may be changed,
+ * general compatibility guarantees. The behaviour of such API may change,
  * or the API may be removed completely in any further release.
  *
- * Any usage of a declaration annotated with `@ExperimentalMokksyApi` must be accepted either by
+ * Any usage of a declaration annotated with [ExperimentalMokksyApi] must be accepted either by
  * annotating that usage with the [OptIn] annotation, e.g. `@OptIn(ExperimentalMokksyApi::class)`,
  * or by using the compiler argument `-opt-in=dev.mokksy.mokksy.ExperimentalMokksyApi`.
  */
@@ -56,6 +56,12 @@ public annotation class ExperimentalMokksyApi
  * API marked with this annotation is internal, and it is not intended to be used outside Mokksy.
  * It could be modified or removed without any notice.
  * Using it outside Mokksy could cause undefined behaviour and/or any unexpected effects.
+ *
+ * Example:
+ * ```kotlin
+ * @OptIn(InternalMokksyApi::class)
+ * internal fun wireInternalFeature() { /* ... */ }
+ * ```
  */
 @RequiresOptIn(
     level = RequiresOptIn.Level.ERROR,
