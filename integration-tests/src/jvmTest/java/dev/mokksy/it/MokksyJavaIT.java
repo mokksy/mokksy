@@ -237,15 +237,26 @@ class MokksyJavaIT {
     @Test
     void resetMatchState_shouldMakeMatchedStubsUnmatchedAgain()
         throws IOException, InterruptedException {
-        mokksy.get(spec -> spec.path("/reset-test"))
-            .respondsWith(builder -> builder.body("ok"));
+        try (Mokksy fresh = Mokksy.create().start()) {
+            fresh.get(spec -> spec.path("/reset-test"))
+                .respondsWith(builder -> builder.body("ok"));
 
-        get("/reset-test");
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/reset-test"))
+                    .GET()
+                    .build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
 
-        mokksy.resetMatchState();
+            fresh.verifyNoUnmatchedStubs();
+            fresh.verifyNoUnexpectedRequests();
 
-        assertThatThrownBy(mokksy::verifyNoUnmatchedStubs)
-            .isInstanceOf(AssertionError.class);
+            fresh.resetMatchState();
+
+            assertThatThrownBy(fresh::verifyNoUnmatchedStubs)
+                .isInstanceOf(AssertionError.class);
+        }
     }
 
     // endregion
