@@ -8,10 +8,7 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 internal class MokksyServerJavaLifecycleIT {
     @Test
@@ -59,8 +56,8 @@ internal class MokksyServerJavaLifecycleIT {
             mokksy
                 .get { spec ->
                     spec.path("/java-lifecycle-test")
-                }.respondsWith { builder ->
-                    builder.body = "alive"
+                }.respondsWith {
+                    it.body("alive")
                 }
 
             val result = runBlocking { client.get("/java-lifecycle-test") }

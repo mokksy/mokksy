@@ -2,7 +2,6 @@ package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestSpecification
-import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
@@ -20,7 +19,7 @@ import kotlin.reflect.KClass
  *
  * Eliminates Kotlin-specific boilerplate from Java test code:
  * - `start()` and `shutdown()` are instance methods
- * - HTTP stub methods (`get`, `post`, etc.) accept `Consumer<RequestSpecificationBuilder<P>>`
+ * - HTTP stub methods (`get`, `post`, etc.) accept `Consumer<JavaRequestSpecificationBuilder<P>>`
  *   instead of Kotlin lambdas with receivers (no `return Unit.INSTANCE`)
  * - Returns [JavaBuildingStep], which exposes `respondsWith` and `respondsWithStream`
  *   as chainable instance methods (no separate `MokksyJava.respondsWith(step, ...)` call)
@@ -37,7 +36,7 @@ import kotlin.reflect.KClass
  *     @Test
  *     void myTest() throws Exception {
  *         mokksy.get(spec -> spec.path("/ping"))
- *               .respondsWith(builder -> builder.setBody("Pong"));
+ *               .respondsWith(builder -> builder.body("Pong"));
  *         // ... make HTTP call and assert
  *     }
  * }
@@ -178,41 +177,43 @@ public class MokksyServerJava(
         configuration: StubConfiguration,
         httpMethod: HttpMethod,
         requestType: KClass<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> =
         JavaBuildingStep(
-            delegate.method(configuration, httpMethod, requestType) { spec.accept(this) },
+            delegate.method(configuration, httpMethod, requestType) {
+                spec.accept(JavaRequestSpecificationBuilder(this))
+            },
         )
 
     private fun method(
         configuration: StubConfiguration,
         httpMethod: HttpMethod,
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, httpMethod, String::class, spec)
 
     // region GET
 
     /** Registers a GET stub with a [String] request body. */
-    public fun get(spec: Consumer<RequestSpecificationBuilder<String>>): JavaBuildingStep<String> =
+    public fun get(spec: Consumer<JavaRequestSpecificationBuilder<String>>): JavaBuildingStep<String> =
         method(StubConfiguration(), Get, spec)
 
     /** Registers a GET stub with a [String] request body and [StubConfiguration]. */
     public fun get(
         configuration: StubConfiguration,
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Get, spec)
 
     /** Registers a GET stub with a typed request body. */
     public fun <P : Any> get(
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(StubConfiguration(), Get, requestType.kotlin, spec)
 
     /** Registers a GET stub with a typed request body and [StubConfiguration]. */
     public fun <P : Any> get(
         configuration: StubConfiguration,
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Get, requestType.kotlin, spec)
 
     // endregion
@@ -221,26 +222,26 @@ public class MokksyServerJava(
 
     /** Registers a POST stub with a [String] request body. */
     public fun post(
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(StubConfiguration(), Post, spec)
 
     /** Registers a POST stub with a [String] request body and [StubConfiguration]. */
     public fun post(
         configuration: StubConfiguration,
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Post, spec)
 
     /** Registers a POST stub with a typed request body. */
     public fun <P : Any> post(
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(StubConfiguration(), Post, requestType.kotlin, spec)
 
     /** Registers a POST stub with a typed request body and [StubConfiguration]. */
     public fun <P : Any> post(
         configuration: StubConfiguration,
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Post, requestType.kotlin, spec)
 
     // endregion
@@ -248,26 +249,26 @@ public class MokksyServerJava(
     // region PUT
 
     /** Registers a PUT stub with a [String] request body. */
-    public fun put(spec: Consumer<RequestSpecificationBuilder<String>>): JavaBuildingStep<String> =
+    public fun put(spec: Consumer<JavaRequestSpecificationBuilder<String>>): JavaBuildingStep<String> =
         method(StubConfiguration(), Put, spec)
 
     /** Registers a PUT stub with a [String] request body and [StubConfiguration]. */
     public fun put(
         configuration: StubConfiguration,
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Put, spec)
 
     /** Registers a PUT stub with a typed request body. */
     public fun <P : Any> put(
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(StubConfiguration(), Put, requestType.kotlin, spec)
 
     /** Registers a PUT stub with a typed request body and [StubConfiguration]. */
     public fun <P : Any> put(
         configuration: StubConfiguration,
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Put, requestType.kotlin, spec)
 
     // endregion
@@ -276,26 +277,26 @@ public class MokksyServerJava(
 
     /** Registers a DELETE stub with a [String] request body. */
     public fun delete(
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(StubConfiguration(), Delete, spec)
 
     /** Registers a DELETE stub with a [String] request body and [StubConfiguration]. */
     public fun delete(
         configuration: StubConfiguration,
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Delete, spec)
 
     /** Registers a DELETE stub with a typed request body. */
     public fun <P : Any> delete(
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(StubConfiguration(), Delete, requestType.kotlin, spec)
 
     /** Registers a DELETE stub with a typed request body and [StubConfiguration]. */
     public fun <P : Any> delete(
         configuration: StubConfiguration,
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Delete, requestType.kotlin, spec)
 
     // endregion
@@ -304,26 +305,26 @@ public class MokksyServerJava(
 
     /** Registers a PATCH stub with a [String] request body. */
     public fun patch(
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(StubConfiguration(), Patch, spec)
 
     /** Registers a PATCH stub with a [String] request body and [StubConfiguration]. */
     public fun patch(
         configuration: StubConfiguration,
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Patch, spec)
 
     /** Registers a PATCH stub with a typed request body. */
     public fun <P : Any> patch(
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(StubConfiguration(), Patch, requestType.kotlin, spec)
 
     /** Registers a PATCH stub with a typed request body and [StubConfiguration]. */
     public fun <P : Any> patch(
         configuration: StubConfiguration,
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Patch, requestType.kotlin, spec)
 
     // endregion
@@ -332,26 +333,26 @@ public class MokksyServerJava(
 
     /** Registers a HEAD stub. */
     public fun head(
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(StubConfiguration(), Head, spec)
 
     /** Registers a HEAD stub with a typed request body. */
     public fun <P : Any> head(
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(StubConfiguration(), Head, requestType.kotlin, spec)
 
     /** Registers a HEAD stub with [StubConfiguration]. */
     public fun head(
         configuration: StubConfiguration,
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Head, spec)
 
     /** Registers a HEAD stub with a typed request body and [StubConfiguration]. */
     public fun <P : Any> head(
         configuration: StubConfiguration,
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Head, requestType.kotlin, spec)
 
     // endregion
@@ -360,27 +361,67 @@ public class MokksyServerJava(
 
     /** Registers an OPTIONS stub. */
     public fun options(
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(StubConfiguration(), Options, spec)
 
     /** Registers an OPTIONS stub with a typed request body. */
     public fun <P : Any> options(
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(StubConfiguration(), Options, requestType.kotlin, spec)
 
     /** Registers an OPTIONS stub with [StubConfiguration]. */
     public fun options(
         configuration: StubConfiguration,
-        spec: Consumer<RequestSpecificationBuilder<String>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, Options, spec)
 
     /** Registers an OPTIONS stub with a typed request body and [StubConfiguration]. */
     public fun <P : Any> options(
         configuration: StubConfiguration,
         requestType: Class<P>,
-        spec: Consumer<RequestSpecificationBuilder<P>>,
+        spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Options, requestType.kotlin, spec)
+
+    // endregion
+
+    // region Arbitrary method
+
+    /**
+     * Registers a stub for an arbitrary HTTP method with a [String] request body.
+     *
+     * Useful in `@ParameterizedTest` scenarios where the method name is a variable:
+     * ```java
+     * @ParameterizedTest
+     * @ValueSource(strings = {"PUT", "DELETE", "PATCH"})
+     * void shouldRespond(String method) throws Exception {
+     *     mokksy.method(method, spec -> spec.path("/" + method.toLowerCase()))
+     *           .respondsWith(builder -> builder.body("ok"));
+     * }
+     * ```
+     *
+     * @param httpMethod The HTTP method string, e.g. `"GET"`, `"POST"`, `"PUT"`.
+     * @param spec A [Consumer] to configure the request specification.
+     * @return A [JavaBuildingStep] to configure the response.
+     */
+    public fun method(
+        httpMethod: String,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
+    ): JavaBuildingStep<String> = method(StubConfiguration(), HttpMethod(httpMethod), spec)
+
+    /**
+     * Registers a stub for an arbitrary HTTP method with a [String] request body and [StubConfiguration].
+     *
+     * @param configuration Stub lifecycle and logging configuration.
+     * @param httpMethod The HTTP method string, e.g. `"GET"`, `"POST"`, `"PUT"`.
+     * @param spec A [Consumer] to configure the request specification.
+     * @return A [JavaBuildingStep] to configure the response.
+     */
+    public fun method(
+        configuration: StubConfiguration,
+        httpMethod: String,
+        spec: Consumer<JavaRequestSpecificationBuilder<String>>,
+    ): JavaBuildingStep<String> = method(configuration, HttpMethod(httpMethod), spec)
 
     // endregion
 
@@ -420,4 +461,31 @@ public class MokksyServerJava(
     public fun verifyNoUnexpectedRequests(): Unit = delegate.verifyNoUnexpectedRequests()
 
     // endregion
+
+    public companion object {
+        /**
+         * Creates a [MokksyServerJava] and immediately starts it.
+         *
+         * Named `open` (the complement of [close]) so it pairs naturally with try-with-resources:
+         * ```java
+         * try (MokksyServerJava mokksy = MokksyServerJava.open()) {
+         *     mokksy.get(spec -> spec.path("/ping"))
+         *           .respondsWith(builder -> builder.body("Pong"));
+         *     // ... assert
+         * }
+         * ```
+         *
+         * @param port Port to bind to. Defaults to `0` (OS-assigned ephemeral port).
+         * @param host Network interface to bind to. Defaults to `"127.0.0.1"`.
+         * @param verbose Enables `DEBUG`-level logging. Defaults to `false`.
+         * @return A fully started [MokksyServerJava] instance.
+         */
+        @JvmStatic
+        @JvmOverloads
+        public fun open(
+            port: Int = 0,
+            host: String = DEFAULT_HOST,
+            verbose: Boolean = false,
+        ): MokksyServerJava = MokksyServerJava(port, host, verbose).also { it.start() }
+    }
 }
