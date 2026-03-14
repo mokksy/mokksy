@@ -44,14 +44,16 @@ kotlin {
             dependencies {
                 implementation(project(":mokksy"))
                 implementation(kotlin("test"))
-                implementation(libs.kotlinx.coroutines.test)
                 implementation(project.dependencies.platform(libs.ktor.bom))
+                implementation(libs.kotest.assertions.core)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.ktor.client.auth)
                 implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.core)
-                implementation(libs.ktor.server.content.negotiation)
                 implementation(libs.ktor.serialization.kotlinx.json)
-                implementation(libs.ktor.server.sse)
+                implementation(libs.ktor.server.auth)
+                implementation(libs.ktor.server.content.negotiation)
                 implementation(libs.ktor.server.double.receive)
+                implementation(libs.ktor.server.sse)
             }
         }
 
@@ -59,10 +61,7 @@ kotlin {
             dependencies {
                 implementation(libs.assertj.core)
                 implementation(libs.junit.jupiter.params)
-                implementation(libs.kotest.assertions.core)
                 implementation(libs.ktor.serialization.jackson)
-                implementation(libs.ktor.client.auth)
-                implementation(libs.ktor.server.auth)
                 implementation(libs.ktor.server.test.host)
                 runtimeOnly(libs.slf4j.simple)
                 runtimeOnly(libs.ktor.client.apache5)
