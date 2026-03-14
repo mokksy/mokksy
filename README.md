@@ -378,8 +378,9 @@ genericResult.bodyAsText() shouldBe "any user"
 -->
 <!--- KNIT example-readme-01.kt -->
 
-When no stub matches and verbose mode is enabled (`Mokksy(verbose = true)` / `Mokksy.create(verbose = true)` for Java), Mokksy logs the closest
-partial match and its failed conditions to help you diagnose the mismatch.
+When no stub matches and verbose mode is enabled 
+(`Mokksy(verbose = true)` / `Mokksy.create(Mokksy.create("127.0.0.1", 0, true))` for Java), 
+Mokksy logs the closest partial match and its failed conditions to help you diagnose the mismatch.
 
 ### Priority Example
 
@@ -459,7 +460,7 @@ matched no stub. For `verifyNoUnmatchedStubs()`, the right placement depends on 
   before the server is torn down.
 - **Shared instance** (`@TestInstance(Lifecycle.PER_CLASS)` or a companion-object server): call
   `verifyNoUnmatchedStubs()` in `@AfterAll`, immediately before `shutdown()`. Calling it after
-  each individual test would falsely report stubs registered for *later* tests as unmatched.
+  each individual test would falsely report stubs registered for _later_ tests as unmatched.
 
 <!--- CLEAR -->
 <!--- INCLUDE
@@ -550,7 +551,7 @@ Mokksy records incoming requests in a `RequestJournal`. The recording mode is co
 
 | Mode                           | Behaviour                                                                                                   |
 |--------------------------------|-------------------------------------------------------------------------------------------------------------|
-| `JournalMode.LEAN` *(default)* | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`. |
+| `JournalMode.LEAN` _(default)_ | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`. |
 | `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                 |
 
 ```kotlin
@@ -583,7 +584,7 @@ Java callers use `dev.mokksy.Mokksy` — a JVM-only, `AutoCloseable` wrapper tha
 ```java
 import dev.mokksy.Mokksy;
 
-Mokksy mokksy = Mokksy.create().start();
+Mokksy mokksy = Mokksy.create("127.0.0.1", 0, true).start();
 
 mokksy.get(spec -> spec.path("/ping"))
       .respondsWith(builder -> builder.body("Pong"));
@@ -603,6 +604,12 @@ try (Mokksy mokksy = Mokksy.create().start()) {
 **JUnit 5 setup:**
 
 ```java
+import java.net.http.HttpClient;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MyTest {
 
@@ -613,6 +620,11 @@ class MyTest {
     void setUp() {
         mokksy.start();
         httpClient = HttpClient.newHttpClient();
+    }
+    
+    @Test
+    void test() {
+      // call server
     }
 
     @AfterAll
