@@ -11,6 +11,7 @@ import io.mockk.junit5.MockKExtension
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+@OptIn(InternalMokksyApi::class)
 @ExtendWith(MockKExtension::class)
 internal class StubComparatorTest {
     lateinit var request1: RequestSpecification<Int>

@@ -23,6 +23,7 @@ internal inline fun <reified T : Any> okResponseSupplier(): ResponseDefinitionSu
         }
     }
 
+@OptIn(InternalMokksyApi::class)
 @Suppress("LongParameterList")
 internal inline fun <P : Any, reified T : Any> createStub(
     name: String? = null,

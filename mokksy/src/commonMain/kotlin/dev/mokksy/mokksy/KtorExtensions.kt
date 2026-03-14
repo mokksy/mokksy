@@ -23,11 +23,11 @@ import io.ktor.server.sse.SSE
  * }.start(wait = true)
  * ```
  *
- * @param server The [MokksyServer] whose stubs and journal will handle requests.
+ * @param server The [MokksyPlugin] whose stubs and journal will handle requests.
  * @param path The route path pattern to mount. Defaults to `"{...}"` (catch-all).
  */
 public fun Application.mokksy(
-    server: MokksyServer,
+    server: MokksyPlugin,
     path: String = "{...}",
 ) {
     install(SSE)
@@ -61,23 +61,16 @@ public fun Application.mokksy(
  * }.start(wait = true)
  * ```
  *
- * @param server The [MokksyServer] whose stubs and journal will handle requests.
+ * @param server The [MokksyPlugin] whose stubs and journal will handle requests.
  * @param path The route path pattern to mount. Defaults to `"{...}"` (catch-all).
  */
 public fun Route.mokksy(
-    server: MokksyServer,
+    server: MokksyPlugin,
     path: String = "{...}",
 ) {
     route(path) {
         handle {
-            handleRequest(
-                context = this@handle,
-                application = call.application,
-                stubRegistry = server.stubRegistry,
-                requestJournal = server.requestJournal,
-                configuration = server.configuration,
-                formatter = server.httpFormatter,
-            )
+            server.handle(this@handle, call.application)
         }
     }
 }
