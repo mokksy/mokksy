@@ -650,7 +650,7 @@ public open class MokksyServer
         /**
          * Returns all stub specifications that have not been matched by any incoming request.
          *
-         * A stub is considered unmatched if its match count is zero.
+         * A stub is considered unmatched if it has never been matched.
          *
          * @return A list of unmatched stub request specifications.
          */
@@ -683,15 +683,29 @@ public open class MokksyServer
             requestJournal.getUnmatched()
 
         /**
-         * Resets the match count of all registered stubs to zero and clears the request journal.
+         * Resets the match state of all currently registered stubs to unmatched,
+         * and clears the request journal.
          *
-         * Use this to clear match history before running new tests or scenarios.
+         * Note: stubs configured with [StubConfiguration.eventuallyRemove] that have already
+         * been matched are permanently removed from the registry on first match and will
+         * not be re-armed by this call. Re-register them explicitly before the next scenario.
          */
-        public fun resetMatchCounts() {
+        @Deprecated("Renamed to resetMatchState", ReplaceWith("resetMatchState()"))
+        public fun resetMatchCounts(): Unit = resetMatchState()
+
+        /**
+         * Resets the match state of all currently registered stubs to unmatched,
+         * and clears the request journal.
+         *
+         * Note: stubs configured with [StubConfiguration.eventuallyRemove] that have already
+         * been matched are permanently removed from the registry on first match and will
+         * not be re-armed by this call. Re-register them explicitly before the next scenario.
+         */
+        public fun resetMatchState() {
             stubRegistry
                 .getAll()
                 .forEach {
-                    it.resetMatchCount()
+                    it.reset()
                 }
             requestJournal.clear()
         }

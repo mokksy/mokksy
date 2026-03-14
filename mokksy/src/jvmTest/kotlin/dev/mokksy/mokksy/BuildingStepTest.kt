@@ -4,7 +4,6 @@ import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
@@ -112,7 +111,6 @@ internal class BuildingStepTest {
         assertSoftly(stub) {
             configuration.name shouldBe name
             requestSpecification shouldBe request
-            responseDefinitionSupplier shouldNotBeNull { }
         }
     }
 }

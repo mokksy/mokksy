@@ -53,8 +53,8 @@ class MokksyServerJavaTest {
 
     @Test
     fun `resetMatchCounts delegates to delegate`() {
-        sut.resetMatchCounts()
-        verify { delegate.resetMatchCounts() }
+        sut.resetMatchState()
+        verify { delegate.resetMatchState() }
     }
 
     @Test

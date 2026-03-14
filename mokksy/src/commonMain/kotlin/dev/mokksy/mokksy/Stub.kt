@@ -72,7 +72,7 @@ internal data class Stub<P : Any, T : Any>(
      *
      * @see MokksyServer.resetMatchCounts
      */
-    fun resetMatchCount() {
+    fun reset() {
         matched.value = false
     }
 

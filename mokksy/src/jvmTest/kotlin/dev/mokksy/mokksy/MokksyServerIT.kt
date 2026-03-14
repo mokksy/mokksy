@@ -117,7 +117,7 @@ internal class MokksyServerIT : AbstractIT() {
             freshClient.get(path)
             freshMokksy.findAllUnmatchedStubs().shouldBeEmpty()
 
-            freshMokksy.resetMatchCounts()
+            freshMokksy.resetMatchState()
 
             freshMokksy.findAllUnmatchedStubs() shouldHaveSize 1
         } finally {
@@ -141,5 +141,4 @@ internal class MokksyServerIT : AbstractIT() {
     }
 
     // endregion
-
 }

@@ -414,7 +414,7 @@ Use this to catch stubs you set up but that were never actually called — a sig
 a different path than expected.
 
 ```kotlin
-// Fails if any stub has matchCount == 0
+// Fails if any stub has never been matched
 mokksy.verifyNoUnmatchedStubs()
 ```
 
@@ -535,14 +535,17 @@ val mokksy = Mokksy(
 )
 ```
 
-Call `resetMatchCounts()` between scenarios to clear both stub match counts and the journal:
+Call `resetMatchState()` between scenarios to clear stub match state and the journal:
 
 ```kotlin
 @AfterTest
 fun afterEach() {
-    mokksy.resetMatchCounts()
+    mokksy.resetMatchState()
 }
 ```
+
+> **Note:** Stubs configured with `eventuallyRemove = true` are permanently removed from the registry
+> on first match and cannot be re-armed by `resetMatchState()`. Re-register them before the next scenario.
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification (HTML Living Standard)"
 [ai-mocks]: https://github.com/mokksy/ai-mocks/ "AI-Mock: Mokksy extensions for AI"

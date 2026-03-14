@@ -93,6 +93,7 @@ public class dev/mokksy/mokksy/MokksyServer {
 	public final fun put (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun put$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun resetMatchCounts ()V
+	public final fun resetMatchState ()V
 	public final fun shutdownSuspend (JJLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun shutdownSuspend$default (Ldev/mokksy/mokksy/MokksyServer;JJLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun startSuspend (ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -142,7 +143,7 @@ public final class dev/mokksy/mokksy/MokksyServerJava : java/lang/AutoCloseable 
 	public final fun put (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun put (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun put (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
-	public final fun resetMatchCounts ()V
+	public final fun resetMatchState ()V
 	public final fun shutdown ()V
 	public final fun shutdown (J)V
 	public final fun shutdown (JJ)V
