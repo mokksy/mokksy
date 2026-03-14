@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
 @Suppress("UastIncorrectHttpHeaderInspection")

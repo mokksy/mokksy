@@ -48,6 +48,8 @@
   * [Recommended AfterEach setup](#recommended-aftereach-setup)
   * [Inspecting unmatched items](#inspecting-unmatched-items)
 * [Request Journal](#request-journal)
+* [Java API](#java-api)
+  * [Jackson support](#jackson-support)
 
 <!--- END -->
 
@@ -72,6 +74,7 @@ Particularly, it might be useful for integration testing LLM clients.
 1. Add dependencies:
  
    Gradle _build.gradle.kts:_
+   
    ```kotlin
    dependencies {               
         // for multiplatform projects
@@ -80,6 +83,7 @@ Particularly, it might be useful for integration testing LLM clients.
        implementation("dev.mokksy:mokksy-jvm:$latestVersion")
    }
    ``` 
+  
    _pom.xml:_
    ```xml
     <dependency>
@@ -91,9 +95,49 @@ Particularly, it might be useful for integration testing LLM clients.
    ```
 
 
+2. Create and start Mokksy server:
+
+   **Kotlin — all platforms (coroutine-based):**
+
+   ```kotlin
+   import dev.mokksy.mokksy.Mokksy
+
+   val mokksy = Mokksy()
+   mokksy.startSuspend()
+   mokksy.awaitStarted() // port() and baseUrl() are safe after this point
+   ```
+
+   **Kotlin — JVM blocking:**
+
+   ```kotlin
+   import dev.mokksy.mokksy.Mokksy
+
+   val mokksy = Mokksy().start()
+   ```
+
+   **Java** — see [Java API](#java-api) below.
+
+3. Configure http client using Mokksy server's as baseUrl in your application:
+
+```kotlin
+val client = HttpClient {
+  install(DefaultRequest) {
+    url(mokksy.baseUrl())
+  }
+}
+```
+
+## Responding with predefined responses
+
+Mokksy supports all HTTP verbs. Here are some examples.
+
+### GET request
+
+GET request example:
+
 <!--- CLEAR -->
-<!--- INCLUDE 
-import dev.mokksy.mokksy.Mokksy
+<!--- INCLUDE
+import dev.mokksy.Mokksy
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -116,36 +160,13 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
 class ReadmeTest {
+    val mokksy = Mokksy.create().start()
+    val client = HttpClient {
+        install(DefaultRequest) {
+            url(mokksy.baseUrl())
+        }
+    }
 -->
-
-2. Create and start Mokksy server:
-
-   **JVM (blocking):**
-   ```kotlin
-   val mokksy = Mokksy().apply {
-       runBlocking { 
-           startSuspend() 
-       }
-   }
-   ```
-3. Configure http client using Mokksy server's as baseUrl in your application:
-
-```kotlin
-val client = HttpClient {
-  install(DefaultRequest) {
-    url(mokksy.baseUrl())
-  }
-}
-```
-
-## Responding with predefined responses
-
-Mokksy supports all HTTP verbs. Here are some examples.
-
-### GET request
-
-GET request example:
-
 <!--- INCLUDE
   @Test
   suspend fun testGet() {
@@ -329,6 +350,7 @@ regardless of registration order.
   @Test
   suspend fun testSpecificity() {
 -->
+
 ```kotlin
 // Generic: matches any POST to /users
 mokksy.post {
@@ -361,8 +383,9 @@ genericResult.bodyAsText() shouldBe "any user"
 -->
 <!--- KNIT example-readme-01.kt -->
 
-When no stub matches and verbose mode is enabled (`Mokksy(verbose = true)`), Mokksy logs the closest
-partial match and its failed conditions to help you diagnose the mismatch.
+When no stub matches and verbose mode is enabled 
+(`Mokksy(verbose = true)` / `Mokksy.create(Mokksy.create("127.0.0.1", 0, true))` for Java), 
+Mokksy logs the closest partial match and its failed conditions to help you diagnose the mismatch.
 
 ### Priority Example
 
@@ -434,11 +457,19 @@ mokksy.verifyNoUnexpectedRequests()
 
 ### Recommended AfterEach setup
 
-Run both checks after every test to catch a mismatch in either direction:
+Always run `verifyNoUnexpectedRequests()` in `@AfterEach` to catch requests that arrived but
+matched no stub. For `verifyNoUnmatchedStubs()`, the right placement depends on your fixture strategy:
+
+- **Per-test instance** (`@TestInstance(Lifecycle.PER_METHOD)` or a fresh server per test): call
+  both checks in `@AfterEach` — every stub registered during that test should have been matched
+  before the server is torn down.
+- **Shared instance** (`@TestInstance(Lifecycle.PER_CLASS)` or a companion-object server): call
+  `verifyNoUnmatchedStubs()` in `@AfterAll`, immediately before `shutdown()`. Calling it after
+  each individual test would falsely report stubs registered for _later_ tests as unmatched.
 
 <!--- CLEAR -->
 <!--- INCLUDE
-import dev.mokksy.mokksy.Mokksy
+import dev.mokksy.Mokksy
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
@@ -458,7 +489,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MyTest {
 
-    val mokksy = Mokksy()
+    val mokksy = Mokksy.create()
     lateinit var client: HttpClient
 
     @BeforeAll
@@ -497,6 +528,7 @@ class MyTest {
     @AfterAll
     suspend fun afterAll() {
         client.close()
+        mokksy.verifyNoUnmatchedStubs() // shared instance: check once, after all tests ran
         mokksy.shutdownSuspend()
     }
 }
@@ -522,13 +554,13 @@ val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnmatchedStubs
 Mokksy records incoming requests in a `RequestJournal`. The recording mode is controlled by `JournalMode` in
 `ServerConfiguration`:
 
-| Mode                           | Behaviour                                                                                                  |
-|--------------------------------|------------------------------------------------------------------------------------------------------------|
-| `JournalMode.LEAN` *(default)* | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`. |
-| `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                |
+| Mode                           | Behaviour                                                                                                   |
+|--------------------------------|-------------------------------------------------------------------------------------------------------------|
+| `JournalMode.LEAN` _(default)_ | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`. |
+| `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                 |
 
 ```kotlin
-val mokksy = Mokksy(
+val mokksy = MokksyServer(
     configuration = ServerConfiguration(
         journalMode = JournalMode.FULL,
     ),
@@ -547,6 +579,124 @@ fun afterEach() {
 > **Note:** Stubs configured with `eventuallyRemove = true` are permanently removed from the registry
 > on first match and cannot be re-armed by `resetMatchState()`. Re-register them before the next scenario.
 
-[sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification (HTML Living Standard)"
-[ai-mocks]: https://github.com/mokksy/ai-mocks/ "AI-Mock: Mokksy extensions for AI"
+## Java API
+
+Java callers use `dev.mokksy.Mokksy` — a JVM-only, `AutoCloseable` wrapper that exposes a
+`Consumer`-based fluent API instead of Kotlin lambdas with receivers.
+
+**Lifecycle:**
+
+```java
+import dev.mokksy.Mokksy;
+
+Mokksy mokksy = Mokksy.create("127.0.0.1", 0, true).start();
+
+mokksy.get(spec -> spec.path("/ping"))
+      .respondsWith(builder -> builder.body("Pong"));
+
+mokksy.shutdown();
+```
+
+`Mokksy` implements `AutoCloseable`, so try-with-resources works for test fixtures that need a short-lived server:
+
+```java
+try (Mokksy mokksy = Mokksy.create().start()) {
+    mokksy.post(spec -> spec.path("/items"))
+          .respondsWith(builder -> builder.body("{\"id\":\"42\"}").status(201).header("Location", "/items/42"));
+}
+```
+
+**JUnit 5 setup:**
+
+```java
+import dev.mokksy.Mokksy;
+import java.net.http.HttpClient;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class MyTest {
+
+    private final Mokksy mokksy = Mokksy.create();
+    private HttpClient httpClient;
+
+    @BeforeAll
+    void setUp() {
+        mokksy.start();
+        httpClient = HttpClient.newHttpClient();
+    }
+    
+    @Test
+    void test() {
+      // call server
+    }
+
+    @AfterAll
+    void tearDown() {
+        mokksy.shutdown();
+    }
+}
+```
+
+**Request matchers** — the `spec` block mirrors the Kotlin DSL:
+
+```java
+mokksy.post(spec -> {
+    spec.path("/secured");
+    spec.containsHeader("X-Api-Key", "secret");
+    spec.bodyContains("\"role\":\"admin\"");
+}).respondsWith(builder -> builder.body("authorized").status(200));
+```
+
+**All HTTP verbs** are available as named methods (`get`, `post`, `put`, `delete`, `patch`,
+`head`, `options`). Use `method(String, spec)` for dynamic method names in parameterised tests:
+
+```java
+mokksy.method("PATCH", spec -> spec.path("/resource"))
+      .respondsWith(builder -> builder.body("patched"));
+```
+
+### Jackson support
+
+Use `MokksyJackson.create()` when your tests match typed Java objects deserialized from the
+request body. The API mirrors `Mokksy.create()` exactly — same `host`, `port`, and `verbose`
+parameters — with an optional `ObjectMapper` configuration callback.
+
+Add the dependency alongside `mokksy`:
+
+```kotlin
+testImplementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
+```
+
+Then create the server:
+
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.mokksy.Mokksy;
+import dev.mokksy.MokksyJackson;
+
+// Default Jackson configuration
+Mokksy mokksy = MokksyJackson.create().start();
+
+// Custom ObjectMapper — e.g. register Java time / records support
+Mokksy mokksy = MokksyJackson.create(ObjectMapper::findAndRegisterModules).start();
+```
+
+Typed body matchers work the same way as in the standard API — pass the `Class` token to
+the stub-registration method and use `bodyMatchesPredicate` to assert on the deserialized object:
+
+```java
+record CreateItemRequest(String name, int quantity) {}
+
+mokksy.post(
+    CreateItemRequest.class,
+    spec -> spec.path("/items")
+                .bodyMatchesPredicate(req -> "widget".equals(req.name()))
+).respondsWith(builder -> builder.body("{\"id\":\"1\"}").status(201));
+```
+
+[sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification"
+[ai-mocks]: https://github.com/mokksy/ai-mocks/ "AI-Mock: Mokksy extensions for AI integrations"
 [a2a]: https://a2a-protocol.org/ "Agent2Agent (A2A) Protocol, an open standard designed to enable seamless communication and collaboration between AI agents."

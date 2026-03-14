@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy
 
+import dev.mokksy.Mokksy
 import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
@@ -27,7 +28,7 @@ import kotlin.test.Test
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MokksyServerJavaTest {
     private val delegate = mockk<MokksyServer>(relaxed = true)
-    private val sut = MokksyServerJava(delegate)
+    private val sut = Mokksy(delegate)
 
     @BeforeEach
     fun resetMocks() {
@@ -92,7 +93,7 @@ class MokksyServerJavaTest {
     suspend fun `delegates with correct HttpMethod`(
         @Suppress("UNUSED_PARAMETER") methodName: String,
         expectedMethod: HttpMethod,
-        invoke: Consumer<MokksyServerJava>,
+        invoke: Consumer<Mokksy>,
     ) {
         invoke.accept(sut)
 
@@ -105,7 +106,7 @@ class MokksyServerJavaTest {
     @MethodSource("configMethodInvocations")
     suspend fun `StubConfiguration is forwarded to delegate`(
         @Suppress("UNUSED_PARAMETER") methodName: String,
-        invoke: BiConsumer<MokksyServerJava, StubConfiguration>,
+        invoke: BiConsumer<Mokksy, StubConfiguration>,
     ) {
         val config = StubConfiguration("stub")
         val capturedConfig = slot<StubConfiguration>()
@@ -118,11 +119,11 @@ class MokksyServerJavaTest {
         eventually { capturedConfig.captured shouldBe config }
     }
 
-    @ParameterizedTest(name = "{0} with typed Class forwards KClass to delegate")
+    @ParameterizedTest(name = "{0} with typed KClass forwards KClass to delegate")
     @MethodSource("typedMethodInvocations")
-    suspend fun `typed Class is forwarded to delegate`(
+    suspend fun `typed KClass is forwarded to delegate`(
         @Suppress("UNUSED_PARAMETER") methodName: String,
-        invoke: Consumer<MokksyServerJava>,
+        invoke: Consumer<Mokksy>,
     ) {
         val capturedType = slot<KClass<String>>()
         every {
@@ -137,12 +138,12 @@ class MokksyServerJavaTest {
     }
 
     @ParameterizedTest(
-        name = "{0} with StubConfiguration and typed Class forwards both to delegate",
+        name = "{0} with StubConfiguration and typed KClass forwards both to delegate",
     )
     @MethodSource("configTypedMethodInvocations")
     suspend fun `StubConfiguration and KClass are both forwarded to delegate`(
         @Suppress("UNUSED_PARAMETER") methodName: String,
-        invoke: BiConsumer<MokksyServerJava, StubConfiguration>,
+        invoke: BiConsumer<Mokksy, StubConfiguration>,
     ) {
         val config = StubConfiguration("typed-stub")
         val capturedConfig = slot<StubConfiguration>()
@@ -192,138 +193,100 @@ class MokksyServerJavaTest {
 
     fun simpleMethodInvocations(): Stream<Arguments> =
         Stream.of(
-            Arguments.of("GET", HttpMethod.Get, Consumer<MokksyServerJava> { it.get {} }),
-            Arguments.of("POST", HttpMethod.Post, Consumer<MokksyServerJava> { it.post {} }),
-            Arguments.of("PUT", HttpMethod.Put, Consumer<MokksyServerJava> { it.put {} }),
-            Arguments.of(
-                "DELETE",
-                HttpMethod.Delete,
-                Consumer<MokksyServerJava> { it.delete {} },
-            ),
-            Arguments.of("PATCH", HttpMethod.Patch, Consumer<MokksyServerJava> { it.patch {} }),
-            Arguments.of("HEAD", HttpMethod.Head, Consumer<MokksyServerJava> { it.head {} }),
-            Arguments.of(
-                "OPTIONS",
-                HttpMethod.Options,
-                Consumer<MokksyServerJava> { it.options {} },
-            ),
+            Arguments.of("GET", HttpMethod.Get, Consumer<Mokksy> { it.get {} }),
+            Arguments.of("POST", HttpMethod.Post, Consumer<Mokksy> { it.post {} }),
+            Arguments.of("PUT", HttpMethod.Put, Consumer<Mokksy> { it.put {} }),
+            Arguments.of("DELETE", HttpMethod.Delete, Consumer<Mokksy> { it.delete {} }),
+            Arguments.of("PATCH", HttpMethod.Patch, Consumer<Mokksy> { it.patch {} }),
+            Arguments.of("HEAD", HttpMethod.Head, Consumer<Mokksy> { it.head {} }),
+            Arguments.of("OPTIONS", HttpMethod.Options, Consumer<Mokksy> { it.options {} }),
         )
 
     fun configMethodInvocations(): Stream<Arguments> =
         Stream.of(
             Arguments.of(
                 "GET",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg -> s.get(cfg) {} },
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg -> s.get(cfg) {} },
             ),
             Arguments.of(
                 "POST",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg -> s.post(cfg) {} },
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg -> s.post(cfg) {} },
             ),
             Arguments.of(
                 "PUT",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg -> s.put(cfg) {} },
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg -> s.put(cfg) {} },
             ),
             Arguments.of(
                 "DELETE",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg -> s.delete(cfg) {} },
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg -> s.delete(cfg) {} },
             ),
             Arguments.of(
                 "PATCH",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg -> s.patch(cfg) {} },
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg -> s.patch(cfg) {} },
             ),
             Arguments.of(
                 "HEAD",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg -> s.head(cfg) {} },
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg -> s.head(cfg) {} },
             ),
             Arguments.of(
                 "OPTIONS",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg -> s.options(cfg) {} },
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg -> s.options(cfg) {} },
             ),
         )
 
     fun typedMethodInvocations(): Stream<Arguments> =
         Stream.of(
-            Arguments.of("GET", Consumer<MokksyServerJava> { it.get(String::class.java) {} }),
-            Arguments.of("POST", Consumer<MokksyServerJava> { it.post(String::class.java) {} }),
-            Arguments.of("PUT", Consumer<MokksyServerJava> { it.put(String::class.java) {} }),
-            Arguments.of(
-                "DELETE",
-                Consumer<MokksyServerJava> { it.delete(String::class.java) {} },
-            ),
-            Arguments.of(
-                "PATCH",
-                Consumer<MokksyServerJava> { it.patch(String::class.java) {} },
-            ),
-            Arguments.of("HEAD", Consumer<MokksyServerJava> { it.head(String::class.java) {} }),
-            Arguments.of(
-                "OPTIONS",
-                Consumer<MokksyServerJava> { it.options(String::class.java) {} },
-            ),
+            Arguments.of("GET", Consumer<Mokksy> { it.get(String::class) {} }),
+            Arguments.of("POST", Consumer<Mokksy> { it.post(String::class) {} }),
+            Arguments.of("PUT", Consumer<Mokksy> { it.put(String::class) {} }),
+            Arguments.of("DELETE", Consumer<Mokksy> { it.delete(String::class) {} }),
+            Arguments.of("PATCH", Consumer<Mokksy> { it.patch(String::class) {} }),
+            Arguments.of("HEAD", Consumer<Mokksy> { it.head(String::class) {} }),
+            Arguments.of("OPTIONS", Consumer<Mokksy> { it.options(String::class) {} }),
         )
 
     fun configTypedMethodInvocations(): Stream<Arguments> =
         Stream.of(
             Arguments.of(
                 "GET",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg ->
-                    s.get(
-                        cfg,
-                        String::class.java,
-                    ) {}
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg ->
+                    s.get(cfg) {}
                 },
             ),
             Arguments.of(
                 "POST",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg ->
-                    s.post(
-                        cfg,
-                        String::class.java,
-                    ) {}
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg ->
+                    s.post(cfg) {}
                 },
             ),
             Arguments.of(
                 "PUT",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg ->
-                    s.put(
-                        cfg,
-                        String::class.java,
-                    ) {}
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg ->
+                    s.put(cfg) {}
                 },
             ),
             Arguments.of(
                 "DELETE",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg ->
-                    s.delete(
-                        cfg,
-                        String::class.java,
-                    ) {}
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg ->
+                    s.delete(cfg) {}
                 },
             ),
             Arguments.of(
                 "PATCH",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg ->
-                    s.patch(
-                        cfg,
-                        String::class.java,
-                    ) {}
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg ->
+                    s.patch(cfg) {}
                 },
             ),
             Arguments.of(
                 "HEAD",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg ->
-                    s.head(
-                        cfg,
-                        String::class.java,
-                    ) {}
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg ->
+                    s.head(cfg) {}
                 },
             ),
             Arguments.of(
                 "OPTIONS",
-                BiConsumer<MokksyServerJava, StubConfiguration> { s, cfg ->
-                    s.options(
-                        cfg,
-                        String::class.java,
-                    ) {}
+                BiConsumer<Mokksy, StubConfiguration> { s, cfg ->
+                    s.options(cfg) {}
                 },
             ),
         )

@@ -31,8 +31,10 @@ Read the project overview from README.md
 ### Testing
 
 - Write comprehensive tests for new features
+- Always check for correctness
+- Avoid tautological assertions and redundant tests
 - Use function `Names with backticks` for test methods in Kotlin, e.g. "fun `should return 200 OK`()"
-- Avoid writing KDocs for tests, keep code self-documenting
+- Avoid writing new KDocs for tests, but don't delete existing. Keep code self-documenting
 - Write Kotlin tests with [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test),
   [mockk](https://mockk.io/) and [Kotest-assertions](https://kotest.io/docs/assertions/assertions.html)
   with infix form assertions `shouldBe` instead of `assertEquals`.
@@ -122,12 +124,18 @@ actual API.
   - `<!--- SUFFIX ... -->` — code appended after all preceding snippets (closing braces)
   - `<!--- KNIT filename.kt -->` — triggers generation of `filename.kt` in `knit.dir`; all
     preceding INCLUDE/SUFFIX/code blocks since the last CLEAR are concatenated into this file
-- Each generated file becomes a compilable test class. Run `./gradlew :mokksy:knit` to regenerate,
-  then `./gradlew :mokksy:jvmTest` to verify examples compile and pass.
+- Each generated file becomes a compilable test class. Run `make knit` (or `./gradlew :mokksy:knit`)
+  to regenerate and verify examples compile and pass in one step.
 - Visible code blocks between INCLUDE and a closing INCLUDE/SUFFIX are included verbatim; the
   surrounding class/function context comes from INCLUDE directives.
 - Code snippets **outside** KNIT blocks (reference sections, bullet examples) are plain Markdown
   fenced code and are not compiled — keep them syntactically correct but they are not executed.
+- **Critical**: place `<!--- CLEAR -->` and the opening `<!--- INCLUDE class Foo { -->` immediately
+  before the first `<!--- INCLUDE @Test ... -->` — never before prose/doc code blocks that should
+  not be compiled. Any visible `kotlin` fenced block between a CLEAR/INCLUDE and the KNIT
+  directive is captured verbatim into the generated file.
+- After editing README.md code examples or KNIT directives, always run `make knit` to confirm the
+  generated file compiles. Inspect `mokksy/build/generated/knit/test/kotlin/` if there are errors.
 
 #### README vs Hugo docs
 

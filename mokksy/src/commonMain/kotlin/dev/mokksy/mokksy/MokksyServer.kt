@@ -48,8 +48,6 @@ internal fun configureContentNegotiation(config: ContentNegotiationConfig) {
     )
 }
 
-public typealias ApplicationConfigurer = (Application.() -> Unit)
-
 /**
  * An embedded mock HTTP server for testing. Registers stubs for any HTTP method and verifies
  * request expectations after the test.
@@ -58,7 +56,7 @@ public typealias ApplicationConfigurer = (Application.() -> Unit)
  *
  * Example:
  * ```kotlin
- * val mokksy = Mokksy().apply { start() }
+ * val mokksy = Mokksy().start()
  *
  * mokksy.get {
  *     path("/ping")
@@ -82,7 +80,7 @@ public open class MokksyServer
         private val host: String = DEFAULT_HOST,
         port: Int = 0,
         configuration: ServerConfiguration,
-        configurer: ApplicationConfigurer = {},
+        configurer: Application.() -> Unit = {},
     ) {
         /**
          * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
@@ -98,7 +96,7 @@ public open class MokksyServer
             host: String = DEFAULT_HOST,
             port: Int = 0,
             verbose: Boolean = false,
-            configurer: ApplicationConfigurer = {},
+            configurer: Application.() -> Unit = {},
         ) : this(
             host = host,
             port = port,
@@ -165,6 +163,7 @@ public open class MokksyServer
                     .port
             resolvedPort.compareAndSet(-1, port)
             started.complete(Unit)
+            registerShutdownHook(this)
         }
 
         /**
@@ -808,15 +807,10 @@ public open class MokksyServer
                 timeoutMillis >= gracePeriodMillis,
             ) { "timeoutMillis must be >= gracePeriodMillis" }
 
+            unregisterShutdownHook(this)
             server.stopSuspend(
                 gracePeriodMillis = gracePeriodMillis,
                 timeoutMillis = timeoutMillis,
             )
         }
     }
-
-/**
- * A typealias for MokksyServer, allowing the use of `Mokksy`
- * as an alternative, more concise name for referencing the `MokksyServer` class.
- */
-public typealias Mokksy = MokksyServer

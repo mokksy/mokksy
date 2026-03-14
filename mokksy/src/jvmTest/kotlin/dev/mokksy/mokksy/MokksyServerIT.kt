@@ -4,6 +4,7 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.request.get
@@ -17,6 +18,21 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 internal class MokksyServerIT : AbstractIT() {
+    // region Mokksy factory function
+
+    @Test
+    suspend fun `Mokksy factory function creates a startable MokksyServer`() {
+        val server = Mokksy()
+        server.startSuspend()
+        try {
+            server.port() shouldBeGreaterThan 0
+        } finally {
+            server.shutdownSuspend()
+        }
+    }
+
+    // endregion
+
     // region StubConfiguration overloads
 
     @ParameterizedTest
@@ -103,7 +119,7 @@ internal class MokksyServerIT : AbstractIT() {
 
     @Test
     suspend fun `resetMatchCounts resets all stub match counts to zero`() {
-        val freshMokksy = Mokksy()
+        val freshMokksy = MokksyServer()
         freshMokksy.startSuspend()
         val freshClient = createKtorClient(freshMokksy.port())
         try {

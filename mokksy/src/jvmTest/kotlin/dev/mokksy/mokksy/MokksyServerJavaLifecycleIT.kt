@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy
 
+import dev.mokksy.Mokksy
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -7,17 +8,12 @@ import io.kotest.matchers.string.shouldContain
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 
 internal class MokksyServerJavaLifecycleIT {
     @Test
     fun `start and shutdown work as blocking lifecycle methods`() {
-        val mokksy = MokksyServerJava()
-        mokksy.start()
+        val mokksy = Mokksy.create().start()
 
         try {
             assertSoftly {
@@ -32,39 +28,46 @@ internal class MokksyServerJavaLifecycleIT {
 
     @Test
     fun `close shuts down the server`() {
-        val mokksy = MokksyServerJava()
-        mokksy.start()
-        val port = mokksy.port()
-
-        mokksy.close()
-
-        port shouldBeGreaterThan 0
+        val mokksy = Mokksy.create().start()
+        mokksy.port() shouldBeGreaterThan 0
+        mokksy.close() // must not throw
     }
 
     @Test
     fun `shutdown with custom timings completes without error`() {
-        val mokksy = MokksyServerJava()
-        mokksy.start()
+        val mokksy = Mokksy.create().start()
 
         mokksy.shutdown(gracePeriodMillis = 100, timeoutMillis = 200)
     }
 
     @Test
-    fun `server responds after start via createKtorClient`() {
-        val mokksy = MokksyServerJava()
-        mokksy.start()
+    fun `MokksyServer start extension blocks until port is bound and returns server`() {
+        val server = MokksyServer()
+        val returned = server.start()
+        try {
+            assertSoftly {
+                returned shouldBe server
+                server.port() shouldBeGreaterThan 0
+            }
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
+    suspend fun `server responds after start via createKtorClient`() {
+        val mokksy = Mokksy.create().start()
         val client = createKtorClient(mokksy.port())
 
         try {
-            mokksy
-                .get { spec ->
-                    spec.path("/java-lifecycle-test")
-                }.respondsWith { builder ->
-                    builder.body = "alive"
-                }
+            mokksy.get {
+                path("/java-lifecycle-test")
+            } respondsWith {
+                body = "alive"
+            }
 
-            val result = runBlocking { client.get("/java-lifecycle-test") }
-            val responseBody = runBlocking { result.bodyAsText() }
+            val result = client.get("/java-lifecycle-test")
+            val responseBody = result.bodyAsText()
 
             assertSoftly {
                 result.status shouldBe HttpStatusCode.OK

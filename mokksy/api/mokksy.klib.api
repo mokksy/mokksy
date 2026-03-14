@@ -6,6 +6,14 @@
 // - Show declarations: true
 
 // Library unique name: <dev.mokksy:mokksy>
+open annotation class dev.mokksy.mokksy/ExperimentalMokksyApi : kotlin/Annotation { // dev.mokksy.mokksy/ExperimentalMokksyApi|null[0]
+    constructor <init>() // dev.mokksy.mokksy/ExperimentalMokksyApi.<init>|<init>(){}[0]
+}
+
+open annotation class dev.mokksy.mokksy/InternalMokksyApi : kotlin/Annotation { // dev.mokksy.mokksy/InternalMokksyApi|null[0]
+    constructor <init>() // dev.mokksy.mokksy/InternalMokksyApi.<init>|<init>(){}[0]
+}
+
 open annotation class dev.mokksy.mokksy/MokksyDsl : kotlin/Annotation { // dev.mokksy.mokksy/MokksyDsl|null[0]
     constructor <init>() // dev.mokksy.mokksy/MokksyDsl.<init>|<init>(){}[0]
 }
@@ -210,6 +218,9 @@ open class <#A: kotlin/Any, #B: kotlin/Any> dev.mokksy.mokksy.response/ResponseD
         final fun <get-contentType>(): io.ktor.http/ContentType? // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<get-contentType>|<get-contentType>(){}[0]
         final fun <set-contentType>(io.ktor.http/ContentType?) // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<set-contentType>|<set-contentType>(io.ktor.http.ContentType?){}[0]
 
+    final fun body(#B): dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.body|body(1:1){}[0]
+    final fun header(kotlin/String, kotlin/String): dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.header|header(kotlin.String;kotlin.String){}[0]
+    final fun status(kotlin/Int): dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.status|status(kotlin.Int){}[0]
     open fun build(): dev.mokksy.mokksy.response/ResponseDefinition<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.build|build(){}[0]
 }
 
@@ -411,3 +422,4 @@ final fun <#A: kotlin/Any?> dev.mokksy.mokksy.request/predicateMatcher(kotlin/St
 final fun <#A: kotlin/Any?> dev.mokksy.mokksy.request/successCallMatcher(kotlin/String? = ..., kotlin/Function1<#A?, kotlin/Unit>): io.kotest.matchers/Matcher<#A?> // dev.mokksy.mokksy.request/successCallMatcher|successCallMatcher(kotlin.String?;kotlin.Function1<0:0?,kotlin.Unit>){0§<kotlin.Any?>}[0]
 final fun dev.mokksy.mokksy.kotest/doesNotContain(kotlin/String): io.kotest.matchers/Matcher<kotlin/String?> // dev.mokksy.mokksy.kotest/doesNotContain|doesNotContain(kotlin.String){}[0]
 final fun dev.mokksy.mokksy.kotest/doesNotContainIgnoringCase(kotlin/String): io.kotest.matchers/Matcher<kotlin/String?> // dev.mokksy.mokksy.kotest/doesNotContainIgnoringCase|doesNotContainIgnoringCase(kotlin.String){}[0]
+final fun dev.mokksy.mokksy/Mokksy(kotlin/String = ..., kotlin/Int = ..., kotlin/Boolean = ..., kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...): dev.mokksy.mokksy/MokksyServer // dev.mokksy.mokksy/Mokksy|Mokksy(kotlin.String;kotlin.Int;kotlin.Boolean;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]

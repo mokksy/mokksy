@@ -22,6 +22,10 @@ import org.junit.jupiter.api.TestInstance
 import kotlin.random.Random
 import kotlin.test.AfterTest
 
+/**
+ * This test intentionally creates and starts Mokksy once and never shuts it down after each test.
+ * This verifies a scenario when Mokksy is started once and used across multiple tests.
+ */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class JacksonSerializationIT {
     val mokksy =

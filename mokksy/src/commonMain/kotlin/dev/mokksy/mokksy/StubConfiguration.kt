@@ -1,6 +1,7 @@
 package dev.mokksy.mokksy
 
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmRecord
 import kotlin.jvm.JvmStatic
 
 /**
@@ -13,6 +14,7 @@ import kotlin.jvm.JvmStatic
  *           Defaults to `false`.
  * @property verbose Enables per-stub `DEBUG`-level logging when `true`. Defaults to `false`.
  */
+@JvmRecord
 public data class StubConfiguration
     @JvmOverloads
     constructor(
@@ -20,45 +22,58 @@ public data class StubConfiguration
         val eventuallyRemove: Boolean = false,
         val verbose: Boolean = false,
     ) {
-    /**
-     * Deprecated alias for [eventuallyRemove], preserved for binary and source compatibility.
-     *
-     * Existing compiled callers that reference `getRemoveAfterMatch()` on the JVM will continue
-     * to work without `NoSuchMethodError`. Kotlin callers reading this property will receive a
-     * deprecation warning and an IDE quick-fix to migrate to [eventuallyRemove].
-     *
-     * Note: the named constructor argument `StubConfiguration(removeAfterMatch = …)` cannot be
-     * preserved — use `StubConfiguration(eventuallyRemove = …)` or the companion factory
-     * [StubConfiguration.removeAfterMatch] for a deprecated named-argument form.
-     */
-    @Deprecated(
-        "Renamed to eventuallyRemove",
-        ReplaceWith("eventuallyRemove"),
-        level = DeprecationLevel.WARNING,
-    )
-    val removeAfterMatch: Boolean
-        get() = eventuallyRemove
-
-    public companion object {
         /**
-         * Deprecated factory for callers that previously used `StubConfiguration(removeAfterMatch = …)`.
+         * Deprecated alias for [eventuallyRemove], preserved for binary and source compatibility.
          *
-         * Migrate to the primary constructor: `StubConfiguration(eventuallyRemove = …)`.
+         * Existing compiled callers that reference `getRemoveAfterMatch()` on the JVM will continue
+         * to work without `NoSuchMethodError`. Kotlin callers reading this property will receive a
+         * deprecation warning and an IDE quick-fix to migrate to [eventuallyRemove].
+         *
+         * Note: the named constructor argument `StubConfiguration(removeAfterMatch = …)` cannot be
+         * preserved — use `StubConfiguration(eventuallyRemove = …)` or the companion factory
+         * [StubConfiguration.removeAfterMatch] for a deprecated named-argument form.
          */
         @Deprecated(
-            "Use StubConfiguration(name, eventuallyRemove, verbose) instead",
-            ReplaceWith(
-                "StubConfiguration(name = name, eventuallyRemove = removeAfterMatch, verbose = verbose)",
-            ),
+            "Renamed to eventuallyRemove",
+            ReplaceWith("eventuallyRemove"),
             level = DeprecationLevel.WARNING,
         )
-        @JvmStatic
-        @JvmOverloads
-        public fun removeAfterMatch(
-            name: String? = null,
-            removeAfterMatch: Boolean = false,
-            verbose: Boolean = false,
-        ): StubConfiguration =
-            StubConfiguration(name = name, eventuallyRemove = removeAfterMatch, verbose = verbose)
+        public val removeAfterMatch: Boolean
+            get() = eventuallyRemove
+
+        public companion object {
+            /**
+             * Deprecated factory for callers that previously used `StubConfiguration(removeAfterMatch = …)`.
+             *
+             * Migrate to the primary constructor: `StubConfiguration(eventuallyRemove = …)`.
+             */
+            @Deprecated(
+                "Use StubConfiguration(name, eventuallyRemove, verbose) instead",
+                ReplaceWith(
+                    "StubConfiguration(name = name, eventuallyRemove = removeAfterMatch, verbose = verbose)",
+                ),
+                level = DeprecationLevel.WARNING,
+            )
+            @JvmStatic
+            @JvmOverloads
+            public fun removeAfterMatch(
+                name: String? = null,
+                removeAfterMatch: Boolean = false,
+                verbose: Boolean = false,
+            ): StubConfiguration =
+                StubConfiguration(
+                    name = name,
+                    eventuallyRemove = removeAfterMatch,
+                    verbose = verbose,
+                )
+        }
+
+        override fun toString(): String =
+            buildString {
+                append("StubConfiguration(")
+                if (name != null) append("name=$name, ")
+                append("eventuallyRemove=$eventuallyRemove, ")
+                append("verbose=$verbose")
+                append(")")
+            }
     }
-}

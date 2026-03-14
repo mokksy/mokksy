@@ -14,30 +14,39 @@ import java.util.function.Consumer
 /**
  * Starts the Mokksy server and blocks until the port is bound and ready to accept requests.
  *
+ * Returns `this` for chaining:
+ * ```kotlin
+ * val mokksy = Mokksy().start()
+ * ```
+ *
  * Intended for Java callers and blocking JVM test setups. Kotlin callers should prefer
- * [startSuspend] combined with [awaitStarted].
+ * [MokksyServer.startSuspend] combined with [MokksyServer.awaitStarted].
  */
-public fun Mokksy.start(): Unit =
+public fun MokksyServer.start(): MokksyServer {
     runBlocking {
         this@start.startSuspend()
         this@start.awaitStarted()
     }
+    return this
+}
 
 /**
  * Starts the Mokksy server on the given dispatcher, blocking until the port is bound.
  *
- * The [dispatcher] does not affect which thread is blocked — [runBlocking] always blocks
- * the calling thread. This overload exists for Kotlin callers that need coroutine context
- * control; Java callers should use [start] with no arguments.
+ * Returns `this` for chaining. The [dispatcher] does not affect which thread is blocked —
+ * [runBlocking] always blocks the calling thread. This overload exists for Kotlin callers
+ * that need coroutine context control; Java callers should use [start] with no arguments.
  *
  * @param dispatcher The [CoroutineDispatcher] for the [runBlocking] coroutine context.
  */
 @JvmSynthetic
-public fun Mokksy.start(dispatcher: CoroutineDispatcher): Unit =
+public fun MokksyServer.start(dispatcher: CoroutineDispatcher): MokksyServer {
     runBlocking(dispatcher) {
         this@start.startSuspend()
         this@start.awaitStarted()
     }
+    return this
+}
 
 /**
  * Stops the Mokksy server, blocking until shutdown is complete.
@@ -46,7 +55,7 @@ public fun Mokksy.start(dispatcher: CoroutineDispatcher): Unit =
  * @param timeoutMillis Maximum duration in milliseconds to wait for shutdown. Defaults to 1000.
  */
 @JvmOverloads
-public fun Mokksy.shutdown(
+public fun MokksyServer.shutdown(
     gracePeriodMillis: Long = 500,
     timeoutMillis: Long = 1000,
 ): Unit =
@@ -65,7 +74,7 @@ public fun Mokksy.shutdown(
  * @param dispatcher The [CoroutineDispatcher] for the [runBlocking] coroutine context.
  */
 @JvmSynthetic
-public fun Mokksy.shutdown(
+public fun MokksyServer.shutdown(
     gracePeriodMillis: Long = 500,
     timeoutMillis: Long = 1000,
     dispatcher: CoroutineDispatcher,
@@ -83,10 +92,10 @@ public fun Mokksy.shutdown(
  *
  * Accepts a [Class] and a [Consumer] in place of a Kotlin suspend lambda.
  *
- * **Prefer [MokksyServerJava]**, which returns [JavaBuildingStep] and allows fluent chaining:
+ * **Prefer [dev.mokksy.Mokksy]**, which returns [JavaBuildingStep] and allows fluent chaining:
  * ```java
  * mokksy.get(spec -> spec.path("/ping"))
- *       .respondsWith(builder -> builder.setBody("Pong"));
+ *       .respondsWith(builder -> builder.body("Pong"));
  * ```
  *
  * Use this extension only when working directly with a [BuildingStep] obtained from

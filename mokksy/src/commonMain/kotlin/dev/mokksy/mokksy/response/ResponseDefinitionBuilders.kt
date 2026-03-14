@@ -162,6 +162,55 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
     }
 
     /**
+     * Sets the response body and returns this builder for chaining.
+     *
+     * Java-friendly fluent alternative to the `body` property setter.
+     *
+     * Example:
+     * ```java
+     *  builder.body(myObject).status(200).header("X-Custom", "value");
+     *  ```
+     *
+     * @param value The response body value.
+     * @return This builder instance.
+     */
+    public fun body(value: T): ResponseDefinitionBuilder<P, T> = apply { this.body = value }
+
+    /**
+     * Sets the HTTP status code and returns this builder for chaining.
+     *
+     * Java-friendly fluent alternative to [httpStatus].
+     *
+     * Example:
+     * ```java
+     * builder.body(myObject).status(201).header("Location", "/items/1");
+     * ```
+     *
+     * @param code The HTTP status code as an integer, e.g. `201`, `404`.
+     * @return This builder instance.
+     */
+    public fun status(code: Int): ResponseDefinitionBuilder<P, T> = apply { httpStatus(code) }
+
+    /**
+     * Adds a response header and returns this builder for chaining.
+     *
+     * Java-friendly fluent alternative to [addHeader].
+     *
+     * Example:
+     * ```java
+     * builder.body(myObject).status(200).header("X-Custom", "value");
+     * ```
+     *
+     * @param name The header name.
+     * @param value The header value.
+     * @return This builder instance.
+     */
+    public fun header(
+        name: String,
+        value: String,
+    ): ResponseDefinitionBuilder<P, T> = apply { addHeader(name, value) }
+
+    /**
      * Constructs a new instance of [ResponseDefinition] with the configured attributes of the builder.
      *
      * This method uses the current state of the builder to create a concrete definition

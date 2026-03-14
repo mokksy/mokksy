@@ -1,6 +1,5 @@
 package dev.mokksy.mokksy
 
-import dev.mokksy.mokksy.response.ResponseDefinitionBuilder
 import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
 import java.util.function.Consumer
 
@@ -9,20 +8,19 @@ import java.util.function.Consumer
  * `respondsWithStream` as instance methods accepting [Consumer] instead of
  * Kotlin suspend lambdas.
  *
- * Instances are returned by [MokksyServerJava]'s HTTP method stubs (`get`, `post`, etc.).
+ * Instances are returned by [dev.mokksy.Mokksy]'s HTTP method stubs (`get`, `post`, etc.).
  * Do not construct directly.
  *
  * Example (Java):
  * ```java
  * mokksy.get(spec -> spec.path("/ping"))
- *       .respondsWith(builder -> builder.setBody("Pong"));
+ *       .respondsWith(builder -> builder.body("Pong"));
  *
  * mokksy.post(MyRequest.class, spec -> spec.path("/items"))
- *       .respondsWith(MyResponse.class, builder -> {
- *           builder.setBody(new MyResponse("created"));
- *           builder.httpStatus(201);
- *           builder.addHeader("Location", "/items/1");
- *       });
+ *       .respondsWith(MyResponse.class, builder -> builder
+ *           .body(new MyResponse("created"))
+ *           .status(201)
+ *           .header("Location", "/items/1"));
  * ```
  *
  * @param P The type of the request payload.
@@ -35,23 +33,27 @@ public class JavaBuildingStep<P : Any> internal constructor(
      *
      * @param T The type of the response body.
      * @param responseType The Java [Class] of the response type.
-     * @param configurer A [Consumer] that configures the [ResponseDefinitionBuilder].
+     * @param configurer A [Consumer] that configures a [JavaResponseDefinitionBuilder].
      */
     public fun <T : Any> respondsWith(
         responseType: Class<T>,
-        configurer: Consumer<ResponseDefinitionBuilder<P, T>>,
-    ): Unit = step.respondsWith(responseType.kotlin) { configurer.accept(this) }
+        configurer: Consumer<JavaResponseDefinitionBuilder<P, T>>,
+    ): Unit =
+        step.respondsWith(responseType.kotlin) {
+            configurer.accept(
+                JavaResponseDefinitionBuilder(this),
+            )
+        }
 
     /**
      * Configures a [String] response for this stub.
      *
      * Shorthand for `respondsWith(String.class, configurer)`.
      *
-     * @param configurer A [Consumer] that configures the [ResponseDefinitionBuilder].
+     * @param configurer A [Consumer] that configures a [JavaResponseDefinitionBuilder].
      */
-    public fun respondsWith(
-        configurer: Consumer<ResponseDefinitionBuilder<P, String>>,
-    ): Unit = respondsWith(String::class.java, configurer)
+    public fun respondsWith(configurer: Consumer<JavaResponseDefinitionBuilder<P, String>>): Unit =
+        respondsWith(String::class.java, configurer)
 
     /**
      * Configures a typed streaming response for this stub.

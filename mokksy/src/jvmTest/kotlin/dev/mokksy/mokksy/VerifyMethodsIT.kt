@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertFailsWith
 
 internal class VerifyMethodsIT {
-    private lateinit var mokksy: Mokksy
+    private lateinit var mokksy: MokksyServer
     private lateinit var client: HttpClient
 
     @BeforeEach
     suspend fun setUp() {
-        mokksy = Mokksy()
+        mokksy = MokksyServer()
         mokksy.startSuspend()
         client = createKtorClient(mokksy.port())
     }
