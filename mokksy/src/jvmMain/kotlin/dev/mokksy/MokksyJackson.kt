@@ -1,6 +1,7 @@
 package dev.mokksy
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import dev.mokksy.MokksyJackson.create
 import dev.mokksy.mokksy.DEFAULT_HOST
 import dev.mokksy.mokksy.ExperimentalMokksyApi
 import dev.mokksy.mokksy.MokksyServer
@@ -57,6 +58,7 @@ public object MokksyJackson {
      *
      * @param configureMapper Callback to customise the [ObjectMapper] used by Ktor.
      * @return A new, not-yet-started [Mokksy] instance.
+     * @throws IllegalStateException if `ktor-serialization-jackson` is not on the runtime classpath.
      */
     @JvmStatic
     public fun create(configureMapper: Consumer<ObjectMapper>): Mokksy =
@@ -76,6 +78,7 @@ public object MokksyJackson {
      * @param configureMapper Optional callback to customise the [ObjectMapper] used by Ktor,
      *   e.g. `mapper -> mapper.findAndRegisterModules()`. Defaults to a no-op.
      * @return A new, not-yet-started [Mokksy] instance.
+     * @throws IllegalStateException if `ktor-serialization-jackson` is not on the runtime classpath.
      */
     @JvmStatic
     @JvmOverloads
@@ -84,8 +87,9 @@ public object MokksyJackson {
         port: Int = 0,
         verbose: Boolean = false,
         configureMapper: Consumer<ObjectMapper> = Consumer { },
-    ): Mokksy =
-        Mokksy(
+    ): Mokksy {
+        ensureJacksonRuntimeAvailable()
+        return Mokksy(
             MokksyServer(
                 host = host,
                 port = port,
@@ -98,4 +102,17 @@ public object MokksyJackson {
                     ),
             ),
         )
+    }
+
+    private fun ensureJacksonRuntimeAvailable() {
+        try {
+            Class.forName("io.ktor.serialization.jackson.JacksonConverter")
+        } catch (e: ClassNotFoundException) {
+            throw IllegalStateException(
+                "ktor-serialization-jackson is not on the runtime classpath. " +
+                    "Add 'io.ktor:ktor-serialization-jackson' to your test dependencies.",
+                e,
+            )
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package dev.mokksy
 
+import dev.mokksy.Mokksy.Companion.create
 import dev.mokksy.mokksy.BuildingStep
 import dev.mokksy.mokksy.DEFAULT_HOST
 import dev.mokksy.mokksy.JavaBuildingStep
