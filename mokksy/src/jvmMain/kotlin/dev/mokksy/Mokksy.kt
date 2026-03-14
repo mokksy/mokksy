@@ -452,137 +452,137 @@ public class Mokksy(
     /** Registers a GET stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun get(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
-        delegate.get(block)
+        delegate.method(StubConfiguration(), Get, String::class, block)
 
     /** Registers a GET stub with [StubConfiguration] using a Kotlin DSL block. */
     @JvmSynthetic
     public fun get(
         configuration: StubConfiguration,
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.get(configuration, block)
+    ): BuildingStep<String> = delegate.method(configuration, Get, String::class, block)
 
     /** Registers a GET stub for a typed request body using a Kotlin DSL block. */
     @JvmSynthetic
     public fun <P : Any> get(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
-    ): BuildingStep<P> = delegate.get(requestType = requestType, block = block)
+    ): BuildingStep<P> = delegate.method(StubConfiguration(), Get, requestType, block)
 
     /** Registers a POST stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun post(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
-        delegate.post(block)
+        delegate.method(StubConfiguration(), Post, String::class, block)
 
     /** Registers a POST stub with [StubConfiguration] using a Kotlin DSL block. */
     @JvmSynthetic
     public fun post(
         configuration: StubConfiguration,
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.post(configuration, String::class, block)
+    ): BuildingStep<String> = delegate.method(configuration, Post, String::class, block)
 
     /** Registers a POST stub for a typed request body using a Kotlin DSL block. */
     @JvmSynthetic
     public fun <P : Any> post(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
-    ): BuildingStep<P> = delegate.post(requestType = requestType, block = block)
+    ): BuildingStep<P> = delegate.method(StubConfiguration(), Post, requestType, block)
 
     /** Registers a PUT stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun put(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
-        delegate.put(block)
+        delegate.method(StubConfiguration(), Put, String::class, block)
 
     /** Registers a PUT stub with [StubConfiguration] using a Kotlin DSL block. */
     @JvmSynthetic
     public fun put(
         configuration: StubConfiguration,
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.put(configuration, String::class, block)
+    ): BuildingStep<String> = delegate.method(configuration, Put, String::class, block)
 
     /** Registers a PUT stub for a typed request body using a Kotlin DSL block. */
     @JvmSynthetic
     public fun <P : Any> put(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
-    ): BuildingStep<P> = delegate.put(requestType = requestType, block = block)
+    ): BuildingStep<P> = delegate.method(StubConfiguration(), Put, requestType, block)
 
     /** Registers a DELETE stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun delete(
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.delete(block)
+    ): BuildingStep<String> = delegate.method(StubConfiguration(), Delete, String::class, block)
 
     /** Registers a DELETE stub with [StubConfiguration] using a Kotlin DSL block. */
     @JvmSynthetic
     public fun delete(
         configuration: StubConfiguration,
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.delete(configuration, String::class, block)
+    ): BuildingStep<String> = delegate.method(configuration, Delete, String::class, block)
 
     /** Registers a DELETE stub for a typed request body using a Kotlin DSL block. */
     @JvmSynthetic
     public fun <P : Any> delete(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
-    ): BuildingStep<P> = delegate.delete(requestType = requestType, block = block)
+    ): BuildingStep<P> = delegate.method(StubConfiguration(), Delete, requestType, block)
 
     /** Registers a PATCH stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun patch(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
-        delegate.patch(block)
+        delegate.method(StubConfiguration(), Patch, String::class, block)
 
     /** Registers a PATCH stub with [StubConfiguration] using a Kotlin DSL block. */
     @JvmSynthetic
     public fun patch(
         configuration: StubConfiguration,
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.patch(configuration, String::class, block)
+    ): BuildingStep<String> = delegate.method(configuration, Patch, String::class, block)
 
     /** Registers a PATCH stub for a typed request body using a Kotlin DSL block. */
     @JvmSynthetic
     public fun <P : Any> patch(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
-    ): BuildingStep<P> = delegate.patch(requestType = requestType, block = block)
+    ): BuildingStep<P> = delegate.method(StubConfiguration(), Patch, requestType, block)
 
     /** Registers a HEAD stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun head(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
-        delegate.head(block)
+        delegate.method(StubConfiguration(), Head, String::class, block)
 
     /** Registers a HEAD stub with [StubConfiguration] using a Kotlin DSL block. */
     @JvmSynthetic
     public fun head(
         configuration: StubConfiguration,
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.head(configuration, String::class, block)
+    ): BuildingStep<String> = delegate.method(configuration, Head, String::class, block)
 
     /** Registers a HEAD stub for a typed request body using a Kotlin DSL block. */
     @JvmSynthetic
     public fun <P : Any> head(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
-    ): BuildingStep<P> = delegate.head(requestType = requestType, block = block)
+    ): BuildingStep<P> = delegate.method(StubConfiguration(), Head, requestType, block)
 
     /** Registers an OPTIONS stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun options(
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.options(block)
+    ): BuildingStep<String> = delegate.method(StubConfiguration(), Options, String::class, block)
 
     /** Registers an OPTIONS stub with [StubConfiguration] using a Kotlin DSL block. */
     @JvmSynthetic
     public fun options(
         configuration: StubConfiguration,
         block: RequestSpecificationBuilder<String>.() -> Unit,
-    ): BuildingStep<String> = delegate.options(configuration, String::class, block)
+    ): BuildingStep<String> = delegate.method(configuration, Options, String::class, block)
 
     /** Registers an OPTIONS stub for a typed request body using a Kotlin DSL block. */
     @JvmSynthetic
     public fun <P : Any> options(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
-    ): BuildingStep<P> = delegate.options(requestType = requestType, block = block)
+    ): BuildingStep<P> = delegate.method(StubConfiguration(), Options, requestType, block)
 
     // endregion
 

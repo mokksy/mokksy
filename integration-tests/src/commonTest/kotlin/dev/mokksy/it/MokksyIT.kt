@@ -10,6 +10,10 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
+/**
+ * This test intentionally creates and starts Mokksy once and never shuts it down after each test.
+ * This verifies a scenario when Mokksy is started once and used across multiple tests.
+ */
 class MokksyIT {
     val mokksy = Mokksy()
     val client = HttpClient()

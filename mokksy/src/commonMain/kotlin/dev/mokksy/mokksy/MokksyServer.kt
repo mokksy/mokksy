@@ -116,6 +116,10 @@ public open class MokksyServer
 
         private val started = CompletableDeferred<Unit>()
 
+        init {
+            registerShutdownHook(this)
+        }
+
         protected val server:
             EmbeddedServer<out ApplicationEngine, out ApplicationEngine.Configuration> =
             createEmbeddedServer(
