@@ -107,10 +107,11 @@ public open class MokksyServer
         private val resolvedPort: AtomicInt = AtomicInt(-1)
 
         private lateinit var logger: Logger
-        protected val httpFormatter: HttpFormatter = HttpFormatter()
+        internal val httpFormatter: HttpFormatter = HttpFormatter()
+        internal val configuration: ServerConfiguration = configuration
 
-        private val stubRegistry = StubRegistry()
-        private val requestJournal = RequestJournal(configuration.journalMode)
+        internal val stubRegistry = StubRegistry()
+        internal val requestJournal = RequestJournal(configuration.journalMode)
 
         private val started = CompletableDeferred<Unit>()
 

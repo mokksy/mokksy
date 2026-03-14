@@ -360,8 +360,6 @@ open class dev.mokksy.mokksy/MokksyServer { // dev.mokksy.mokksy/MokksyServer|nu
     constructor <init>(kotlin/String = ..., kotlin/Int = ..., dev.mokksy.mokksy/ServerConfiguration, kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...) // dev.mokksy.mokksy/MokksyServer.<init>|<init>(kotlin.String;kotlin.Int;dev.mokksy.mokksy.ServerConfiguration;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]
     constructor <init>(kotlin/String = ..., kotlin/Int = ..., kotlin/Boolean = ..., kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...) // dev.mokksy.mokksy/MokksyServer.<init>|<init>(kotlin.String;kotlin.Int;kotlin.Boolean;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]
 
-    final val httpFormatter // dev.mokksy.mokksy/MokksyServer.httpFormatter|{}httpFormatter[0]
-        final fun <get-httpFormatter>(): dev.mokksy.mokksy.utils.logger/HttpFormatter // dev.mokksy.mokksy/MokksyServer.httpFormatter.<get-httpFormatter>|<get-httpFormatter>(){}[0]
     final val server // dev.mokksy.mokksy/MokksyServer.server|{}server[0]
         final fun <get-server>(): io.ktor.server.engine/EmbeddedServer<out io.ktor.server.engine/ApplicationEngine, out io.ktor.server.engine/ApplicationEngine.Configuration> // dev.mokksy.mokksy/MokksyServer.server.<get-server>|<get-server>(){}[0]
 
@@ -415,6 +413,8 @@ final const val dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY // dev.mokksy.mo
 final fun (io.ktor.http/ContentType).dev.mokksy.mokksy.utils/asMimeType(): kotlin/String // dev.mokksy.mokksy.utils/asMimeType|asMimeType@io.ktor.http.ContentType(){}[0]
 final fun (io.ktor.http/Headers).dev.mokksy.mokksy.request/shouldHaveHeader(kotlin/Pair<kotlin/String, kotlin/String>) // dev.mokksy.mokksy.request/shouldHaveHeader|shouldHaveHeader@io.ktor.http.Headers(kotlin.Pair<kotlin.String,kotlin.String>){}[0]
 final fun (io.ktor.http/Headers).dev.mokksy.mokksy.request/shouldNotHaveHeader(kotlin/Pair<kotlin/String, kotlin/String>) // dev.mokksy.mokksy.request/shouldNotHaveHeader|shouldNotHaveHeader@io.ktor.http.Headers(kotlin.Pair<kotlin.String,kotlin.String>){}[0]
+final fun (io.ktor.server.application/Application).dev.mokksy.mokksy/mokksy(dev.mokksy.mokksy/MokksyServer, kotlin/String = ...) // dev.mokksy.mokksy/mokksy|mokksy@io.ktor.server.application.Application(dev.mokksy.mokksy.MokksyServer;kotlin.String){}[0]
+final fun (io.ktor.server.routing/Route).dev.mokksy.mokksy/mokksy(dev.mokksy.mokksy/MokksyServer, kotlin/String = ...) // dev.mokksy.mokksy/mokksy|mokksy@io.ktor.server.routing.Route(dev.mokksy.mokksy.MokksyServer;kotlin.String){}[0]
 final fun (kotlin/ByteArray).dev.mokksy.mokksy.utils/asBase64DataUrl(kotlin/String): kotlin/String // dev.mokksy.mokksy.utils/asBase64DataUrl|asBase64DataUrl@kotlin.ByteArray(kotlin.String){}[0]
 final fun (kotlin/String?).dev.mokksy.mokksy.utils/ellipsizeMiddle(kotlin/Int): kotlin/String? // dev.mokksy.mokksy.utils/ellipsizeMiddle|ellipsizeMiddle@kotlin.String?(kotlin.Int){}[0]
 final fun <#A: kotlin/Any> dev.mokksy.mokksy.kotest/objectEquals(#A?, kotlin/String): io.kotest.matchers/Matcher<#A?> // dev.mokksy.mokksy.kotest/objectEquals|objectEquals(0:0?;kotlin.String){0§<kotlin.Any>}[0]

@@ -54,7 +54,11 @@ kotlin {
             dependencies {
                 implementation(libs.assertj.core)
                 implementation(libs.junit.jupiter.params)
+                implementation(libs.kotest.assertions.core)
                 implementation(libs.ktor.serialization.jackson)
+                implementation(libs.ktor.client.auth)
+                implementation(libs.ktor.server.auth)
+                implementation(libs.ktor.server.test.host)
                 runtimeOnly(libs.slf4j.simple)
                 runtimeOnly(libs.ktor.client.apache5)
             }
