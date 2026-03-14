@@ -11,13 +11,17 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.withCharset
 import kotlinx.serialization.json.Json
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
 @Suppress("UastIncorrectHttpHeaderInspection")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ShortcutMethodsIT : AbstractIT() {
     private lateinit var name: String
 
@@ -116,10 +120,13 @@ internal class ShortcutMethodsIT : AbstractIT() {
         }
     }
 
-    @AfterTest
-    @Suppress("DEPRECATION")
+    @AfterEach
     fun afterEach() {
-        mokksy.checkForUnmatchedRequests()
-        mokksy.checkForUnmatchedStubs()
+        mokksy.verifyNoUnexpectedRequests()
+    }
+
+    @AfterAll
+    fun afterAll() {
+        mokksy.verifyNoUnmatchedStubs()
     }
 }

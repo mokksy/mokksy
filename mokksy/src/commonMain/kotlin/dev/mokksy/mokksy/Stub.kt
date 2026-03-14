@@ -70,7 +70,7 @@ internal data class Stub<P : Any, T : Any>(
     /**
      * Resets match state to unmatched, re-arming the stub for a new test scenario.
      *
-     * @see MokksyServer.resetMatchCounts
+     * @see MokksyServer.resetMatchState
      */
     fun reset() {
         matched.value = false

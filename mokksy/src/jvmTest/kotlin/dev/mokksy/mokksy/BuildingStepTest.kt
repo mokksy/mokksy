@@ -99,7 +99,7 @@ internal class BuildingStepTest {
                         }
 
                     rethrown.message shouldBe "boom"
-                    call.response.status(io.ktor.http.HttpStatusCode.OK)
+                    call.response.status(HttpStatusCode.OK)
                 }
             }
 

@@ -59,11 +59,18 @@ internal suspend fun handleRequest(
         requestJournal.recordUnmatched(recorded)
         val errorMessage = "No matched mapping for request: ${request.toLogString()}"
         if (configuration.verbose) {
-            val stubsInfo = stubRegistry.getAll().joinToString("\n---\n") { it.toLogString() }
+            val availableStubs = stubRegistry.getAll()
+            val availableStubsMessage =
+                if (availableStubs.isNotEmpty()) {
+                    val stubsInfo = availableStubs.joinToString("\n---\n") { it.toLogString() }
+                    "Available stubs:\n$stubsInfo"
+                } else {
+                    "No stubs are available."
+                }
             application.log.warn(
                 "NO STUBS FOUND for the request:\n---\n${
                     formatter.formatRequest(request)
-                }\n---\nAvailable stubs:\n$stubsInfo\n",
+                }\n---\n$availableStubsMessage\n",
             )
         } else {
             application.log.warn(

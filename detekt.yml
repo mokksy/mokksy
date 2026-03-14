@@ -17,6 +17,8 @@ complexity:
       - '**/*.kts'
   LongMethod:
     excludes: *testFolders
+  LongParameterList:
+    ignoreDataClasses: true
 
 naming:
   MatchingDeclarationName:
