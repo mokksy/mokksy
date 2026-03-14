@@ -673,6 +673,8 @@ testImplementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
 Then create the server:
 
 ```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.mokksy.Mokksy;
 import dev.mokksy.MokksyJackson;
 
 // Default Jackson configuration
