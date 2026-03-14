@@ -244,6 +244,10 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyPlug
 }
 
 public final class dev/mokksy/mokksy/Mokksy_jvmKt {
+	public static final fun Mokksy ()Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun Mokksy (Ljava/lang/String;)Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun Mokksy (Ljava/lang/String;I)Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun Mokksy (Ljava/lang/String;IZ)Ldev/mokksy/mokksy/MokksyServer;
 	public static final fun Mokksy (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/MokksyServer;
 	public static synthetic fun Mokksy$default (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/MokksyServer;
 }
