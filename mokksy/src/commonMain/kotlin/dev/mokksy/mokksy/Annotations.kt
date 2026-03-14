@@ -79,4 +79,5 @@ public annotation class ExperimentalMokksyApi
     PROPERTY_SETTER,
 )
 @Retention(AnnotationRetention.BINARY)
+@MustBeDocumented
 public annotation class InternalMokksyApi

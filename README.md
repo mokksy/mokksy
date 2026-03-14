@@ -74,6 +74,7 @@ Particularly, it might be useful for integration testing LLM clients.
 1. Add dependencies:
  
    Gradle _build.gradle.kts:_
+   
    ```kotlin
    dependencies {               
         // for multiplatform projects
@@ -82,6 +83,7 @@ Particularly, it might be useful for integration testing LLM clients.
        implementation("dev.mokksy:mokksy-jvm:$latestVersion")
    }
    ``` 
+  
    _pom.xml:_
    ```xml
     <dependency>
@@ -96,6 +98,7 @@ Particularly, it might be useful for integration testing LLM clients.
 2. Create and start Mokksy server:
 
    **Kotlin — all platforms (coroutine-based):**
+
    ```kotlin
    import dev.mokksy.mokksy.Mokksy
 
@@ -105,6 +108,7 @@ Particularly, it might be useful for integration testing LLM clients.
    ```
 
    **Kotlin — JVM blocking:**
+
    ```kotlin
    import dev.mokksy.mokksy.Mokksy
 
@@ -346,6 +350,7 @@ regardless of registration order.
   @Test
   suspend fun testSpecificity() {
 -->
+
 ```kotlin
 // Generic: matches any POST to /users
 mokksy.post {
@@ -604,6 +609,7 @@ try (Mokksy mokksy = Mokksy.create().start()) {
 **JUnit 5 setup:**
 
 ```java
+import dev.mokksy.Mokksy;
 import java.net.http.HttpClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

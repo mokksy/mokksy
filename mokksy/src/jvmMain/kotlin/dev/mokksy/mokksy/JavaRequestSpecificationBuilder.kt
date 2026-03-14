@@ -57,7 +57,7 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
      * Unlike the Kotlin overload, this method accepts a [Predicate] so Java callers
      * can pass a lambda directly without dealing with `Function1` SAM types.
      *
-     * @param predicate A [Predicate] applied to the deserialized body (may be `null`).
+     * @param predicate A [Predicate] applied to the deserialized body, which is guaranteed non-null.
      * @return This builder instance.
      */
     public fun bodyMatchesPredicate(predicate: Predicate<P>): JavaRequestSpecificationBuilder<P> =
@@ -67,7 +67,7 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
      * Adds a predicate to match against the deserialized request body, with a description.
      *
      * @param description Human-readable label shown in mismatch reports.
-     * @param predicate A [Predicate] applied to the deserialized body (may be `null`).
+     * @param predicate A [Predicate] applied to the deserialized body, which is guaranteed non-null.
      * @return This builder instance.
      */
     public fun bodyMatchesPredicate(
