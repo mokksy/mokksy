@@ -72,8 +72,8 @@ public data class StubConfiguration
             buildString {
                 append("StubConfiguration(")
                 if (name != null) append("name=$name, ")
-                append("verbose=$verbose")
                 append("eventuallyRemove=$eventuallyRemove, ")
+                append("verbose=$verbose")
                 append(")")
             }
     }

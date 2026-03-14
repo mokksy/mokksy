@@ -8,7 +8,7 @@ import java.util.function.Predicate
  * Java-friendly wrapper around [RequestSpecificationBuilder] that replaces Kotlin functional
  * types with their `java.util.function` equivalents.
  *
- * Java callers receive this type from [MokksyServerJava]'s stub-registration methods
+ * Java callers receive this type from [dev.mokksy.Mokksy]'s stub-registration methods
  * (`get`, `post`, etc.) and use it to configure request-matching criteria.
  *
  * All methods return `this` for fluent chaining:

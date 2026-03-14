@@ -92,10 +92,10 @@ public fun MokksyServer.shutdown(
  *
  * Accepts a [Class] and a [Consumer] in place of a Kotlin suspend lambda.
  *
- * **Prefer [MokksyServerJava]**, which returns [JavaBuildingStep] and allows fluent chaining:
+ * **Prefer [dev.mokksy.Mokksy]**, which returns [JavaBuildingStep] and allows fluent chaining:
  * ```java
  * mokksy.get(spec -> spec.path("/ping"))
- *       .respondsWith(builder -> builder.setBody("Pong"));
+ *       .respondsWith(builder -> builder.body("Pong"));
  * ```
  *
  * Use this extension only when working directly with a [BuildingStep] obtained from

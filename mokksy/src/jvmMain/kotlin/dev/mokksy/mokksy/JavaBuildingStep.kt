@@ -8,7 +8,7 @@ import java.util.function.Consumer
  * `respondsWithStream` as instance methods accepting [Consumer] instead of
  * Kotlin suspend lambdas.
  *
- * Instances are returned by [MokksyServerJava]'s HTTP method stubs (`get`, `post`, etc.).
+ * Instances are returned by [dev.mokksy.Mokksy]'s HTTP method stubs (`get`, `post`, etc.).
  * Do not construct directly.
  *
  * Example (Java):
