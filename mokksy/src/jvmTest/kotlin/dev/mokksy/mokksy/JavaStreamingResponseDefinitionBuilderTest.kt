@@ -2,10 +2,12 @@ package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.ResponseHeaders
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -21,6 +23,25 @@ class JavaStreamingResponseDefinitionBuilderTest {
             formatter = HttpFormatter(),
         )
     private val sut = JavaStreamingResponseDefinitionBuilder(delegate)
+
+    private fun collectHeaders(headersBlock: (ResponseHeaders.() -> Unit)?): List<String> {
+        val result = mutableListOf<String>()
+        headersBlock?.invoke(
+            object : ResponseHeaders() {
+                override fun engineAppendHeader(
+                    name: String,
+                    value: String,
+                ) {
+                    result.add("$name=$value")
+                }
+
+                override fun getEngineHeaderNames(): List<String> = emptyList()
+
+                override fun getEngineHeaderValues(name: String): List<String> = emptyList()
+            },
+        )
+        return result
+    }
 
     // region chunks(List)
 
@@ -118,6 +139,15 @@ class JavaStreamingResponseDefinitionBuilderTest {
         sut.contentType(ContentType.Application.Json)
 
         delegate.contentType shouldBe ContentType.Application.Json
+    }
+
+    @Test
+    fun `header(name, value) sets header on delegate`() {
+        sut.header("X-Test-Header", "test-value")
+
+        val definition = delegate.build()
+        val headers = collectHeaders(definition.headers)
+        headers shouldContain "X-Test-Header=test-value"
     }
 
     // endregion
