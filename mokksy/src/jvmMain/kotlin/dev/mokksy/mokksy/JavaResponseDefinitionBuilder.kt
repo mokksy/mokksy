@@ -38,7 +38,7 @@ public class JavaResponseDefinitionBuilder<P : Any, T : Any> internal constructo
      * @param value The body value. Type is enforced at the call site via generic inference.
      * @return This builder instance.
      */
-    public fun body(value: T): JavaResponseDefinitionBuilder<P, T> = apply { delegate.body(value) }
+    public fun body(value: T): JavaResponseDefinitionBuilder<P, T> = apply { delegate.body = value }
 
     /**
      * Sets the HTTP status code.

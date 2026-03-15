@@ -16,7 +16,7 @@ class JavaResponseDefinitionBuilderTest {
     @Test
     fun `body delegates to delegate and returns this`() {
         val result = sut.body("hello")
-        verify { delegate.body("hello") }
+        verify { delegate.body = "hello" }
         result shouldBe sut
     }
 

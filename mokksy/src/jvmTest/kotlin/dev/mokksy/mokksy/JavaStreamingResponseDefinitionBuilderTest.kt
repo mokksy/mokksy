@@ -2,6 +2,7 @@ package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
+import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -147,7 +148,18 @@ class JavaStreamingResponseDefinitionBuilderTest {
 
         val definition = delegate.build()
         val headers = collectHeaders(definition.headers)
-        headers shouldContain "X-Test-Header=test-value"
+        headers shouldBe listOf("X-Test-Header=test-value")
+    }
+
+    @Test
+    fun `header() accumulates multiple headers`() {
+        sut.header("X-First", "one").header("X-Second", "two")
+
+        val headers = collectHeaders(delegate.build().headers)
+        assertSoftly(headers) {
+            shouldContain("X-First=one")
+            shouldContain("X-Second=two")
+        }
     }
 
     // endregion
