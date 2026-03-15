@@ -12,6 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,13 +66,35 @@ class StreamingJavaIT {
             .hasValue("text/event-stream; charset=UTF-8");
     }
 
+    @Test
+    void streamChunks_shouldBeConsumedLazily()
+        throws IOException, InterruptedException {
+        var consumed = new AtomicBoolean(false);
+        var stream = Stream.of("lazy-value").peek(x -> consumed.set(true));
+
+        mokksy.get(spec -> spec.path("/stream-lazy"))
+            .respondsWithStream(builder -> builder.chunks(stream));
+
+        assertThat(consumed.get())
+            .as("stream must NOT be consumed at stub registration time")
+            .isFalse();
+
+        var response = get("/stream-lazy");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("lazy-value");
+        assertThat(consumed.get())
+            .as("stream must be consumed at stub matching time")
+            .isTrue();
+    }
+
     /**
      * Verifies that a streaming response uses an explicitly specified Content-Type instead of the default.
-     *
+     * <p>
      * Configures Mokksy to stream two JSON chunks with Content-Type "application/x-ndjson", performs a GET
      * request to "/stream-content-type", and asserts the concatenated body and overridden Content-Type header.
      *
-     * @throws IOException if an I/O error occurs while sending the request or reading the response
+     * @throws IOException          if an I/O error occurs while sending the request or reading the response
      * @throws InterruptedException if the request thread is interrupted
      */
     @Test
@@ -93,7 +116,7 @@ class StreamingJavaIT {
 
     /**
      * Verifies that configuring an initial delay on a streaming response postpones the HTTP response by at least the configured duration.
-     *
+     * <p>
      * The test configures the server to stream a single chunk with an initial delay of 200 ms, issues a request and asserts that the request takes at least 200 ms and that the response status is 200.
      */
 
@@ -112,7 +135,7 @@ class StreamingJavaIT {
 
     /**
      * Verifies that a streamed response with an inter-chunk delay pauses between chunks and concatenates them.
-     *
+     * <p>
      * Asserts the request takes at least 150 ms (two intervals of 100 ms), the response status is 200 and the body equals "ABC".
      */
     @Test
@@ -136,7 +159,7 @@ class StreamingJavaIT {
      *
      * @param path the request path appended to the Mokksy base URL (for example "/stream-list")
      * @return the HTTP response with the response body decoded as a String and associated metadata
-     * @throws IOException if an I/O error occurs when sending or receiving
+     * @throws IOException          if an I/O error occurs when sending or receiving
      * @throws InterruptedException if the operation is interrupted while waiting for the response
      */
 

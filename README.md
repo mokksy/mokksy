@@ -750,8 +750,9 @@ mokksy.get(spec -> spec.path("/stream"))
           .chunks(List.of("Hello", " ", "World")));
 ```
 
-**Chunks from a `Stream<T>`** — the stream is consumed eagerly at stub-registration time, so it
-must not have been used before this call:
+**Chunks from a `Stream<T>`** — the stream is consumed lazily when the first matching request
+arrives, not when the stub is registered. This is useful for live generators or mutable sources
+that should reflect their state at request time:
 
 ```java
 mokksy.get(spec -> spec.path("/events"))

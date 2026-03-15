@@ -2,6 +2,7 @@ package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
 import io.ktor.http.ContentType
+import kotlinx.coroutines.flow.flow
 import java.util.stream.Stream
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -48,12 +49,15 @@ public class JavaStreamingResponseDefinitionBuilder<P : Any, T : Any> internal c
     /**
      * Sets the chunks to stream from a [Stream].
      *
-     * The stream is consumed **eagerly** on this call — it is fully drained before the method
-     * returns and must not be reused afterwards.
+     * The stream is consumed **lazily** — it is drained only when the first matching HTTP request
+     * arrives, not when this method is called. This means a stream backed by a live generator or
+     * a mutable source will reflect its state at request time rather than at stub-registration time.
+     *
+     * Because [Stream] is single-use, reusing the same stream instance across multiple request
+     * matches will throw on the second match. If the stub may match more than once, supply a
+     * fresh [Stream] per registration or prefer [chunks] with a [List] instead.
      *
      * **Replaces** any chunks previously added via [chunk] or an earlier [chunks] call.
-     * If you need to combine bulk initialization with individual additions, call [chunks] first
-     * and then [chunk].
      *
      * @param chunks The stream of chunks to send. Must not have been previously consumed.
      * @return This builder instance.
@@ -61,26 +65,26 @@ public class JavaStreamingResponseDefinitionBuilder<P : Any, T : Any> internal c
      */
     public fun chunks(chunks: Stream<T>): JavaStreamingResponseDefinitionBuilder<P, T> =
         apply {
-            val list = ArrayList<T>()
-            chunks.forEach { list.add(it) }
-            delegate.chunks = list
+            delegate.flow = flow {
+                for (item in chunks.iterator().asSequence()) emit(item)
+            }
         }
 
     /**
-         * Appends a single chunk to the streaming response, preserving insertion order.
-         *
-         * @param chunk The chunk to append.
-         * @return This builder instance.
-         */
+     * Appends a single chunk to the streaming response, preserving insertion order.
+     *
+     * @param chunk The chunk to append.
+     * @return This builder instance.
+     */
     public fun chunk(chunk: T): JavaStreamingResponseDefinitionBuilder<P, T> =
         apply { delegate.chunks.add(chunk) }
 
     /**
-         * Sets the delay between consecutive chunks.
-         *
-         * @param millis Delay between chunks in milliseconds.
-         * @return This builder instance for fluent chaining.
-         */
+     * Sets the delay between consecutive chunks.
+     *
+     * @param millis Delay between chunks in milliseconds.
+     * @return This builder instance for fluent chaining.
+     */
     public fun delayBetweenChunksMillis(
         millis: Long,
     ): JavaStreamingResponseDefinitionBuilder<P, T> =
