@@ -212,6 +212,23 @@ class MokksyJavaIT {
 
     // endregion
 
+    // region delay
+
+    @Test
+    void get_withDelayMillis_shouldDelayResponse() throws Exception {
+        mokksy.get(spec -> spec.path("/delayed"))
+            .respondsWith(builder -> builder
+                .body("ok")
+                .delayMillis(200L));
+
+        var response = TimingAssertions.takesAtLeast(200L,
+            () -> get("/delayed"));
+
+        assertThat(response.statusCode()).isEqualTo(200);
+    }
+
+    // endregion
+
     // region Verification
 
     @Test

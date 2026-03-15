@@ -1,6 +1,5 @@
 package dev.mokksy.mokksy
 
-import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
 import java.util.function.Consumer
 
 /**
@@ -60,21 +59,24 @@ public class JavaBuildingStep<P : Any> internal constructor(
      *
      * @param T The type of elements in the streaming response.
      * @param responseType The Java [Class] of the streaming element type.
-     * @param configurer A [Consumer] that configures the [StreamingResponseDefinitionBuilder].
+     * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
      */
     public fun <T : Any> respondsWithStream(
         responseType: Class<T>,
-        configurer: Consumer<StreamingResponseDefinitionBuilder<P, T>>,
-    ): Unit = step.respondsWithStream(responseType.kotlin) { configurer.accept(this) }
+        configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, T>>,
+    ): Unit =
+        step.respondsWithStream(responseType.kotlin) {
+            configurer.accept(JavaStreamingResponseDefinitionBuilder(this))
+        }
 
     /**
      * Configures a [String] streaming response for this stub.
      *
      * Shorthand for `respondsWithStream(String.class, configurer)`.
      *
-     * @param configurer A [Consumer] that configures the [StreamingResponseDefinitionBuilder].
+     * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
      */
     public fun respondsWithStream(
-        configurer: Consumer<StreamingResponseDefinitionBuilder<P, String>>,
+        configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, String>>,
     ): Unit = respondsWithStream(String::class.java, configurer)
 }

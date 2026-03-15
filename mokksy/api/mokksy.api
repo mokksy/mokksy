@@ -143,6 +143,18 @@ public final class dev/mokksy/mokksy/JavaResponseDefinitionBuilder {
 	public final fun status (I)Ldev/mokksy/mokksy/JavaResponseDefinitionBuilder;
 }
 
+public final class dev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder {
+	public final fun chunk (Ljava/lang/Object;)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+	public final fun chunks (Ljava/util/List;)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+	public final fun chunks (Ljava/util/stream/Stream;)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+	public final fun contentType (Lio/ktor/http/ContentType;)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+	public final fun contentType (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+	public final fun delayBetweenChunksMillis (J)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+	public final fun delayMillis (J)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+	public final fun header (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+	public final fun status (I)Ldev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder;
+}
+
 public final class dev/mokksy/mokksy/JournalMode : java/lang/Enum {
 	public static final field FULL Ldev/mokksy/mokksy/JournalMode;
 	public static final field LEAN Ldev/mokksy/mokksy/JournalMode;
@@ -460,10 +472,12 @@ public class dev/mokksy/mokksy/response/StreamingResponseDefinitionBuilder : dev
 	public fun build ()Ldev/mokksy/mokksy/response/StreamResponseDefinition;
 	public final fun getChunkContentType ()Lio/ktor/http/ContentType;
 	public final fun getChunks ()Ljava/util/List;
+	public final fun getContentType ()Lio/ktor/http/ContentType;
 	public final fun getDelayBetweenChunks-UwyO8pc ()J
 	public final fun getFlow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getRequest ()Ldev/mokksy/mokksy/request/CapturedRequest;
 	public final fun setChunks (Ljava/util/List;)V
+	public final fun setContentType (Lio/ktor/http/ContentType;)V
 	public final fun setDelayBetweenChunks-LRDsOJo (J)V
 	public final fun setFlow (Lkotlinx/coroutines/flow/Flow;)V
 }

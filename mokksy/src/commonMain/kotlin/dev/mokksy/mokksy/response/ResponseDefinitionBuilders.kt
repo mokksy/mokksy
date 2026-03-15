@@ -5,7 +5,9 @@ import dev.mokksy.mokksy.request.CapturedRequest
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.withCharset
 import io.ktor.server.response.ResponseHeaders
+import io.ktor.utils.io.charsets.Charsets
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -255,6 +257,13 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
     public val chunkContentType: ContentType? = null,
     private val formatter: HttpFormatter,
 ) : AbstractResponseDefinitionBuilder<P, T>() {
+    /**
+     * The `Content-Type` of the HTTP response. Defaults to `text/event-stream; charset=UTF-8`.
+     *
+     * Override when the stream carries a different media type, e.g. `application/x-ndjson`.
+     */
+    public var contentType: ContentType = ContentType.Text.EventStream.withCharset(Charsets.UTF_8)
+
     init {
         this.httpStatus = httpStatus
     }
@@ -281,5 +290,6 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
             delay = delay,
             formatter = formatter,
             chunkContentType = chunkContentType,
+            contentType = contentType,
         )
 }

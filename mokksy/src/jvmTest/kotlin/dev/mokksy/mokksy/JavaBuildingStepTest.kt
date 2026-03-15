@@ -68,7 +68,7 @@ class JavaBuildingStepTest {
 
     @Test
     fun `respondsWithStream(Consumer) registers a stub and consumer chunk is set`() {
-        sut.respondsWithStream { it.chunks.add("stream-item") }
+        sut.respondsWithStream { it.chunk("stream-item") }
         registeredStubs shouldHaveSize 1
         val supplier = registeredStubs.single().responseDefinitionSupplier
         testApplication {
@@ -85,7 +85,7 @@ class JavaBuildingStepTest {
 
     @Test
     fun `respondsWithStream(Class, Consumer) registers a typed stub and consumer chunk is set`() {
-        sut.respondsWithStream(String::class.java) { it.chunks.add("typed-stream") }
+        sut.respondsWithStream(String::class.java) { it.chunk("typed-stream") }
         registeredStubs shouldHaveSize 1
         val supplier = registeredStubs.single().responseDefinitionSupplier
         testApplication {
