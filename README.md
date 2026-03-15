@@ -52,6 +52,7 @@
   * [Application-level installation](#application-level-installation)
   * [Route-level installation](#route-level-installation)
 * [Java API](#java-api)
+  * [Streaming responses](#streaming-responses)
   * [Jackson support](#jackson-support)
 
 <!--- END -->
@@ -733,6 +734,59 @@ mokksy.post(spec -> {
 ```java
 mokksy.method("PATCH", spec -> spec.path("/resource"))
       .respondsWith(builder -> builder.body("patched"));
+```
+
+### Streaming responses
+
+Testing an LLM client or any endpoint that streams data chunk-by-chunk? Use `respondsWithStream`
+to stub a chunked HTTP response. The default `Content-Type` is `text/event-stream; charset=UTF-8`,
+which matches what most streaming AI APIs and SSE endpoints produce.
+
+**Chunks from a list** — the simplest case:
+
+```java
+mokksy.get(spec -> spec.path("/stream"))
+      .respondsWithStream(builder -> builder
+          .chunks(List.of("Hello", " ", "World")));
+```
+
+**Chunks from a `Stream<T>`** — the stream is consumed eagerly at stub-registration time, so it
+must not have been used before this call:
+
+```java
+mokksy.get(spec -> spec.path("/events"))
+      .respondsWithStream(builder -> builder
+          .chunks(Stream.of("data1", "data2")));
+```
+
+**Delays** — simulate network and processing latency at two granularities:
+
+```java
+mokksy.get(spec -> spec.path("/slow-stream"))
+      .respondsWithStream(builder -> builder
+          .chunks(List.of("A", "B", "C"))
+          .delayMillis(200L)               // pause before the first chunk
+          .delayBetweenChunksMillis(100L)); // pause between each subsequent chunk
+```
+
+**Custom `Content-Type`** — override the default when the stream carries a different format, such
+as NDJSON:
+
+```java
+mokksy.get(spec -> spec.path("/ndjson"))
+      .respondsWithStream(builder -> builder
+          .chunks(List.of("{\"value\":1}", "{\"value\":2}"))
+          .contentType("application/x-ndjson"));
+```
+
+For typed chunks, pass the class token as the first argument. Chunks are serialized to the
+response body using each object's `toString()`:
+
+```java
+mokksy.get(spec -> spec.path("/typed"))
+      .respondsWithStream(MyEvent.class, builder -> builder
+          .chunk(new MyEvent("start"))
+          .chunk(new MyEvent("end")));
 ```
 
 ### Jackson support
