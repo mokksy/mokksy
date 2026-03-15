@@ -269,17 +269,11 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T>(
     }
 
     /**
-     * Builds an instance of [StreamResponseDefinition].
-     *
-     * This method finalizes the construction of a [StreamResponseDefinition] by encapsulating
-     * the data flow, chunked list, HTTP status code, and headers defined in the current instance
-     * of the builder. The resulting [StreamResponseDefinition] can then be used to represent
-     * a streaming response.
-     *
-     * @param P The type of the request body.
-     * @param T The type of data being streamed.
-     * @return A fully constructed [StreamResponseDefinition] instance containing the configured response details.
-     */
+         * Constructs a StreamResponseDefinition populated from the builder's configured values.
+         *
+         * @return A StreamResponseDefinition containing the configured chunk flow (if any), immutable chunk list,
+         * HTTP status, merged headers, per-chunk and overall delays, formatter, chunk content type and overall content type.
+         */
     public override fun build(): StreamResponseDefinition<P, T> =
         StreamResponseDefinition(
             chunkFlow = flow,

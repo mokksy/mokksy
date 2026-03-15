@@ -67,25 +67,20 @@ public class JavaStreamingResponseDefinitionBuilder<P : Any, T : Any> internal c
         }
 
     /**
-     * Appends a single chunk to the streaming response.
-     *
-     * Chunks added via [chunk] accumulate and are sent in the order they were added.
-     * Calling [chunks] after [chunk] will replace all previously accumulated chunks;
-     * to avoid confusion, prefer a single [chunks] call rather than mixing the two.
-     *
-     * @param chunk The chunk to append.
-     * @return This builder instance.
-     * @see chunks
-     */
+         * Appends a single chunk to the streaming response, preserving insertion order.
+         *
+         * @param chunk The chunk to append.
+         * @return This builder instance.
+         */
     public fun chunk(chunk: T): JavaStreamingResponseDefinitionBuilder<P, T> =
         apply { delegate.chunks.add(chunk) }
 
     /**
-     * Sets the delay between consecutive chunks.
-     *
-     * @param millis The delay in milliseconds.
-     * @return This builder instance.
-     */
+         * Sets the delay between consecutive chunks.
+         *
+         * @param millis Delay between chunks in milliseconds.
+         * @return This builder instance for fluent chaining.
+         */
     public fun delayBetweenChunksMillis(
         millis: Long,
     ): JavaStreamingResponseDefinitionBuilder<P, T> =

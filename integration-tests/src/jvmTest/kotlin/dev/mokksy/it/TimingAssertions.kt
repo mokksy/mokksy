@@ -10,6 +10,12 @@ import kotlin.time.toJavaDuration
  * Supports SAM conversion from both Java and Kotlin lambdas.
  */
 fun interface TimedBlock<T> {
+    /**
+     * Execute the block and produce its result.
+     *
+     * @return The value produced by the block.
+     * @throws Exception If an error occurs during execution.
+     */
     @Throws(Exception::class)
     fun execute(): T
 }
@@ -29,6 +35,13 @@ fun interface TimedBlock<T> {
  */
 object TimingAssertions {
 
+    /**
+     * Asserts that executing the given block takes at least the specified wall-clock duration and returns the block's result.
+     *
+     * @param minDuration The minimum elapsed wall-clock duration required for the block's execution.
+     * @param block The action to execute; its result is returned when the assertion passes.
+     * @return The value produced by [block].
+     */
     @JvmStatic
     fun <T> takesAtLeast(minDuration: Duration, block: TimedBlock<T>): T {
         val (result, elapsed) = measureTimedValue { block.execute() }
@@ -36,7 +49,14 @@ object TimingAssertions {
         return result
     }
 
-    @JvmStatic
+    /**
+         * Asserts that executing the provided block takes at least the given number of milliseconds and returns the block's result.
+         *
+         * @param minMillis Minimum elapsed time in milliseconds required for the assertion to pass.
+         * @param block The timed block to execute.
+         * @return The value produced by the executed block.
+         */
+        @JvmStatic
     fun <T> takesAtLeast(minMillis: Long, block: TimedBlock<T>): T =
         takesAtLeast(Duration.ofMillis(minMillis), block)
 }

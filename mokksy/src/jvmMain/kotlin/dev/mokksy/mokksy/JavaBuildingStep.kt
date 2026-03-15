@@ -55,12 +55,12 @@ public class JavaBuildingStep<P : Any> internal constructor(
         respondsWith(String::class.java, configurer)
 
     /**
-     * Configures a typed streaming response for this stub.
-     *
-     * @param T The type of elements in the streaming response.
-     * @param responseType The Java [Class] of the streaming element type.
-     * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
-     */
+         * Configure a typed streaming response for the stub.
+         *
+         * @param T The element type of the streaming response.
+         * @param responseType The Java Class of the streaming element type.
+         * @param configurer A Consumer that configures a JavaStreamingResponseDefinitionBuilder.
+         */
     public fun <T : Any> respondsWithStream(
         responseType: Class<T>,
         configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, T>>,
