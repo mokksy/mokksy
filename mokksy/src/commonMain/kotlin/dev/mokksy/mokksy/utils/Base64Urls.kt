@@ -2,6 +2,7 @@ package dev.mokksy.mokksy.utils
 
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.jvm.JvmName
 
 /**
  * Converts the byte array into a Base64 encoded data URL string.

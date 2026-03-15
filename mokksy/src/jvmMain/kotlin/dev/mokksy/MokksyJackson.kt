@@ -1,3 +1,5 @@
+@file:JvmName("MokksyJackson")
+
 package dev.mokksy
 
 import com.fasterxml.jackson.databind.ObjectMapper

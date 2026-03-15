@@ -1,3 +1,5 @@
+@file:OptIn(InternalMokksyApi::class)
+
 package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.request.CapturedRequest

@@ -1,3 +1,5 @@
+@file:OptIn(InternalMokksyApi::class)
+
 package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.request.RecordedRequest
@@ -16,15 +18,10 @@ import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
-import io.ktor.server.application.install
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig
-import io.ktor.server.plugins.doublereceive.DoubleReceive
-import io.ktor.server.routing.route
-import io.ktor.server.routing.routing
-import io.ktor.server.sse.SSE
+import io.ktor.server.routing.RoutingContext
 import io.ktor.util.logging.Logger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -74,14 +71,14 @@ internal fun configureContentNegotiation(config: ContentNegotiationConfig) {
  */
 @Suppress("TooManyFunctions")
 @OptIn(ExperimentalAtomicApi::class, DelicateCoroutinesApi::class)
-public open class MokksyServer
+public class MokksyServer
     @JvmOverloads
     constructor(
         private val host: String = DEFAULT_HOST,
         port: Int = 0,
-        configuration: ServerConfiguration,
+        override val configuration: ServerConfiguration,
         configurer: Application.() -> Unit = {},
-    ) {
+    ) : MokksyHandler {
         /**
          * Creates a [MokksyServer] instance using a `verbose` flag instead of a full [ServerConfiguration].
          * Call `start()` (on JVM) or [startSuspend] to begin processing requests.
@@ -107,14 +104,15 @@ public open class MokksyServer
         private val resolvedPort: AtomicInt = AtomicInt(-1)
 
         private lateinit var logger: Logger
-        protected val httpFormatter: HttpFormatter = HttpFormatter()
+        internal val httpFormatter: HttpFormatter = HttpFormatter()
 
-        private val stubRegistry = StubRegistry()
-        private val requestJournal = RequestJournal(configuration.journalMode)
+        private val stubRegistry: StubRegistry = StubRegistry()
+        private val requestJournal: RequestJournal =
+            RequestJournal(configuration.journalMode)
 
         private val started = CompletableDeferred<Unit>()
 
-        protected val server:
+        private val server:
             EmbeddedServer<out ApplicationEngine, out ApplicationEngine.Configuration> =
             createEmbeddedServer(
                 host = host,
@@ -122,29 +120,20 @@ public open class MokksyServer
                 configuration = configuration,
             ) {
                 logger = this.environment.log
-
-                install(SSE)
-                install(DoubleReceive)
-                install(ContentNegotiation) {
-                    configuration.contentNegotiationConfigurer(this)
-                }
-
-                routing {
-                    route("{...}") {
-                        handle {
-                            handleRequest(
-                                context = this@handle,
-                                application = this@createEmbeddedServer,
-                                stubRegistry = stubRegistry,
-                                requestJournal = requestJournal,
-                                configuration = configuration,
-                                formatter = httpFormatter,
-                            )
-                        }
-                    }
-                }
+                mokksy(this@MokksyServer)
                 configurer(this)
             }
+
+        override suspend fun handle(context: RoutingContext) {
+            handleRequest(
+                context = context,
+                application = context.call.application,
+                stubRegistry = stubRegistry,
+                requestJournal = requestJournal,
+                configuration = configuration,
+                formatter = httpFormatter,
+            )
+        }
 
         /**
          * Initiates the server to begin processing requests asynchronously.

@@ -13,6 +13,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 
+@OptIn(InternalMokksyApi::class)
 class JavaBuildingStepTest {
     private val registeredStubs = mutableListOf<Stub<*, *>>()
     private val step =

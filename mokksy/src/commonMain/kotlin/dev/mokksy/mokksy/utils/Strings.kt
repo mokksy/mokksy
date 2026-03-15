@@ -1,4 +1,8 @@
+@file:JvmName("Strings")
+
 package dev.mokksy.mokksy.utils
+
+import kotlin.jvm.JvmName
 
 /**
  * Truncates the string to the specified maximum length by replacing the middle portion with an ellipsis.

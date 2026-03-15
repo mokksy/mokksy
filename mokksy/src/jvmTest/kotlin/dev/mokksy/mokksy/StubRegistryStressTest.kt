@@ -7,6 +7,7 @@ import org.jetbrains.lincheck.datastructures.StressOptions
 import org.junit.jupiter.api.Disabled
 import kotlin.test.Test
 
+@OptIn(InternalMokksyApi::class)
 @Disabled
 class StubRegistryStressTest {
     private val registry = StubRegistry()

@@ -3,6 +3,7 @@ package dev.mokksy.mokksy
 import io.ktor.server.application.Application
 
 @Suppress("FunctionName")
+@JvmOverloads
 public actual fun Mokksy(
     host: String,
     port: Int,

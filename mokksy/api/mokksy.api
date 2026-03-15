@@ -151,7 +151,19 @@ public final class dev/mokksy/mokksy/JournalMode : java/lang/Enum {
 	public static fun values ()[Ldev/mokksy/mokksy/JournalMode;
 }
 
+public final class dev/mokksy/mokksy/KtorExtensions {
+	public static final fun mokksy (Lio/ktor/server/application/Application;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;)V
+	public static final fun mokksy (Lio/ktor/server/routing/Route;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;)V
+	public static synthetic fun mokksy$default (Lio/ktor/server/application/Application;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;ILjava/lang/Object;)V
+	public static synthetic fun mokksy$default (Lio/ktor/server/routing/Route;Ldev/mokksy/mokksy/MokksyHandler;Ljava/lang/String;ILjava/lang/Object;)V
+}
+
 public abstract interface annotation class dev/mokksy/mokksy/MokksyDsl : java/lang/annotation/Annotation {
+}
+
+public abstract interface class dev/mokksy/mokksy/MokksyHandler {
+	public abstract fun getConfiguration ()Ldev/mokksy/mokksy/ServerConfiguration;
+	public abstract fun handle (Lio/ktor/server/routing/RoutingContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class dev/mokksy/mokksy/MokksyJava {
@@ -167,7 +179,7 @@ public final class dev/mokksy/mokksy/MokksyJava {
 	public static final synthetic fun start (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;)Ldev/mokksy/mokksy/MokksyServer;
 }
 
-public class dev/mokksy/mokksy/MokksyServer {
+public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHandler {
 	public fun <init> ()V
 	public fun <init> (Ldev/mokksy/mokksy/ServerConfiguration;)V
 	public fun <init> (Ljava/lang/String;)V
@@ -195,8 +207,8 @@ public class dev/mokksy/mokksy/MokksyServer {
 	public final fun get (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun get (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun get$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
-	protected final fun getHttpFormatter ()Ldev/mokksy/mokksy/utils/logger/HttpFormatter;
-	protected final fun getServer ()Lio/ktor/server/engine/EmbeddedServer;
+	public fun getConfiguration ()Ldev/mokksy/mokksy/ServerConfiguration;
+	public fun handle (Lio/ktor/server/routing/RoutingContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
@@ -232,6 +244,10 @@ public class dev/mokksy/mokksy/MokksyServer {
 }
 
 public final class dev/mokksy/mokksy/Mokksy_jvmKt {
+	public static final fun Mokksy ()Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun Mokksy (Ljava/lang/String;)Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun Mokksy (Ljava/lang/String;I)Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun Mokksy (Ljava/lang/String;IZ)Ldev/mokksy/mokksy/MokksyServer;
 	public static final fun Mokksy (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/MokksyServer;
 	public static synthetic fun Mokksy$default (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/MokksyServer;
 }
@@ -291,7 +307,7 @@ public final class dev/mokksy/mokksy/StubConfiguration$Companion {
 	public static synthetic fun removeAfterMatch$default (Ldev/mokksy/mokksy/StubConfiguration$Companion;Ljava/lang/String;ZZILjava/lang/Object;)Ldev/mokksy/mokksy/StubConfiguration;
 }
 
-public final class dev/mokksy/mokksy/kotest/MatchersKt {
+public final class dev/mokksy/mokksy/kotest/Matchers {
 	public static final fun doesNotContain (Ljava/lang/String;)Lio/kotest/matchers/Matcher;
 	public static final fun doesNotContainIgnoringCase (Ljava/lang/String;)Lio/kotest/matchers/Matcher;
 	public static final fun objectEquals (Ljava/lang/Object;Ljava/lang/String;)Lio/kotest/matchers/Matcher;
@@ -306,6 +322,7 @@ public final class dev/mokksy/mokksy/request/CapturedRequest {
 public final class dev/mokksy/mokksy/request/RecordedRequest {
 	public static final field Companion Ldev/mokksy/mokksy/request/RecordedRequest$Companion;
 	public fun equals (Ljava/lang/Object;)Z
+	public static final fun from (Lio/ktor/server/routing/RoutingRequest;Z)Ldev/mokksy/mokksy/request/RecordedRequest;
 	public final fun getHeaders ()Ljava/util/Map;
 	public final fun getMatched ()Z
 	public final fun getMethod ()Lio/ktor/http/HttpMethod;
@@ -318,7 +335,7 @@ public final class dev/mokksy/mokksy/request/RecordedRequest$Companion {
 	public final fun from (Lio/ktor/server/routing/RoutingRequest;Z)Ldev/mokksy/mokksy/request/RecordedRequest;
 }
 
-public final class dev/mokksy/mokksy/request/RequestMatchersKt {
+public final class dev/mokksy/mokksy/request/RequestMatchers {
 	public static final fun predicateMatcher (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lio/kotest/matchers/Matcher;
 	public static synthetic fun predicateMatcher$default (Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lio/kotest/matchers/Matcher;
 	public static final fun shouldHaveHeader (Lio/ktor/http/Headers;Lkotlin/Pair;)V
@@ -460,11 +477,7 @@ public final class dev/mokksy/mokksy/serializers/StringOrListSerializer : kotlin
 	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/util/List;)V
 }
 
-public final class dev/mokksy/mokksy/utils/Base64UrlsKt {
-	public static final fun asBase64DataUrl ([BLjava/lang/String;)Ljava/lang/String;
-}
-
-public final class dev/mokksy/mokksy/utils/Base64Urls_jvmKt {
+public final class dev/mokksy/mokksy/utils/Base64Urls {
 	public static final fun asBase64DataUrl (Ljava/io/File;)Ljava/lang/String;
 	public static final fun asBase64DataUrl (Ljava/io/File;Ljava/lang/String;)Ljava/lang/String;
 	public static final fun asBase64DataUrl (Ljava/net/URL;)Ljava/lang/String;
@@ -476,11 +489,15 @@ public final class dev/mokksy/mokksy/utils/Base64Urls_jvmKt {
 	public static synthetic fun asBase64DataUrl$default (Ljava/nio/file/Path;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 }
 
+public final class dev/mokksy/mokksy/utils/Base64UrlsKt {
+	public static final fun asBase64DataUrl ([BLjava/lang/String;)Ljava/lang/String;
+}
+
 public final class dev/mokksy/mokksy/utils/MimeTypesKt {
 	public static final fun asMimeType (Lio/ktor/http/ContentType;)Ljava/lang/String;
 }
 
-public final class dev/mokksy/mokksy/utils/StringsKt {
+public final class dev/mokksy/mokksy/utils/Strings {
 	public static final fun ellipsizeMiddle (Ljava/lang/String;I)Ljava/lang/String;
 }
 

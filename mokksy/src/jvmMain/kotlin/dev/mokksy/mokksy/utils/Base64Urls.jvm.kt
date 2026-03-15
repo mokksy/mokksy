@@ -1,3 +1,5 @@
+@file:JvmName("Base64Urls")
+
 package dev.mokksy.mokksy.utils
 
 import io.ktor.http.ContentType

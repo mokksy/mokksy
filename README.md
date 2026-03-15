@@ -48,6 +48,9 @@
   * [Recommended AfterEach setup](#recommended-aftereach-setup)
   * [Inspecting unmatched items](#inspecting-unmatched-items)
 * [Request Journal](#request-journal)
+* [Embedding in an existing Ktor application](#embedding-in-an-existing-ktor-application)
+  * [Application-level installation](#application-level-installation)
+  * [Route-level installation](#route-level-installation)
 * [Java API](#java-api)
   * [Jackson support](#jackson-support)
 
@@ -68,6 +71,7 @@ Particularly, it might be useful for integration testing LLM clients.
 - **Modern API**: Fluent Kotlin DSL API with [Kotest Assertions](https://kotest.io/docs/assertions/assertions.html)
 - **Error Simulation**: Ability to mock negative scenarios and error responses
 - **Specificity-Based Matching**: When multiple stubs match a request, Mokksy automatically selects the most specific one — no explicit priority configuration required for common cases
+- **Ktor Integration**: Embed Mokksy into any existing Ktor application via `Application.mokksy()` and `Route.mokksy()` extension functions — including behind authentication middleware
 
 ## Quick start
       
@@ -578,6 +582,79 @@ fun afterEach() {
 
 > **Note:** Stubs configured with `eventuallyRemove = true` are permanently removed from the registry
 > on first match and cannot be re-armed by `resetMatchState()`. Re-register them before the next scenario.
+
+## Embedding in an existing Ktor application
+
+If you already own a Ktor `Application` — a test harness with authentication middleware, custom
+plugins, or routes that must coexist with stubs — use the `mokksy` extension functions to mount
+stub handling directly, without allocating a second embedded server.
+
+### Application-level installation
+
+`Application.mokksy(server)` installs [SSE][sse], `DoubleReceive`, and `ContentNegotiation`
+automatically, then mounts a catch-all route that dispatches every incoming request through the
+stub registry:
+
+```kotlin
+import dev.mokksy.mokksy.MokksyServer
+import dev.mokksy.mokksy.mokksy
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+
+val server = MokksyServer()
+server.get { path("/ping") } respondsWith { body = "pong" }
+
+embeddedServer(Netty, port = 8080) {
+    mokksy(server)
+}.start(wait = true)
+```
+
+Use this overload when Mokksy owns the entire application and you want the simplest possible setup.
+
+### Route-level installation
+
+`Route.mokksy(server)` mounts the stub handler inside an existing route scope. Unlike the
+application-level overload, it does **not** install plugins — you are responsible for installing
+`SSE`, `DoubleReceive`, and `ContentNegotiation` on the surrounding application. This makes it
+suitable when Mokksy stubs coexist with real routes:
+
+```kotlin
+routing {
+    get("/health") { call.respondText("OK") }
+    mokksy(server)
+}
+```
+
+To place stubs behind an authentication check, install the required plugins and wrap `mokksy` in
+an `authenticate` block:
+
+```kotlin
+install(SSE)
+install(DoubleReceive)
+install(ContentNegotiation) { json() }
+install(Authentication) {
+    basic("auth-basic") {
+        validate { credentials ->
+            if (credentials.name == "user" && credentials.password == "pass") {
+                UserIdPrincipal(credentials.name)
+            } else null
+        }
+    }
+}
+
+routing {
+    authenticate("auth-basic") {
+        mokksy(server)
+    }
+}
+```
+
+Both extension functions accept any `path` pattern as a second parameter (default: `"{...}"`,
+which matches all routes). Narrow the scope by passing a prefix:
+
+```kotlin
+mokksy(server, path = "/api/{...}")
+```
 
 ## Java API
 

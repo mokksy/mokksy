@@ -2,6 +2,7 @@ package dev.mokksy.mokksy.request
 
 import io.ktor.http.HttpMethod
 import io.ktor.server.routing.RoutingRequest
+import kotlin.jvm.JvmStatic
 
 /**
  * Immutable snapshot of an HTTP request for recording purposes.
@@ -25,6 +26,7 @@ public class RecordedRequest internal constructor(
         /**
          * Creates a [RecordedRequest] snapshot from a [io.ktor.server.routing.RoutingRequest].
          */
+        @JvmStatic
         public fun from(
             request: RoutingRequest,
             matched: Boolean,
