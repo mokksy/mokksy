@@ -2,6 +2,7 @@ package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.flow
 import java.util.stream.Stream
 import kotlin.time.Duration.Companion.milliseconds
@@ -44,7 +45,10 @@ public class JavaStreamingResponseDefinitionBuilder<P : Any, T : Any> internal c
      * @see chunk
      */
     public fun chunks(chunks: List<T>): JavaStreamingResponseDefinitionBuilder<P, T> =
-        apply { delegate.chunks = chunks.toMutableList() }
+        apply {
+            delegate.chunks.clear()
+            delegate.chunks.addAll(chunks)
+        }
 
     /**
      * Sets the chunks to stream from a [Stream].
@@ -97,7 +101,7 @@ public class JavaStreamingResponseDefinitionBuilder<P : Any, T : Any> internal c
      * @return This builder instance.
      */
     public fun delayMillis(millis: Long): JavaStreamingResponseDefinitionBuilder<P, T> =
-        apply { delegate.delayMillis(millis) }
+        apply { delegate.delay = millis.milliseconds }
 
     /**
      * Sets the HTTP status code.
@@ -106,7 +110,7 @@ public class JavaStreamingResponseDefinitionBuilder<P : Any, T : Any> internal c
      * @return This builder instance.
      */
     public fun status(code: Int): JavaStreamingResponseDefinitionBuilder<P, T> =
-        apply { delegate.httpStatus(code) }
+        apply { delegate.httpStatus = HttpStatusCode.fromValue(code) }
 
     /**
      * Adds a response header.

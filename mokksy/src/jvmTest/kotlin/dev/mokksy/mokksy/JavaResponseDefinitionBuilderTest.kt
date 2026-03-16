@@ -6,6 +6,7 @@ import io.ktor.http.ContentType
 import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.milliseconds
 
 class JavaResponseDefinitionBuilderTest {
     private val delegate = mockk<ResponseDefinitionBuilder<String, String>>(relaxed = true)
@@ -47,9 +48,9 @@ class JavaResponseDefinitionBuilderTest {
     // region delayMillis
 
     @Test
-    fun `delayMillis delegates to delegate and returns this`() {
+    fun `delayMillis sets delay on delegate and returns this`() {
         val result = sut.delayMillis(250)
-        verify { delegate.delayMillis(250) }
+        verify { delegate.delay = 250.milliseconds }
         result shouldBe sut
     }
 

@@ -12,8 +12,8 @@ import io.ktor.http.withCharset
 import io.ktor.server.response.ResponseHeaders
 import io.ktor.utils.io.charsets.Charsets
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow as buildFlow
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Represents a base abstraction for defining the attributes of an HTTP response in the context of
@@ -29,14 +29,7 @@ import kotlin.time.Duration.Companion.milliseconds
 public abstract class AbstractResponseDefinitionBuilder<P, T>(
     public var delay: Duration = Duration.ZERO,
 ) {
-    private var _httpStatusCode: Int = HttpStatusCode.OK.value
-    public val httpStatusCode: Int get() = _httpStatusCode
-
     public var httpStatus: HttpStatusCode = HttpStatusCode.OK
-        set(value) {
-            field = value
-            _httpStatusCode = value.value
-        }
 
     private val headerPairs: MutableList<Pair<String, String>> = mutableListOf()
     private var headersLambda: (ResponseHeaders.() -> Unit)? = null
@@ -100,19 +93,6 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
     }
 
     /**
-     * Sets a delay for the response in milliseconds.
-     *
-     * @param millis The delay duration in milliseconds before the response is sent.
-     */
-    public fun delayMillis(millis: Long) {
-        this.delay = millis.milliseconds
-    }
-
-    public fun httpStatus(status: Int) {
-        this.httpStatus = HttpStatusCode.fromValue(status)
-    }
-
-    /**
      * Merges [addHeader] pairs and the [headers] lambda into a single [ResponseHeaders] configurator.
      * Returns `null` when no headers have been configured.
      */
@@ -145,7 +125,6 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
  * @property request The [CapturedRequest] being processed.
  * @property contentType Optional MIME type of the response. Defaults to `null` if not specified.
  * @property body The body of the response. Can be null.
- * @property httpStatusCode The HTTP status code of the response as Int, defaulting to 200.
  * @property httpStatus The HTTP status code of the response, defaulting to HttpStatusCode.OK.
  * @param headers A mutable list of additional custom headers for the response.
  *
@@ -158,8 +137,7 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any> internal construct
     public val request: CapturedRequest<P>,
     public var contentType: ContentType? = null,
     public var body: T? = null,
-    httpStatusCode: Int = 200,
-    httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
+    httpStatus: HttpStatusCode = HttpStatusCode.OK,
     private val formatter: HttpFormatter,
 ) : AbstractResponseDefinitionBuilder<P, T>() {
     init {
@@ -194,7 +172,8 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any> internal construct
      * @param code The HTTP status code as an integer, e.g. `201`, `404`.
      * @return This builder instance.
      */
-    public fun status(code: Int): ResponseDefinitionBuilder<P, T> = apply { httpStatus(code) }
+    public fun status(code: Int): ResponseDefinitionBuilder<P, T> =
+        apply { httpStatus = HttpStatusCode.fromValue(code) }
 
     /**
      * Adds a response header and returns this builder for chaining.
@@ -228,7 +207,7 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any> internal construct
         ResponseDefinition(
             body = body,
             contentType = contentType ?: ContentType.Application.Json,
-            httpStatusCode = httpStatusCode,
+            httpStatusCode = httpStatus.value,
             httpStatus = httpStatus,
             headers = buildCombinedHeaders(),
             delay = delay,
@@ -254,7 +233,7 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any> internal construct
 public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constructor(
     public val request: CapturedRequest<P>,
     public var flow: Flow<T>? = null,
-    public var chunks: MutableList<T> = mutableListOf(),
+    public val chunks: MutableList<T> = mutableListOf(),
     public var delayBetweenChunks: Duration = Duration.ZERO,
     httpStatus: HttpStatusCode = HttpStatusCode.OK,
     public val chunkContentType: ContentType? = null,
@@ -274,13 +253,16 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constr
     /**
          * Constructs a StreamResponseDefinition populated from the builder's configured values.
          *
-         * @return A StreamResponseDefinition containing the configured chunk flow (if any), immutable chunk list,
-         * HTTP status, merged headers, per-chunk and overall delays, formatter, chunk content type and overall content type.
+         * @return A [StreamResponseDefinition] with a single resolved [Flow] source.
+         * If chunks were added via [plusAssign], they are converted to a cold [Flow] at build time.
          */
-    public override fun build(): StreamResponseDefinition<P, T> =
-        StreamResponseDefinition(
-            chunkFlow = flow,
-            chunks = chunks.toList(),
+    public override fun build(): StreamResponseDefinition<P, T> {
+        check(flow == null || chunks.isEmpty()) {
+            "Cannot configure both flow and chunks on the same streaming response"
+        }
+        val resolvedFlow: Flow<T> = flow ?: buildFlow { chunks.forEach { emit(it) } }
+        return StreamResponseDefinition(
+            chunkFlow = resolvedFlow,
             httpStatus = httpStatus,
             headers = buildCombinedHeaders(),
             delayBetweenChunks = delayBetweenChunks,
@@ -289,4 +271,5 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constr
             chunkContentType = chunkContentType,
             contentType = contentType,
         )
+    }
 }

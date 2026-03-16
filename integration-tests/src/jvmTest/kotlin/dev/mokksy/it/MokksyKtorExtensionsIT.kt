@@ -65,7 +65,7 @@ class MokksyKtorExtensionsIT {
             bodyContains("widget")
         } respondsWith {
             body = """{"id":"1"}"""
-            httpStatus(201)
+            httpStatus = HttpStatusCode.Created
         }
 
         testApplication {

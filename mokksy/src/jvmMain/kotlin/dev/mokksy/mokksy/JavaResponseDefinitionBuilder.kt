@@ -2,6 +2,7 @@ package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.response.ResponseDefinitionBuilder
 import io.ktor.http.ContentType
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Java-friendly wrapper around [ResponseDefinitionBuilder] that returns `this` from every
@@ -68,7 +69,7 @@ public class JavaResponseDefinitionBuilder<P : Any, T : Any> internal constructo
      * @return This builder instance.
      */
     public fun delayMillis(millis: Long): JavaResponseDefinitionBuilder<P, T> =
-        apply { delegate.delayMillis(millis) }
+        apply { delegate.delay = millis.milliseconds }
 
     /**
      * Sets the `Content-Type` of the response.

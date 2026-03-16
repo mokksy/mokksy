@@ -14,7 +14,6 @@ import io.ktor.server.request.httpVersion
 import io.ktor.server.response.ResponseHeaders
 import io.ktor.server.response.cacheControl
 import io.ktor.server.response.respondBytesWriter
-import io.ktor.server.sse.ServerSSESession
 import io.ktor.util.logging.Logger
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.charsets.Charsets
@@ -32,20 +31,17 @@ import kotlin.time.Duration
 internal const val SEND_BUFFER_CAPACITY = 256
 
 /**
- * Represents a definition for streaming responses, supporting chunked data and flow-based content streaming.
- * This class extends the base `AbstractResponseDefinition` to provide additional functionality specific
- * to chunked or streamed responses. It can handle flow-based content delivery, manage chunk-wise delays,
- * and supports various output formats such as `OutputStream`, `Writer`, or `ServerSSESession`.
+ * Represents a definition for streaming responses, supporting flow-based content streaming.
+ * This class extends [AbstractResponseDefinition] to provide functionality specific
+ * to streamed responses. It handles flow-based content delivery, manages chunk-wise delays,
+ * and supports various output formats.
  *
  * @param P The type of the request body.
  * @param T The type of the response data being streamed.
- * @property chunkFlow A Flow of chunks to be streamed as part of the response.
- * @property chunks A list of chunks representing the response data to be sent.
+ * @property chunkFlow A [Flow] of chunks to be streamed as part of the response.
  * @property delayBetweenChunks Delay between the transmission of each chunk.
  * @property httpStatusCode The HTTP status code of the response as Int, defaulting to 200.
  * @property httpStatus The HTTP status code of the response, defaulting to HttpStatusCode.OK.
- * @constructor Initializes a streaming response definition with the specified flow, chunk list, content type,
- *              HTTP status code, and headers.
  *
  * @see AbstractResponseDefinition
  *
@@ -53,8 +49,7 @@ internal const val SEND_BUFFER_CAPACITY = 256
  */
 @Suppress("LongParameterList")
 public open class StreamResponseDefinition<P, T>(
-    public open val chunkFlow: Flow<T>? = null,
-    public val chunks: List<T>? = null,
+    public open val chunkFlow: Flow<T>,
     public val delayBetweenChunks: Duration = Duration.ZERO,
     contentType: ContentType = ContentType.Text.EventStream.withCharset(Charsets.UTF_8),
     private val chunkContentType: ContentType? = null,
@@ -79,15 +74,15 @@ public open class StreamResponseDefinition<P, T>(
             delay(delay)
         }
         chunkFlow
-            ?.filterNotNull()
-            ?.cancellable()
-            ?.buffer(
+            .filterNotNull()
+            .cancellable()
+            .buffer(
                 capacity = SEND_BUFFER_CAPACITY,
                 onBufferOverflow = BufferOverflow.SUSPEND,
-            )?.catch { e ->
+            ).catch { e ->
                 logger.warn("Error while sending chunks", e)
                 throw e
-            }?.collect {
+            }.collect {
                 writeChunk(
                     writer = writer,
                     value = it,
@@ -132,97 +127,31 @@ public open class StreamResponseDefinition<P, T>(
         }
     }
 
-    @Suppress("unused")
-    internal suspend fun writeChunksFromFlow(session: ServerSSESession) {
-        if (this.delay.isPositive()) {
-            delay(delay)
-        }
-        chunkFlow
-            ?.filterNotNull()
-            ?.cancellable()
-            ?.buffer(
-                capacity = SEND_BUFFER_CAPACITY,
-                onBufferOverflow = BufferOverflow.SUSPEND,
-            )?.catch { e ->
-                session.call.application.log
-                    .warn("Error while sending chunks", e)
-                throw e
-            }?.collect {
-                val chunk = "$it"
-                session.send(
-                    data = chunk,
-                )
-                yield()
-                if (delayBetweenChunks.isPositive()) {
-                    delay(delayBetweenChunks)
-                }
-            }
-    }
-
-    internal suspend fun writeChunksFromList(
-        writer: ByteWriteChannel,
-        verbose: Boolean,
-        logger: Logger,
-        chunkContentType: ContentType?,
-    ) {
-        if (this.delay.isPositive()) {
-            delay(delay)
-        }
-        chunks?.forEach {
-            writeChunk(
-                writer = writer,
-                value = it,
-                verbose = verbose,
-                logger = logger,
-                chunkContentTypeOverride = chunkContentType,
-            )
-        }
-    }
-
     override suspend fun writeResponse(
         call: ApplicationCall,
         verbose: Boolean,
     ) {
-        when {
-            chunkFlow != null -> {
-                call.response.cacheControl(CacheControl.NoCache(null))
-                call.respondBytesWriter(
-                    status = this.httpStatus,
-                    contentType = this.contentType,
-                ) {
-                    if (verbose) {
-                        call.application.log.debug(
-                            "Sending:\n---\n${
-                                formatter.formatResponseHeader(
-                                    httpVersion = call.request.httpVersion,
-                                    headers = call.response.headers,
-                                    status = httpStatus,
-                                )
-                            }",
+        call.response.cacheControl(CacheControl.NoCache(null))
+        call.respondBytesWriter(
+            status = this.httpStatus,
+            contentType = this.contentType,
+        ) {
+            if (verbose) {
+                call.application.log.debug(
+                    "Sending:\n---\n${
+                        formatter.formatResponseHeader(
+                            httpVersion = call.request.httpVersion,
+                            headers = call.response.headers,
+                            status = httpStatus,
                         )
-                    }
-                    writeChunksFromFlow(
-                        writer = this,
-                        verbose = verbose,
-                        logger = call.application.log,
-                    )
-                }
+                    }",
+                )
             }
-
-            else -> {
-                call.response.cacheControl(CacheControl.NoCache(null))
-                call.respondBytesWriter(
-                    status = this.httpStatus,
-                    contentType = this.contentType,
-                ) {
-                    writeChunksFromList(
-                        writer = this,
-                        verbose = verbose,
-                        logger = call.application.log,
-                        chunkContentType = chunkContentType,
-                    )
-                }
-            }
+            writeChunksFromFlow(
+                writer = this,
+                verbose = verbose,
+                logger = call.application.log,
+            )
         }
     }
 }
