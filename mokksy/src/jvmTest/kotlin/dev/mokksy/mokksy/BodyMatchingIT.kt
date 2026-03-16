@@ -31,7 +31,7 @@ internal class BodyMatchingIT : AbstractIT() {
     suspend fun `Should match body predicate`() {
         // given
         mokksy
-            .post(name = "predicate", Input::class) {
+            .post(name = "predicate", requestType = Input::class) {
                 path("/predicate")
 
                 bodyMatchesPredicate {
@@ -63,7 +63,7 @@ internal class BodyMatchingIT : AbstractIT() {
     suspend fun `should check bodyContains`() {
         // given
         mokksy
-            .post(name = "predicate", Input::class) {
+            .post(name = "predicate", requestType = Input::class) {
                 path("/predicate")
                 bodyContains(
                     Json.encodeToString(input),

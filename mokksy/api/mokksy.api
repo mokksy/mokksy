@@ -207,6 +207,7 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHand
 	public final fun baseUrl ()Ljava/lang/String;
 	public final fun checkForUnmatchedRequests ()V
 	public final fun checkForUnmatchedStubs ()V
+	public final fun delete (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun delete (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun delete (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun delete (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
@@ -221,6 +222,7 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHand
 	public static synthetic fun get$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
 	public fun getConfiguration ()Ldev/mokksy/mokksy/ServerConfiguration;
 	public fun handle (Lio/ktor/server/routing/RoutingContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
@@ -228,19 +230,23 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHand
 	public final fun method (Ldev/mokksy/mokksy/StubConfiguration;Lio/ktor/http/HttpMethod;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun method (Ljava/lang/String;Lio/ktor/http/HttpMethod;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun method$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lio/ktor/http/HttpMethod;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
+	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun options (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun options (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun options$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
+	public final fun patch (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun patch (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun patch (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun patch (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun patch$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun port ()I
+	public final fun post (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun post (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun post (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun post (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun post$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
+	public final fun put (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun put (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun put (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun put (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;

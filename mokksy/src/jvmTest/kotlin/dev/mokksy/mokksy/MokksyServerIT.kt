@@ -43,16 +43,7 @@ internal class MokksyServerIT : AbstractIT() {
         val path = "/$nameLower-config-$seed"
         val config = StubConfiguration(name = "$nameLower-config-stub")
 
-        when (method) {
-            HttpMethod.Get -> mokksy.get(config, String::class) { path(path) }
-            HttpMethod.Post -> mokksy.post(config, String::class) { path(path) }
-            HttpMethod.Put -> mokksy.put(config, String::class) { path(path) }
-            HttpMethod.Delete -> mokksy.delete(config, String::class) { path(path) }
-            HttpMethod.Head -> mokksy.head(config, String::class) { path(path) }
-            HttpMethod.Options -> mokksy.options(config, String::class) { path(path) }
-            HttpMethod.Patch -> mokksy.patch(config, String::class) { path(path) }
-            else -> error("Unexpected method: $method")
-        } respondsWith {
+        mokksy.method(config, method, String::class) { path(path) } respondsWith {
             body = "$nameLower-ok"
         }
 
