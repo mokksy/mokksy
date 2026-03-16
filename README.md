@@ -38,9 +38,11 @@
 * [Responding with predefined responses](#responding-with-predefined-responses)
   * [GET request](#get-request)
   * [POST request](#post-request)
+  * [Status-only responses](#status-only-responses)
 * [Server-Side Events (SSE) response](#server-side-events-sse-response)
 * [Request Specification Matchers](#request-specification-matchers)
   * [Stub Specificity](#stub-specificity)
+  * [Typed body matching](#typed-body-matching)
   * [Priority Example](#priority-example)
 * [Verifying Requests](#verifying-requests)
   * [Verify all stubs were triggered](#verify-all-stubs-were-triggered)
@@ -278,6 +280,19 @@ result.headers["Foo"] shouldBe "bar"
   }
 -->
 
+### Status-only responses
+
+Use `respondsWithStatus` when the test only needs to verify a status code — no body needed.
+It's an infix function, so it reads naturally next to the stub definition:
+`mokksy.get { path("/ping") } respondsWithStatus HttpStatusCode.NoContent`.
+
+Java callers use the `int` overload on `JavaBuildingStep`:
+
+```java
+mokksy.get(spec -> spec.path("/ping")).respondsWithStatus(204);
+mokksy.delete(spec -> spec.path("/item")).respondsWithStatus(410);
+```
+
 ## Server-Side Events (SSE) response
 
 [Server-Side Events (SSE)](https://html.spec.whatwg.org/multipage/server-sent-events.html) is a technology that allows a
@@ -383,10 +398,55 @@ genericResult.bodyAsText() shouldBe "any user"
 <!--- INCLUDE
   }
 -->
+<!--- INCLUDE
+  @Test
+  suspend fun testRespondsWithStatus() {
+-->
+
+```kotlin
+mokksy.get { path("/ping") } respondsWithStatus HttpStatusCode.NoContent
+
+val response = client.get("/ping")
+
+response.status shouldBe HttpStatusCode.NoContent
+```
+
+<!--- INCLUDE
+  }
+-->
 <!--- SUFFIX
 }
 -->
 <!--- KNIT example-readme-01.kt -->
+
+### Typed body matching
+
+When the request body is a structured object, use `bodyMatchesPredicate` to match against the
+deserialized payload instead of raw string operations. Pass the type as a reified parameter (Kotlin)
+or a `KClass` / `Class` token (Kotlin/Java):
+
+```kotlin
+// Kotlin — reified inline extension (hides from Java callers)
+mokksy.post<CreateItemRequest> {
+    path("/items")
+    bodyMatchesPredicate { it?.name == "widget" }
+} respondsWith {
+    body = """{"id":"1"}"""
+    httpStatus = HttpStatusCode.Created
+}
+
+// Kotlin — explicit KClass (works with the Mokksy Java wrapper too)
+mokksy.post(CreateItemRequest::class) {
+    path("/items")
+    bodyMatchesPredicate { it?.name == "widget" }
+} respondsWith {
+    body = """{"id":"1"}"""
+    httpStatus = HttpStatusCode.Created
+}
+```
+
+Deserialization uses Ktor's `ContentNegotiation` plugin. For projects that use Jackson instead of
+kotlinx.serialization, create the server with `MokksyJackson.create()` — see [Jackson support](#jackson-support).
 
 When no stub matches and verbose mode is enabled 
 (`Mokksy(verbose = true)` / `Mokksy.create(Mokksy.create("127.0.0.1", 0, true))` for Java), 
@@ -716,6 +776,13 @@ class MyTest {
         mokksy.shutdown();
     }
 }
+```
+
+**Status-only responses** — use `respondsWithStatus(int)` when no body is needed:
+
+```java
+mokksy.get(spec -> spec.path("/health")).respondsWithStatus(200);
+mokksy.delete(spec -> spec.path("/items/1")).respondsWithStatus(204);
 ```
 
 **Request matchers** — the `spec` block mirrors the Kotlin DSL:

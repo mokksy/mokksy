@@ -63,8 +63,6 @@ kover {
 
 rewrite {
     activeRecipe(
-//        "org.openrewrite.kotlin.format.AutoFormat",
-        "org.openrewrite.gradle.MigrateToGradle8",
         "org.openrewrite.gradle.RemoveRedundantDependencyVersions",
         "org.openrewrite.kotlin.cleanup.RemoveLambdaArgumentParentheses",
         "org.openrewrite.kotlin.cleanup.UnnecessaryTypeParentheses",
