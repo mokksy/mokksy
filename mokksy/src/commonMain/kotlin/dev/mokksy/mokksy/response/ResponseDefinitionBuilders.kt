@@ -1,5 +1,8 @@
+@file:OptIn(InternalMokksyApi::class)
+
 package dev.mokksy.mokksy.response
 
+import dev.mokksy.mokksy.InternalMokksyApi
 import dev.mokksy.mokksy.MokksyDsl
 import dev.mokksy.mokksy.request.CapturedRequest
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
@@ -151,7 +154,7 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
  */
 @MokksyDsl
 @Suppress("LongParameterList")
-public open class ResponseDefinitionBuilder<P : Any, T : Any>(
+public open class ResponseDefinitionBuilder<P : Any, T : Any> internal constructor(
     public val request: CapturedRequest<P>,
     public var contentType: ContentType? = null,
     public var body: T? = null,
@@ -248,7 +251,7 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any>(
  */
 @MokksyDsl
 @Suppress("LongParameterList")
-public open class StreamingResponseDefinitionBuilder<P : Any, T>(
+public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constructor(
     public val request: CapturedRequest<P>,
     public var flow: Flow<T>? = null,
     public var chunks: MutableList<T> = mutableListOf(),

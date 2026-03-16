@@ -1,5 +1,8 @@
+@file:OptIn(InternalMokksyApi::class)
+
 package dev.mokksy.mokksy.utils.logger
 
+import dev.mokksy.mokksy.InternalMokksyApi
 import dev.mokksy.mokksy.utils.highlight.AnsiColor
 import dev.mokksy.mokksy.utils.highlight.ColorTheme
 import dev.mokksy.mokksy.utils.highlight.Highlighting.highlightBody
@@ -24,6 +27,7 @@ import io.ktor.server.routing.RoutingRequest
  * @param theme The color theme to be applied for formatting.
  * @param useColor Boolean flag indicating whether ANSI color codes should be used in the formatting output.
  */
+@InternalMokksyApi
 public open class HttpFormatter(
     theme: ColorTheme = ColorTheme.LIGHT_ON_DARK,
     protected val useColor: Boolean = isColorSupported(),
@@ -184,6 +188,7 @@ public open class HttpFormatter(
         return if (useColor) highlightBody(chunk, contentType) else chunk
     }
 
+    @InternalMokksyApi
     public data class ColorScheme(
         val path: AnsiColor,
         val headerName: AnsiColor,
