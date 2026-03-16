@@ -7,8 +7,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.net.URI;
@@ -81,19 +79,37 @@ class MokksyJavaIT {
 
     // region PUT / DELETE / PATCH / HEAD / OPTIONS
 
-    @ParameterizedTest
-    @ValueSource(strings = {"PUT", "DELETE", "PATCH"})
-    void shouldRespondToMutatingMethods(String method) throws IOException, InterruptedException {
-        var path = "/" + method.toLowerCase() + "-test";
-        var expectedBody = "response-for-" + method;
+    @Test
+    void put_shouldReturn200WithBody() throws IOException, InterruptedException {
+        mokksy.put(spec -> spec.path("/put-test"))
+            .respondsWith(builder -> builder.body("put-ok"));
 
-        mokksy.method(method, spec -> spec.path(path))
-            .respondsWith(b -> b.body(expectedBody));
-
-        var response = send(method, path, null);
+        var response = send("PUT", "/put-test", null);
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo(expectedBody);
+        assertThat(response.body()).isEqualTo("put-ok");
+    }
+
+    @Test
+    void delete_shouldReturn200WithBody() throws IOException, InterruptedException {
+        mokksy.delete(spec -> spec.path("/delete-test"))
+            .respondsWith(builder -> builder.body("deleted"));
+
+        var response = send("DELETE", "/delete-test", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("deleted");
+    }
+
+    @Test
+    void patch_shouldReturn200WithBody() throws IOException, InterruptedException {
+        mokksy.patch(spec -> spec.path("/patch-test"))
+            .respondsWith(builder -> builder.body("patched"));
+
+        var response = send("PATCH", "/patch-test", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("patched");
     }
 
     @Test
@@ -245,6 +261,41 @@ class MokksyJavaIT {
     // endregion
 
     // region Verification
+
+    @Test
+    void findAllUnmatchedStubs_shouldReturnUnmatchedStub() throws IOException, InterruptedException {
+        try (var fresh = Mokksy.create().start()) {
+            fresh.get(spec -> spec.path("/unmatched-stub"))
+                .respondsWith(builder -> builder.body("never-called"));
+
+            assertThat(fresh.findAllUnmatchedStubs()).hasSize(1);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/unmatched-stub"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+
+            assertThat(fresh.findAllUnmatchedStubs()).isEmpty();
+        }
+    }
+
+    @Test
+    void findAllUnexpectedRequests_shouldReturnUnexpectedRequest() throws IOException, InterruptedException {
+        try (var fresh = Mokksy.create().start()) {
+            assertThat(fresh.findAllUnexpectedRequests()).isEmpty();
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/no-stub-here"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+
+            assertThat(fresh.findAllUnexpectedRequests()).hasSize(1);
+        }
+    }
 
     @Test
     void verifyNoUnmatchedStubs_shouldThrowWhenStubNeverCalled() {

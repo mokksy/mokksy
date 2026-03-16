@@ -138,8 +138,8 @@ public final class dev/mokksy/mokksy/JavaRequestSpecificationBuilder {
 
 public final class dev/mokksy/mokksy/JavaResponseDefinitionBuilder {
 	public final fun body (Ljava/lang/Object;)Ldev/mokksy/mokksy/JavaResponseDefinitionBuilder;
-	public final fun contentType (Lio/ktor/http/ContentType;)Ldev/mokksy/mokksy/JavaResponseDefinitionBuilder;
 	public final fun contentType (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaResponseDefinitionBuilder;
+	public final fun delay (Ljava/time/Duration;)Ldev/mokksy/mokksy/JavaResponseDefinitionBuilder;
 	public final fun delayMillis (J)Ldev/mokksy/mokksy/JavaResponseDefinitionBuilder;
 	public final fun header (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaResponseDefinitionBuilder;
 	public final fun status (I)Ldev/mokksy/mokksy/JavaResponseDefinitionBuilder;

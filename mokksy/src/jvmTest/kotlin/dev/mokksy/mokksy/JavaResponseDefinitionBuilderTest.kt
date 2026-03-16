@@ -3,9 +3,11 @@ package dev.mokksy.mokksy
 import dev.mokksy.mokksy.response.ResponseDefinitionBuilder
 import io.kotest.matchers.shouldBe
 import io.ktor.http.ContentType
+import io.ktor.http.withCharset
 import io.mockk.mockk
 import io.mockk.verify
 import kotlin.test.Test
+import kotlin.text.Charsets.UTF_8
 import kotlin.time.Duration.Companion.milliseconds
 
 class JavaResponseDefinitionBuilderTest {
@@ -60,8 +62,8 @@ class JavaResponseDefinitionBuilderTest {
 
     @Test
     fun `contentType(ContentType) sets contentType on delegate and returns this`() {
-        val result = sut.contentType(ContentType.Application.Json)
-        verify { delegate.contentType = ContentType.Application.Json }
+        val result = sut.contentType("application/json; charset=utf-8")
+        verify { delegate.contentType = ContentType.Application.Json.withCharset(UTF_8) }
         result shouldBe sut
     }
 
@@ -84,7 +86,7 @@ class JavaResponseDefinitionBuilderTest {
                 .status(200)
                 .header("X-H", "v")
                 .delayMillis(0)
-                .contentType(ContentType.Text.Plain)
+                .contentType("text/plain")
         result shouldBe sut
     }
 

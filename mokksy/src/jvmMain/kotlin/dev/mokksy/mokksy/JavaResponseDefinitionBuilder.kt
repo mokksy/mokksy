@@ -2,7 +2,9 @@ package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.response.ResponseDefinitionBuilder
 import io.ktor.http.ContentType
+import java.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.toKotlinDuration
 
 /**
  * Java-friendly wrapper around [ResponseDefinitionBuilder] that returns `this` from every
@@ -72,13 +74,13 @@ public class JavaResponseDefinitionBuilder<P : Any, T : Any> internal constructo
         apply { delegate.delay = millis.milliseconds }
 
     /**
-     * Sets the `Content-Type` of the response.
+     * Sets a delay before the response is sent.
      *
-     * @param contentType The content type, e.g. `ContentType.Application.Json`.
+     * @param duration The delay.
      * @return This builder instance.
      */
-    public fun contentType(contentType: ContentType): JavaResponseDefinitionBuilder<P, T> =
-        apply { delegate.contentType = contentType }
+    public fun delay(duration: Duration): JavaResponseDefinitionBuilder<P, T> =
+        apply { delegate.delay = duration.toKotlinDuration() }
 
     /**
      * Sets the `Content-Type` of the response from a MIME-type string.
