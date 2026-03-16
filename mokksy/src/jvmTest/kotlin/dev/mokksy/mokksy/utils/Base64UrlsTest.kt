@@ -13,7 +13,7 @@ class Base64UrlsTest {
 
     @Test
     fun `asBase64DataUrl produces correct data URL format`() {
-        "hello".toByteArray().asBase64DataUrl("text/plain") shouldStartWith "data:text/plain;base64,"
+        "hello".toByteArray().asBase64DataUrl("text/plain") shouldBe "data:text/plain;base64,aGVsbG8="
     }
 
     @Test

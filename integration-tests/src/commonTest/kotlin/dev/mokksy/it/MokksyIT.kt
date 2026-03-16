@@ -41,11 +41,12 @@ class MokksyIT {
             mokksy.get { path("/ping") } respondsWith { body = "Pong" }
 
             val response = client.get(mokksy.baseUrl() + "/ping")
+            val body = response.bodyAsText()
 
             assertSoftly(response) {
                 status shouldBe HttpStatusCode.OK
-                bodyAsText() shouldBe "Pong"
+                body shouldBe "Pong"
             }
-            print("""✅Response: "${response.bodyAsText()}".""")
+            print("""✅Response: "$body".""")
         }
 }

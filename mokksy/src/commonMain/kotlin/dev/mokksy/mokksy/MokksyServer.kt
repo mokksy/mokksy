@@ -264,98 +264,219 @@ public class MokksyServer
 
         // region typed verb shortcuts (KClass)
 
-        /** Defines a GET stub matching typed request body [P]. */
+        /**
+         * Defines a GET stub that matches a typed request body of type [P].
+         *
+         * Example:
+         * ```kotlin
+         * mokksy.get(name = "fetch-item", requestType = MyRequest::class) {
+         *     path("/items/1")
+         * } respondsWith {
+         *     body = """{"id":1}"""
+         * }
+         * ```
+         *
+         * @param P The expected type of the request body.
+         * @param name Optional identifier for this stub.
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> get(
             name: String? = null,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(StubConfiguration(name), Get, requestType, block)
 
-        /** Defines a GET stub matching typed request body [P] with full [StubConfiguration]. */
+        /**
+         * Defines a GET stub that matches a typed request body of type [P] using a full [StubConfiguration].
+         *
+         * @param P The expected type of the request body.
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> get(
             configuration: StubConfiguration,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(configuration, Get, requestType, block)
 
-        /** Defines a POST stub matching typed request body [P]. */
+        /**
+         * Defines a POST stub that matches a typed request body of type [P].
+         *
+         * @param P The expected type of the request body.
+         * @param name Optional identifier for this stub.
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> post(
             name: String? = null,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(StubConfiguration(name), Post, requestType, block)
 
-        /** Defines a POST stub matching typed request body [P] with full [StubConfiguration]. */
+        /**
+         * Defines a POST stub that matches a typed request body of type [P] using a full [StubConfiguration].
+         *
+         * @param P The expected type of the request body.
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> post(
             configuration: StubConfiguration,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(configuration, Post, requestType, block)
 
-        /** Defines a DELETE stub matching typed request body [P]. */
+        /**
+         * Defines a DELETE stub that matches a typed request body of type [P].
+         *
+         * @param P The expected type of the request body.
+         * @param name Optional identifier for this stub.
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> delete(
             name: String? = null,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(StubConfiguration(name), Delete, requestType, block)
 
-        /** Defines a DELETE stub matching typed request body [P] with full [StubConfiguration]. */
+        /**
+         * Defines a DELETE stub that matches a typed request body of type [P] using a full [StubConfiguration].
+         *
+         * @param P The expected type of the request body.
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> delete(
             configuration: StubConfiguration,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(configuration, Delete, requestType, block)
 
-        /** Defines a PATCH stub matching typed request body [P]. */
+        /**
+         * Defines a PATCH stub that matches a typed request body of type [P].
+         *
+         * @param P The expected type of the request body.
+         * @param name Optional identifier for this stub.
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> patch(
             name: String? = null,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(StubConfiguration(name), Patch, requestType, block)
 
-        /** Defines a PATCH stub matching typed request body [P] with full [StubConfiguration]. */
+        /**
+         * Defines a PATCH stub that matches a typed request body of type [P] using a full [StubConfiguration].
+         *
+         * @param P The expected type of the request body.
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> patch(
             configuration: StubConfiguration,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(configuration, Patch, requestType, block)
 
-        /** Defines a PUT stub matching typed request body [P]. */
+        /**
+         * Defines a PUT stub that matches a typed request body of type [P].
+         *
+         * @param P The expected type of the request body.
+         * @param name Optional identifier for this stub.
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> put(
             name: String? = null,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(StubConfiguration(name), Put, requestType, block)
 
-        /** Defines a PUT stub matching typed request body [P] with full [StubConfiguration]. */
+        /**
+         * Defines a PUT stub that matches a typed request body of type [P] using a full [StubConfiguration].
+         *
+         * @param P The expected type of the request body.
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> put(
             configuration: StubConfiguration,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(configuration, Put, requestType, block)
 
-        /** Defines a HEAD stub matching typed request body [P]. */
+        /**
+         * Defines a HEAD stub that matches a typed request body of type [P].
+         *
+         * @param P The expected type of the request body.
+         * @param name Optional identifier for this stub.
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> head(
             name: String? = null,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(StubConfiguration(name), Head, requestType, block)
 
-        /** Defines a HEAD stub matching typed request body [P] with full [StubConfiguration]. */
+        /**
+         * Defines a HEAD stub that matches a typed request body of type [P] using a full [StubConfiguration].
+         *
+         * @param P The expected type of the request body.
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> head(
             configuration: StubConfiguration,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(configuration, Head, requestType, block)
 
-        /** Defines an OPTIONS stub matching typed request body [P]. */
+        /**
+         * Defines an OPTIONS stub that matches a typed request body of type [P].
+         *
+         * @param P The expected type of the request body.
+         * @param name Optional identifier for this stub.
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> options(
             name: String? = null,
             requestType: KClass<P>,
             block: RequestSpecificationBuilder<P>.() -> Unit,
         ): BuildingStep<P> = method(StubConfiguration(name), Options, requestType, block)
 
-        /** Defines an OPTIONS stub matching typed request body [P] with full [StubConfiguration]. */
+        /**
+         * Defines an OPTIONS stub that matches a typed request body of type [P] using a full [StubConfiguration].
+         *
+         * @param P The expected type of the request body.
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param requestType The [KClass] of the expected request body.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun <P : Any> options(
             configuration: StubConfiguration,
             requestType: KClass<P>,
@@ -365,87 +486,154 @@ public class MokksyServer
         // endregion
 
         /**
-         * Defines a stub for an HTTP GET request with a string body using the provided configuration block.
+         * Defines a GET stub with a [String] request body.
          *
-         * Returns a `BuildingStep` for further customization of the stubbed GET request.
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
          */
         public fun get(
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(StubConfiguration(), Get, String::class, block)
 
         /**
-         * Defines a stub for an HTTP GET request with the specified configuration and request specification builder.
+         * Defines a GET stub with a [String] request body and a full [StubConfiguration].
          *
-         * @param configuration The stub configuration for this GET request.
-         * @param block Lambda to configure the request specification builder.
-         * @return A [BuildingStep] for further customization of the stub.
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
          */
         public fun get(
             configuration: StubConfiguration,
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(configuration, Get, String::class, block)
 
-        /** Defines a POST stub with a string request body. */
+        /**
+         * Defines a POST stub with a [String] request body.
+         *
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun post(
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(StubConfiguration(), Post, String::class, block)
 
-        /** Defines a POST stub with a string request body and [StubConfiguration]. */
+        /**
+         * Defines a POST stub with a [String] request body and a full [StubConfiguration].
+         *
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun post(
             configuration: StubConfiguration,
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(configuration, Post, String::class, block)
 
-        /** Defines a DELETE stub with a string request body. */
+        /**
+         * Defines a DELETE stub with a [String] request body.
+         *
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun delete(
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(StubConfiguration(), Delete, String::class, block)
 
-        /** Defines a DELETE stub with a string request body and [StubConfiguration]. */
+        /**
+         * Defines a DELETE stub with a [String] request body and a full [StubConfiguration].
+         *
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun delete(
             configuration: StubConfiguration,
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(configuration, Delete, String::class, block)
 
-        /** Defines a PATCH stub with a string request body. */
+        /**
+         * Defines a PATCH stub with a [String] request body.
+         *
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun patch(
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(StubConfiguration(), Patch, String::class, block)
 
-        /** Defines a PATCH stub with a string request body and [StubConfiguration]. */
+        /**
+         * Defines a PATCH stub with a [String] request body and a full [StubConfiguration].
+         *
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun patch(
             configuration: StubConfiguration,
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(configuration, Patch, String::class, block)
 
-        /** Defines a PUT stub with a string request body. */
+        /**
+         * Defines a PUT stub with a [String] request body.
+         *
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun put(
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(StubConfiguration(), Put, String::class, block)
 
-        /** Defines a PUT stub with a string request body and [StubConfiguration]. */
+        /**
+         * Defines a PUT stub with a [String] request body and a full [StubConfiguration].
+         *
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun put(
             configuration: StubConfiguration,
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(configuration, Put, String::class, block)
 
-        /** Defines a HEAD stub with a string request body. */
+        /**
+         * Defines a HEAD stub with a [String] request body.
+         *
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun head(
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(StubConfiguration(), Head, String::class, block)
 
-        /** Defines a HEAD stub with a string request body and [StubConfiguration]. */
+        /**
+         * Defines a HEAD stub with a [String] request body and a full [StubConfiguration].
+         *
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun head(
             configuration: StubConfiguration,
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(configuration, Head, String::class, block)
 
-        /** Defines an OPTIONS stub with a string request body. */
+        /**
+         * Defines an OPTIONS stub with a [String] request body.
+         *
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun options(
             block: RequestSpecificationBuilder<String>.() -> Unit,
         ): BuildingStep<String> = method(StubConfiguration(), Options, String::class, block)
 
-        /** Defines an OPTIONS stub with a string request body and [StubConfiguration]. */
+        /**
+         * Defines an OPTIONS stub with a [String] request body and a full [StubConfiguration].
+         *
+         * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+         * @param block Lambda to configure the [RequestSpecificationBuilder].
+         * @return A [BuildingStep] for response configuration and stub registration.
+         */
         public fun options(
             configuration: StubConfiguration,
             block: RequestSpecificationBuilder<String>.() -> Unit,

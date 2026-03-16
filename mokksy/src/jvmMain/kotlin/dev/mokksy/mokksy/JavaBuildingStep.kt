@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy
 
+import io.ktor.http.HttpStatusCode
 import java.util.function.Consumer
 
 /**
@@ -91,5 +92,5 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * @param statusCode The HTTP status code to return (e.g. `204`, `404`).
      */
     public fun respondsWithStatus(statusCode: Int): Unit =
-        step.respondsWithStatus(io.ktor.http.HttpStatusCode.fromValue(statusCode))
+        step.respondsWithStatus(HttpStatusCode.fromValue(statusCode))
 }

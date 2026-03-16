@@ -11,9 +11,9 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.server.response.respondText
-import kotlinx.coroutines.flow.toList
 import io.ktor.server.routing.get
 import io.ktor.server.testing.testApplication
+import kotlinx.coroutines.flow.toList
 import kotlin.test.Test
 
 @OptIn(InternalMokksyApi::class)
@@ -117,6 +117,7 @@ class JavaBuildingStepTest {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
                     val definition = supplier.invoke(call) as ResponseDefinition<*, *>
+                    definition.body shouldBe null
                     call.response.status(definition.httpStatus)
                     call.respondText("")
                 }

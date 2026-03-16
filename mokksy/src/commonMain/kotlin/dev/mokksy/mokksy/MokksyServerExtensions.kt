@@ -4,16 +4,9 @@ package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import io.ktor.http.HttpMethod
-import io.ktor.http.HttpMethod.Companion.Delete
-import io.ktor.http.HttpMethod.Companion.Get
-import io.ktor.http.HttpMethod.Companion.Head
-import io.ktor.http.HttpMethod.Companion.Options
-import io.ktor.http.HttpMethod.Companion.Patch
-import io.ktor.http.HttpMethod.Companion.Post
-import io.ktor.http.HttpMethod.Companion.Put
 import kotlin.jvm.JvmSynthetic
 
-/*
+/**
  * Reified Kotlin-only overloads of [MokksyServer] stub-registration methods.
  *
  * Three-layer API design:
@@ -38,7 +31,15 @@ import kotlin.jvm.JvmSynthetic
 
 // region method
 
-/** Reified shortcut for [MokksyServer.method] with a [StubConfiguration]. */
+/**
+ * Reified shortcut for [MokksyServer.method] with a [StubConfiguration]. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+ * @param httpMethod The HTTP method to match.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.method(
     configuration: StubConfiguration,
@@ -46,7 +47,15 @@ public inline fun <reified P : Any> MokksyServer.method(
     noinline block: RequestSpecificationBuilder<P>.() -> Unit,
 ): BuildingStep<P> = method(configuration, httpMethod, P::class, block)
 
-/** Reified shortcut for [MokksyServer.method] with an optional stub name. */
+/**
+ * Reified shortcut for [MokksyServer.method] with an optional stub name. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param name Optional identifier for this stub.
+ * @param httpMethod The HTTP method to match.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.method(
     name: String? = null,
@@ -58,14 +67,28 @@ public inline fun <reified P : Any> MokksyServer.method(
 
 // region GET
 
-/** Reified shortcut for [MokksyServer.get] with an optional stub name. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.get] with an optional stub name. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param name Optional identifier for this stub.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.get(
     name: String? = null,
     noinline block: RequestSpecificationBuilder<P>.() -> Unit,
 ): BuildingStep<P> = get(name, P::class, block)
 
-/** Reified shortcut for [MokksyServer.get] with a [StubConfiguration]. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.get] with a [StubConfiguration]. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.get(
     configuration: StubConfiguration,
@@ -76,14 +99,28 @@ public inline fun <reified P : Any> MokksyServer.get(
 
 // region POST
 
-/** Reified shortcut for [MokksyServer.post] with an optional stub name. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.post] with an optional stub name. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param name Optional identifier for this stub.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.post(
     name: String? = null,
     noinline block: RequestSpecificationBuilder<P>.() -> Unit,
 ): BuildingStep<P> = post(name, P::class, block)
 
-/** Reified shortcut for [MokksyServer.post] with a [StubConfiguration]. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.post] with a [StubConfiguration]. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.post(
     configuration: StubConfiguration,
@@ -94,14 +131,28 @@ public inline fun <reified P : Any> MokksyServer.post(
 
 // region PUT
 
-/** Reified shortcut for [MokksyServer.put] with an optional stub name. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.put] with an optional stub name. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param name Optional identifier for this stub.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.put(
     name: String? = null,
     noinline block: RequestSpecificationBuilder<P>.() -> Unit,
 ): BuildingStep<P> = put(name, P::class, block)
 
-/** Reified shortcut for [MokksyServer.put] with a [StubConfiguration]. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.put] with a [StubConfiguration]. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.put(
     configuration: StubConfiguration,
@@ -112,14 +163,28 @@ public inline fun <reified P : Any> MokksyServer.put(
 
 // region DELETE
 
-/** Reified shortcut for [MokksyServer.delete] with an optional stub name. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.delete] with an optional stub name. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param name Optional identifier for this stub.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.delete(
     name: String? = null,
     noinline block: RequestSpecificationBuilder<P>.() -> Unit,
 ): BuildingStep<P> = delete(name, P::class, block)
 
-/** Reified shortcut for [MokksyServer.delete] with a [StubConfiguration]. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.delete] with a [StubConfiguration]. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.delete(
     configuration: StubConfiguration,
@@ -130,14 +195,28 @@ public inline fun <reified P : Any> MokksyServer.delete(
 
 // region PATCH
 
-/** Reified shortcut for [MokksyServer.patch] with an optional stub name. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.patch] with an optional stub name. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param name Optional identifier for this stub.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.patch(
     name: String? = null,
     noinline block: RequestSpecificationBuilder<P>.() -> Unit,
 ): BuildingStep<P> = patch(name, P::class, block)
 
-/** Reified shortcut for [MokksyServer.patch] with a [StubConfiguration]. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.patch] with a [StubConfiguration]. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.patch(
     configuration: StubConfiguration,
@@ -148,14 +227,28 @@ public inline fun <reified P : Any> MokksyServer.patch(
 
 // region HEAD
 
-/** Reified shortcut for [MokksyServer.head] with an optional stub name. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.head] with an optional stub name. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param name Optional identifier for this stub.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.head(
     name: String? = null,
     noinline block: RequestSpecificationBuilder<P>.() -> Unit,
 ): BuildingStep<P> = head(name, P::class, block)
 
-/** Reified shortcut for [MokksyServer.head] with a [StubConfiguration]. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.head] with a [StubConfiguration]. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.head(
     configuration: StubConfiguration,
@@ -166,14 +259,28 @@ public inline fun <reified P : Any> MokksyServer.head(
 
 // region OPTIONS
 
-/** Reified shortcut for [MokksyServer.options] with an optional stub name. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.options] with an optional stub name. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param name Optional identifier for this stub.
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.options(
     name: String? = null,
     noinline block: RequestSpecificationBuilder<P>.() -> Unit,
 ): BuildingStep<P> = options(name, P::class, block)
 
-/** Reified shortcut for [MokksyServer.options] with a [StubConfiguration]. Infers [P] from the call site. */
+/**
+ * Reified shortcut for [MokksyServer.options] with a [StubConfiguration]. Infers [P] from the call site.
+ *
+ * @param P The expected type of the request body.
+ * @param configuration The [StubConfiguration] controlling stub behaviour (name, priority, etc.).
+ * @param block Lambda to configure the [RequestSpecificationBuilder].
+ * @return A [BuildingStep] for response configuration and stub registration.
+ */
 @JvmSynthetic
 public inline fun <reified P : Any> MokksyServer.options(
     configuration: StubConfiguration,

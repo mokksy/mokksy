@@ -24,7 +24,7 @@ class StringsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = [0, 1, 2, 3, 4])
+    @ValueSource(ints = [-1, 0, 1, 2, 3, 4])
     fun `ellipsizeMiddle returns string unchanged when maxLength less than 5`(maxLength: Int) {
         "this is a long string".ellipsizeMiddle(maxLength) shouldBe "this is a long string"
     }
