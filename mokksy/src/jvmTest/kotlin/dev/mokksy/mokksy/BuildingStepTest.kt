@@ -29,7 +29,7 @@ internal class BuildingStepTest {
     fun before() {
         name = UUID.randomUUID().toString()
         request = RequestSpecification(requestType = Input::class)
-        expectedHttpStatus = HttpStatusCode.fromValue(IntRange(100, 500).random())
+        expectedHttpStatus = HttpStatusCode.Created
         registeredStubs.clear()
 
         subject =

@@ -13,59 +13,38 @@ import io.ktor.http.withCharset
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.util.UUID
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.BeforeTest
 
 @Suppress("UastIncorrectHttpHeaderInspection")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ShortcutMethodsIT : AbstractIT() {
-    private lateinit var name: String
-
     private lateinit var requestPayload: TestPerson
 
     @BeforeTest
     fun before() {
-        name = UUID.randomUUID().toString()
-
         requestPayload = TestPerson.random()
     }
 
-    @Test
-    suspend fun `Should respond to shortcut GET`() {
-        doTestCallMethod(HttpMethod.Get) { mokksy.get(it) }
-    }
-
-    @Test
-    suspend fun `Should respond to shortcut OPTIONS`() {
-        doTestCallMethod(HttpMethod.Options) { mokksy.options(it) }
-    }
-
-    @Test
-    suspend fun `Should respond to shortcut PUT`() {
-        doTestCallMethod(HttpMethod.Put) { mokksy.put(it) }
-    }
-
-    @Test
-    suspend fun `Should respond to shortcut PATCH`() {
-        doTestCallMethod(HttpMethod.Patch) { mokksy.patch(it) }
-    }
-
-    @Test
-    suspend fun `Should respond to shortcut DELETE`() {
-        doTestCallMethod(HttpMethod.Delete) { mokksy.delete(it) }
-    }
-
-    @Test
-    suspend fun `Should respond to shortcut HEAD`() {
-        doTestCallMethod(HttpMethod.Head) { mokksy.head(it) }
-    }
-
-    @Test
-    suspend fun `Should respond to shortcut POST`() {
-        doTestCallMethod(HttpMethod.Post) { mokksy.post(it) }
+    @ParameterizedTest
+    @ValueSource(strings = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"])
+    suspend fun `Should respond to shortcut method`(methodName: String) {
+        val method = HttpMethod.parse(methodName)
+        doTestCallMethod(method) { configurer ->
+            when (method) {
+                HttpMethod.Get -> mokksy.get(configurer)
+                HttpMethod.Post -> mokksy.post(configurer)
+                HttpMethod.Put -> mokksy.put(configurer)
+                HttpMethod.Patch -> mokksy.patch(configurer)
+                HttpMethod.Delete -> mokksy.delete(configurer)
+                HttpMethod.Head -> mokksy.head(configurer)
+                HttpMethod.Options -> mokksy.options(configurer)
+                else -> error("Unexpected method: $method")
+            }
+        }
     }
 
     private suspend fun doTestCallMethod(

@@ -121,6 +121,7 @@ public abstract interface annotation class dev/mokksy/mokksy/InternalMokksyApi :
 public final class dev/mokksy/mokksy/JavaBuildingStep {
 	public final fun respondsWith (Ljava/lang/Class;Ljava/util/function/Consumer;)V
 	public final fun respondsWith (Ljava/util/function/Consumer;)V
+	public final fun respondsWithStatus (I)V
 	public final fun respondsWithStream (Ljava/lang/Class;Ljava/util/function/Consumer;)V
 	public final fun respondsWithStream (Ljava/util/function/Consumer;)V
 }

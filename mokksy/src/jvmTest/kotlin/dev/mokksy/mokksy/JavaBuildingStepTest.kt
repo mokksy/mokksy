@@ -104,4 +104,28 @@ class JavaBuildingStepTest {
     }
 
     // endregion
+
+    // region respondsWithStatus
+
+    @Test
+    fun `respondsWithStatus(Int) registers a stub with the given status and no body`() {
+        sut.respondsWithStatus(204)
+        registeredStubs shouldHaveSize 1
+        val supplier = registeredStubs.single().responseDefinitionSupplier
+        testApplication {
+            routing {
+                get("/test") {
+                    @Suppress("UNCHECKED_CAST")
+                    val definition = supplier.invoke(call) as ResponseDefinition<*, *>
+                    call.response.status(definition.httpStatus)
+                    call.respondText("")
+                }
+            }
+            val response = client.get("/test")
+            response.status.value shouldBe 204
+            response.bodyAsText() shouldBe ""
+        }
+    }
+
+    // endregion
 }

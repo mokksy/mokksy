@@ -57,9 +57,8 @@ internal class MokksyStreamingIT : AbstractIT({ createKtorSSEClient(it) }) {
     }
 
     @AfterTest
-    @Suppress("DEPRECATION")
     fun afterEach() {
-        mokksy.checkForUnmatchedRequests()
-        mokksy.checkForUnmatchedStubs()
+        mokksy.verifyNoUnexpectedRequests()
+        mokksy.verifyNoUnmatchedStubs()
     }
 }

@@ -30,9 +30,10 @@ internal class BodyMatchingIT : AbstractIT() {
     @Test
     suspend fun `Should match body predicate`() {
         // given
+        val path = "/predicate-$seed"
         mokksy
             .post(name = "predicate", requestType = Input::class) {
-                path("/predicate")
+                path(path)
 
                 bodyMatchesPredicate {
                     it?.name == name
@@ -48,7 +49,7 @@ internal class BodyMatchingIT : AbstractIT() {
             }
         // when
         val result =
-            client.post("/predicate") {
+            client.post(path) {
                 contentType(ContentType.Application.Json)
                 setBody(Json.encodeToString(input))
             }
@@ -62,9 +63,10 @@ internal class BodyMatchingIT : AbstractIT() {
     @Test
     suspend fun `should check bodyContains`() {
         // given
+        val path = "/predicate-$seed"
         mokksy
             .post(name = "predicate", requestType = Input::class) {
-                path("/predicate")
+                path(path)
                 bodyContains(
                     Json.encodeToString(input),
                 )
@@ -75,7 +77,7 @@ internal class BodyMatchingIT : AbstractIT() {
             }
         // when
         val result =
-            client.post("/predicate") {
+            client.post(path) {
                 contentType(ContentType.Application.Json)
                 setBody(Json.encodeToString(input))
             }

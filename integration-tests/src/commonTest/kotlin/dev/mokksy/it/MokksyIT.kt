@@ -1,10 +1,12 @@
 package dev.mokksy.it
 
 import dev.mokksy.mokksy.Mokksy
+import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -40,8 +42,10 @@ class MokksyIT {
 
             val response = client.get(mokksy.baseUrl() + "/ping")
 
-            val content = response.bodyAsText()
-            content shouldBe "Pong"
-            print("""✅Response: "$content".""")
+            assertSoftly(response) {
+                status shouldBe HttpStatusCode.OK
+                bodyAsText() shouldBe "Pong"
+            }
+            print("""✅Response: "${response.bodyAsText()}".""")
         }
 }

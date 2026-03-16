@@ -170,6 +170,21 @@ class MokksyJavaIT {
 
     // endregion
 
+    // region respondsWithStatus
+
+    @Test
+    void respondsWithStatus_shouldReturnStatusCodeAndEmptyBody() throws IOException, InterruptedException {
+        mokksy.get(spec -> spec.path("/status-only"))
+            .respondsWithStatus(204);
+
+        var response = get("/status-only");
+
+        assertThat(response.statusCode()).isEqualTo(204);
+        assertThat(response.body()).isEmpty();
+    }
+
+    // endregion
+
     // region StubConfiguration
 
     @Test

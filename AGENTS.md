@@ -55,6 +55,18 @@ Read the project overview from README.md
   `HttpMethod.parse(methodName)`. Remove individual `@Test` duplicates once a `@ParameterizedTest` covers them.
 - Prioritize test readability
 - When asked to write tests in Java: use JUnit5, Mockito, AssertJ core
+- **`awaitStarted()` in multiplatform tests**: In `commonTest`, call `mokksy.awaitStarted()` at the
+  start of each test body even when `startSuspend()` was already called in `@BeforeTest`. On JS and
+  wasmJS targets, `@BeforeTest fun setup() = runTest { ... }` is scheduled but the test body may begin
+  before the server finishes binding its port. `awaitStarted()` is the explicit synchronization point.
+- **Path isolation in shared-server tests**: Tests that share a `MokksyServer` instance via
+  `@TestInstance(PER_CLASS)` (i.e. `AbstractIT` subclasses) must include the per-test `seed` in every stub
+  path to prevent stub accumulation between tests. Use `"/resource-$seed"` not `"/resource"`.
+- **No `Random` in assertions**: Do not use `Random`, `UUID`, or other non-deterministic values for data
+  that appears in assertions (e.g. status codes, response bodies). Failures become non-reproducible. Use
+  `seed` only for path suffixes; use fixed, named constants everywhere else.
+- **Keep tests up to date with API**: Always use the current (non-deprecated) API in tests. Replace
+  deprecated `checkForUnmatched*()` calls with `verifyNoUnexpected*()`/`verifyNoUnmatched*()` immediately.
 
 #### Mocking generic functions with MockK
 

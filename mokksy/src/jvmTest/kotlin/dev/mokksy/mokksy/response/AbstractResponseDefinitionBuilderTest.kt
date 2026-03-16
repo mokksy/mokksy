@@ -297,4 +297,64 @@ class AbstractResponseDefinitionBuilderTest {
         }
 
     // endregion
+
+    // region withResponseBody
+
+    @Test
+    fun `withResponseBody sets body when responseBody is null`() =
+        testApplication {
+            routing {
+                post("/test") {
+                    val definition = ResponseDefinitionBuilder<String, String>(
+                        request = CapturedRequest(call.request, String::class),
+                        formatter = formatter,
+                    ).build()
+                    definition.withResponseBody { "initial" }
+                    call.respondText(definition.responseBody ?: "null")
+                }
+            }
+
+            val response = client.post("/test") { setBody("") }
+            response.bodyAsText() shouldBe "initial"
+        }
+
+    @Test
+    fun `withResponseBody transforms existing responseBody`() =
+        testApplication {
+            routing {
+                post("/test") {
+                    val definition = ResponseDefinitionBuilder<String, String>(
+                        request = CapturedRequest(call.request, String::class),
+                        formatter = formatter,
+                    ).build()
+                    definition.responseBody = "hello"
+                    definition.withResponseBody { this?.uppercase() }
+                    call.respondText(definition.responseBody ?: "null")
+                }
+            }
+
+            val response = client.post("/test") { setBody("") }
+            response.bodyAsText() shouldBe "HELLO"
+        }
+
+    @Test
+    fun `withResponseBody can clear responseBody to null`() =
+        testApplication {
+            routing {
+                post("/test") {
+                    val definition = ResponseDefinitionBuilder<String, String>(
+                        request = CapturedRequest(call.request, String::class),
+                        formatter = formatter,
+                    ).build()
+                    definition.responseBody = "something"
+                    definition.withResponseBody { null }
+                    call.respondText(definition.responseBody ?: "null")
+                }
+            }
+
+            val response = client.post("/test") { setBody("") }
+            response.bodyAsText() shouldBe "null"
+        }
+
+    // endregion
 }

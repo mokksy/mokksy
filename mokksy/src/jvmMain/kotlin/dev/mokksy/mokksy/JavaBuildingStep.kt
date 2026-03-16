@@ -79,4 +79,17 @@ public class JavaBuildingStep<P : Any> internal constructor(
     public fun respondsWithStream(
         configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, String>>,
     ): Unit = respondsWithStream(String::class.java, configurer)
+
+    /**
+     * Associates this stub with a body-free response carrying only an HTTP status code.
+     *
+     * Example (Java):
+     * ```java
+     * mokksy.get(spec -> spec.path("/ping")).respondsWithStatus(204);
+     * ```
+     *
+     * @param statusCode The HTTP status code to return (e.g. `204`, `404`).
+     */
+    public fun respondsWithStatus(statusCode: Int): Unit =
+        step.respondsWithStatus(io.ktor.http.HttpStatusCode.fromValue(statusCode))
 }
