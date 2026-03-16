@@ -3,6 +3,7 @@
 package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.request.CapturedRequest
+import io.ktor.http.HttpStatusCode
 import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.response.ResponseDefinitionBuilder
 import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
@@ -111,6 +112,26 @@ public class BuildingStep<P : Any> internal constructor(
     ) {
         respondsWith(block)
     }
+
+    /**
+     * Associates the current [RequestSpecification] with a body-free response carrying
+     * only an HTTP status code.
+     *
+     * This is the idiomatic shortcut when no response body is needed:
+     * ```kotlin
+     * mokksy.get { path("/ping") } respondsWithStatus HttpStatusCode.NoContent
+     * mokksy.get { path("/gone") } respondsWithStatus HttpStatusCode.Gone
+     * ```
+     *
+     * When a body is needed, use [respondsWith] with a typed lambda:
+     * ```kotlin
+     * mokksy.get { path("/data") } respondsWith { body = MyResponse("ok") }
+     * ```
+     *
+     * @param status The HTTP status code to return.
+     */
+    public infix fun respondsWithStatus(status: HttpStatusCode): Unit =
+        respondsWith<Unit> { httpStatus = status }
 
     /**
      * Associates the current [RequestSpecification] with a streaming response definition.

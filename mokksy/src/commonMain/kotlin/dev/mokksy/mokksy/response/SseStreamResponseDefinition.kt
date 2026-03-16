@@ -13,6 +13,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.sse.SSEServerContent
 import io.ktor.sse.ServerSentEvent
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.cancellable
@@ -28,14 +29,14 @@ import kotlin.time.Duration
  * [chunkFlow] and configuring response metadata.
  *
  * @param P The payload type for the SSE events.
- * @param chunkFlow A Flow of ServerSentEvent representing the stream of SSE events. Defaults to `null`.
+ * @param chunkFlow A Flow of ServerSentEvent representing the stream of SSE events. Defaults to [emptyFlow].
  * @param chunkContentType The ContentType for the chunks in the SSE stream. Defaults to `null`.
  * @param delay An optional delay between chunks, specified as a Duration. Defaults to `Duration.ZERO`.
  * @param formatter An [HttpFormatter] responsible for formatting the HTTP response or payloads.
  * @author Konstantin Pavlov
  */
 public open class SseStreamResponseDefinition<P>(
-    override val chunkFlow: Flow<ServerSentEvent>? = null,
+    override val chunkFlow: Flow<ServerSentEvent> = emptyFlow(),
     chunkContentType: ContentType? = null,
     delay: Duration = Duration.ZERO,
     formatter: HttpFormatter,
@@ -49,10 +50,12 @@ public open class SseStreamResponseDefinition<P>(
         call: ApplicationCall,
         verbose: Boolean,
     ) {
-        val theFlow = chunkFlow ?: emptyFlow()
         val sseContent =
             SSEServerContent(call) {
-                theFlow
+                if (this@SseStreamResponseDefinition.delay.isPositive()) {
+                    delay(this@SseStreamResponseDefinition.delay)
+                }
+                chunkFlow
                     .cancellable()
                     .buffer(
                         capacity = SEND_BUFFER_CAPACITY,
@@ -63,6 +66,9 @@ public open class SseStreamResponseDefinition<P>(
                             call.application.log.debug("Sending $httpStatus: $it")
                         }
                         send(it)
+                        if (delayBetweenChunks.isPositive()) {
+                            delay(delayBetweenChunks)
+                        }
                     }
             }
         processSSE(call, sseContent)

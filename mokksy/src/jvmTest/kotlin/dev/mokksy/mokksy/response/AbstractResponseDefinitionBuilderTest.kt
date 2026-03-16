@@ -16,7 +16,6 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.post
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.seconds
 
 class AbstractResponseDefinitionBuilderTest {
     private val formatter = HttpFormatter()
@@ -36,98 +35,6 @@ class AbstractResponseDefinitionBuilderTest {
         )
         return result
     }
-
-    // region httpStatus(Int)
-
-    @Test
-    fun `httpStatus(Int) sets status code by integer value`() =
-        testApplication {
-            routing {
-                post("/test") {
-                    val builder =
-                        ResponseDefinitionBuilder<String, String>(
-                            request = CapturedRequest(call.request, String::class),
-                            formatter = formatter,
-                        )
-                    builder.httpStatus(201)
-
-                    val result =
-                        "${builder.httpStatusCode}|${builder.httpStatus.value}"
-                    call.respondText(result)
-                }
-            }
-
-            val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "201|201"
-        }
-
-    @Test
-    fun `httpStatus(Int) overrides previously set HttpStatusCode`() =
-        testApplication {
-            routing {
-                post("/test") {
-                    val builder =
-                        ResponseDefinitionBuilder<String, String>(
-                            request = CapturedRequest(call.request, String::class),
-                            formatter = formatter,
-                        )
-                    builder.httpStatus = HttpStatusCode.Accepted
-                    builder.httpStatus(404)
-
-                    call.respondText("${builder.httpStatusCode}")
-                }
-            }
-
-            val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "404"
-        }
-
-    // endregion
-
-    // region delayMillis
-
-    @Test
-    fun `delayMillis sets delay as milliseconds Duration`() =
-        testApplication {
-            routing {
-                post("/test") {
-                    val builder =
-                        ResponseDefinitionBuilder<String, String>(
-                            request = CapturedRequest(call.request, String::class),
-                            formatter = formatter,
-                        )
-                    builder.delayMillis(250)
-
-                    call.respondText("${builder.delay}")
-                }
-            }
-
-            val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "250ms"
-        }
-
-    @Test
-    fun `delayMillis of zero sets zero delay`() =
-        testApplication {
-            routing {
-                post("/test") {
-                    val builder =
-                        ResponseDefinitionBuilder<String, String>(
-                            request = CapturedRequest(call.request, String::class),
-                            formatter = formatter,
-                        )
-                    builder.delay = 5.seconds
-                    builder.delayMillis(0)
-
-                    call.respondText("${builder.delay}")
-                }
-            }
-
-            val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "0s"
-        }
-
-    // endregion
 
     // region addHeader
 
@@ -311,7 +218,7 @@ class AbstractResponseDefinitionBuilderTest {
                         )
                     val returned = builder.status(404)
 
-                    call.respondText("${returned === builder}|${builder.httpStatusCode}")
+                    call.respondText("${returned === builder}|${builder.httpStatus.value}")
                 }
             }
 
@@ -370,7 +277,7 @@ class AbstractResponseDefinitionBuilderTest {
     // region httpStatus setter
 
     @Test
-    fun `httpStatus setter updates both httpStatus and httpStatusCode`() =
+    fun `httpStatus setter updates httpStatus`() =
         testApplication {
             routing {
                 post("/test") {
@@ -381,12 +288,12 @@ class AbstractResponseDefinitionBuilderTest {
                         )
                     builder.httpStatus = HttpStatusCode.NotFound
 
-                    call.respondText("${builder.httpStatus.value}|${builder.httpStatusCode}")
+                    call.respondText("${builder.httpStatus.value}")
                 }
             }
 
             val response = client.post("/test") { setBody("") }
-            response.bodyAsText() shouldBe "404|404"
+            response.bodyAsText() shouldBe "404"
         }
 
     // endregion

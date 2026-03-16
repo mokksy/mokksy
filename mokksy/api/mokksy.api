@@ -107,6 +107,7 @@ public final class dev/mokksy/mokksy/BuildingStep {
 	public final fun respondsWith (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function2;)V
 	public final fun respondsWithSseStream (Lkotlin/jvm/functions/Function2;)V
 	public final fun respondsWithSseStream (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function2;)V
+	public final fun respondsWithStatus (Lio/ktor/http/HttpStatusCode;)V
 	public final fun respondsWithStream (Lkotlin/jvm/functions/Function2;)V
 	public final fun respondsWithStream (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function2;)V
 }
@@ -416,12 +417,9 @@ public abstract class dev/mokksy/mokksy/response/AbstractResponseDefinitionBuild
 	public final fun addHeader (Ljava/lang/String;Ljava/lang/String;)V
 	protected abstract fun build ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
 	protected final fun buildCombinedHeaders ()Lkotlin/jvm/functions/Function1;
-	public final fun delayMillis (J)V
 	public final fun getDelay-UwyO8pc ()J
 	public final fun getHeaders ()Ldev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder$HeadersConfigurer;
 	public final fun getHttpStatus ()Lio/ktor/http/HttpStatusCode;
-	public final fun getHttpStatusCode ()I
-	public final fun httpStatus (I)V
 	public final fun setDelay-LRDsOJo (J)V
 	public final fun setHttpStatus (Lio/ktor/http/HttpStatusCode;)V
 }
@@ -457,10 +455,9 @@ public class dev/mokksy/mokksy/response/SseStreamResponseDefinition : dev/mokksy
 }
 
 public class dev/mokksy/mokksy/response/StreamResponseDefinition : dev/mokksy/mokksy/response/AbstractResponseDefinition {
-	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;Ljava/util/List;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;ILio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChunkFlow ()Lkotlinx/coroutines/flow/Flow;
-	public final fun getChunks ()Ljava/util/List;
 	public final fun getDelayBetweenChunks-UwyO8pc ()J
 }
 
@@ -474,7 +471,6 @@ public class dev/mokksy/mokksy/response/StreamingResponseDefinitionBuilder : dev
 	public final fun getDelayBetweenChunks-UwyO8pc ()J
 	public final fun getFlow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getRequest ()Ldev/mokksy/mokksy/request/CapturedRequest;
-	public final fun setChunks (Ljava/util/List;)V
 	public final fun setContentType (Lio/ktor/http/ContentType;)V
 	public final fun setDelayBetweenChunks-LRDsOJo (J)V
 	public final fun setFlow (Lkotlinx/coroutines/flow/Flow;)V

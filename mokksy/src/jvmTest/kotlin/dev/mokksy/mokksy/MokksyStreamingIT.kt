@@ -1,6 +1,5 @@
 package dev.mokksy.mokksy
 
-import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -19,7 +18,7 @@ internal class MokksyStreamingIT : AbstractIT({ createKtorSSEClient(it) }) {
     @Test
     suspend fun `Should respond to stream of Strings (flow)`() {
         mokksy.get {
-            path = beEqual("/streaming-flow-$seed")
+            path("/streaming-flow-$seed")
         } respondsWithStream {
             flow =
                 flow {

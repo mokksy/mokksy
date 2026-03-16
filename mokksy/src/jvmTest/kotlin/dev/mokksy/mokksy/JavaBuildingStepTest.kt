@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.server.response.respondText
+import kotlinx.coroutines.flow.toList
 import io.ktor.server.routing.get
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
@@ -78,7 +79,7 @@ class JavaBuildingStepTest {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
                     val definition = supplier.invoke(call) as StreamResponseDefinition<*, *>
-                    call.respondText("${definition.chunks?.size}")
+                    call.respondText("${definition.chunkFlow.toList().size}")
                 }
             }
             client.get("/test").bodyAsText() shouldBe "1"
@@ -95,7 +96,7 @@ class JavaBuildingStepTest {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
                     val definition = supplier.invoke(call) as StreamResponseDefinition<*, *>
-                    call.respondText("${definition.chunks?.size}")
+                    call.respondText("${definition.chunkFlow.toList().size}")
                 }
             }
             client.get("/test").bodyAsText() shouldBe "1"
