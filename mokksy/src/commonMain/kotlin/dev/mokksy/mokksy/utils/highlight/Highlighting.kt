@@ -1,7 +1,11 @@
+@file:OptIn(InternalMokksyApi::class)
+
 package dev.mokksy.mokksy.utils.highlight
 
+import dev.mokksy.mokksy.InternalMokksyApi
 import io.ktor.http.ContentType
 
+@InternalMokksyApi
 public object Highlighting {
     /**
      * Applies ANSI color highlighting to an HTTP body string based on its content type.
@@ -37,6 +41,7 @@ public object Highlighting {
         }
 }
 
+@InternalMokksyApi
 public enum class ColorTheme { LIGHT_ON_DARK, DARK_ON_LIGHT }
 
 /**
@@ -46,6 +51,7 @@ public enum class ColorTheme { LIGHT_ON_DARK, DARK_ON_LIGHT }
  */
 internal expect fun isColorSupported(): Boolean
 
+@InternalMokksyApi
 public enum class AnsiColor(
     public val code: String,
 ) {

@@ -1,5 +1,8 @@
+@file:OptIn(InternalMokksyApi::class)
+
 package dev.mokksy.mokksy.utils.highlight
 
+import dev.mokksy.mokksy.InternalMokksyApi
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain

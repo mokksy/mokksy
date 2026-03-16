@@ -1,5 +1,8 @@
+@file:OptIn(InternalMokksyApi::class)
+
 package dev.mokksy.mokksy.response
 
+import dev.mokksy.mokksy.InternalMokksyApi
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders

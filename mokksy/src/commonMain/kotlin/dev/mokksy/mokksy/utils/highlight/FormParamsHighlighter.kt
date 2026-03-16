@@ -1,4 +1,8 @@
+@file:OptIn(InternalMokksyApi::class)
+
 package dev.mokksy.mokksy.utils.highlight
+
+import dev.mokksy.mokksy.InternalMokksyApi
 
 internal object FormParamsHighlighter {
     /**

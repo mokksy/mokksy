@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy.request
 
+import dev.mokksy.mokksy.InternalMokksyApi
 import io.ktor.http.HttpMethod
 import io.ktor.server.routing.RoutingRequest
 import kotlin.jvm.JvmStatic
@@ -22,12 +23,13 @@ public class RecordedRequest internal constructor(
     public val headers: Map<String, List<String>>,
     public val matched: Boolean,
 ) {
-    public companion object {
+    internal companion object {
         /**
          * Creates a [RecordedRequest] snapshot from a [io.ktor.server.routing.RoutingRequest].
          */
+        @InternalMokksyApi
         @JvmStatic
-        public fun from(
+        internal fun from(
             request: RoutingRequest,
             matched: Boolean,
         ): RecordedRequest =
