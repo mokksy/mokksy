@@ -144,7 +144,7 @@ public class MokksyServer
          * If true, the method will wait; if false, it will return immediately
          * after initiating the server start process.
          */
-        public suspend fun startSuspend(wait: Boolean = false) {
+        public suspend fun startSuspend(wait: Boolean = false): MokksyServer {
             server.startSuspend(wait = wait)
             val port =
                 server.engine
@@ -154,6 +154,7 @@ public class MokksyServer
             resolvedPort.compareAndSet(-1, port)
             started.complete(Unit)
             registerShutdownHook(this)
+            return this
         }
 
         /**
@@ -170,8 +171,9 @@ public class MokksyServer
          * }
          * ```
          */
-        public suspend fun awaitStarted() {
+        public suspend fun awaitStarted(): MokksyServer {
             started.await()
+            return this
         }
 
         /**

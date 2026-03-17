@@ -434,11 +434,12 @@ public class Mokksy(
      * Prefer this over [start] in coroutine-based test setups (e.g. `@BeforeAll suspend fun`).
      */
     @JvmSynthetic
-    public suspend fun startSuspend(wait: Boolean = false): Unit = delegate.startSuspend(wait)
+    public suspend fun startSuspend(wait: Boolean = false): MokksyServer =
+        delegate.startSuspend(wait)
 
     /** Suspends until the server is fully started and ready to accept connections. */
     @JvmSynthetic
-    public suspend fun awaitStarted(): Unit = delegate.awaitStarted()
+    public suspend fun awaitStarted(): MokksyServer = delegate.awaitStarted()
 
     /**
      * Stops the server asynchronously.

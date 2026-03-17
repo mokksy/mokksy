@@ -6,7 +6,7 @@ import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import io.ktor.http.HttpMethod
 import kotlin.jvm.JvmSynthetic
 
-/**
+/*
  * Reified Kotlin-only overloads of [MokksyServer] stub-registration methods.
  *
  * Three-layer API design:
