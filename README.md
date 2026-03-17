@@ -38,6 +38,7 @@
 * [Responding with predefined responses](#responding-with-predefined-responses)
   * [GET request](#get-request)
   * [POST request](#post-request)
+  * [Typed request body](#typed-request-body)
   * [Status-only responses](#status-only-responses)
 * [Server-Side Events (SSE) response](#server-side-events-sse-response)
 * [Request Specification Matchers](#request-specification-matchers)
@@ -131,6 +132,9 @@ val client = HttpClient {
   install(DefaultRequest) {
     url(mokksy.baseUrl())
   }
+  install(ContentNegotiation) {
+    json()
+  }
 }
 ```
 
@@ -144,17 +148,21 @@ GET request example:
 
 <!--- CLEAR -->
 <!--- INCLUDE
-import dev.mokksy.Mokksy
+import dev.mokksy.mokksy.Mokksy
+import dev.mokksy.mokksy.MokksyServer
+import dev.mokksy.mokksy.post
+import dev.mokksy.mokksy.start
 import io.kotest.matchers.equals.beEqual
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.contentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.withCharsetIfNeeded
@@ -163,16 +171,23 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import org.junit.jupiter.api.Test
 
 class ReadmeTest {
-    val mokksy = Mokksy.create().start()
-    val client = HttpClient {
-        install(DefaultRequest) {
-            url(mokksy.baseUrl())
+    val mokksy: MokksyServer = Mokksy(verbose = true).start()
+    val client: HttpClient =
+        HttpClient {
+            install(DefaultRequest) {
+                url(mokksy.baseUrl())
+            }
+            install(ContentNegotiation) {
+                json()
+            }
         }
-    }
 -->
 <!--- INCLUDE
   @Test
@@ -270,15 +285,71 @@ val result =
   }
 
 // then
-result.status shouldBe HttpStatusCode.Created
-result.bodyAsText() shouldBe expectedResponse
-result.headers["Location"] shouldBe "/things/$id"
-result.headers["Foo"] shouldBe "bar"
+result shouldNotBeNull {
+  status shouldBe HttpStatusCode.Created
+  bodyAsText() shouldBe expectedResponse
+  headers["Location"] shouldBe "/things/$id"
+  headers["Foo"] shouldBe "bar"
+}
 ```
 
 <!--- INCLUDE
   }
 -->
+
+### Typed request body
+
+When the request body type is known at compile time, use the **reified** overloads to let the compiler infer the type — no explicit `::class` argument required:
+
+```kotlin
+@Serializable
+@JvmRecord
+data class CreateItemRequest(val name: String)
+
+@Serializable
+@JvmRecord
+data class CreateItemResponse(val message: String)
+```
+
+<!--- INCLUDE
+  @Test
+  suspend fun testReified() {
+-->
+
+```kotlin
+val itemName = "Widget"
+
+mokksy.post<CreateItemRequest>(name = "create-item") {
+  path("/items")
+  bodyMatchesPredicate("name should match") { it?.name == itemName }
+} respondsWith {
+  body = CreateItemResponse("Hello, $itemName!")
+  httpStatus = HttpStatusCode.Created
+  headers += "Foo" to "bar"
+}
+
+val result =
+  client.post("/items") {
+    contentType(ContentType.Application.Json)
+    setBody(CreateItemRequest(itemName))
+  }
+
+result shouldNotBeNull {
+  status shouldBe HttpStatusCode.Created
+  headers["Foo"] shouldBe "bar"
+  body<CreateItemResponse>().message shouldBe "Hello, $itemName!"
+}
+```
+
+<!--- INCLUDE
+  }
+-->
+
+Reified overloads are provided for all HTTP verbs (`get`, `post`, `put`, `delete`, `patch`, `head`,
+`options`) and the generic `method` function. Two overloads exist per verb: one taking an optional
+stub name (`name: String? = null`) and one taking a [`StubConfiguration`](#stub-specificity).
+
+The deserialized request body is accessible inside the response lambda as `request.body()`.
 
 ### Status-only responses
 

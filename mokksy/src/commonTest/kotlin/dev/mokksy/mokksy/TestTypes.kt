@@ -1,8 +1,10 @@
 package dev.mokksy.mokksy
 
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmRecord
 
 @Serializable
+@JvmRecord
 data class Input(
     val name: String,
 )

@@ -16,7 +16,10 @@ complexity:
       - '**/iosTest/**'
       - '**/*.kts'
   LongMethod:
-    excludes: *testFolders
+    ignoreAnnotated:
+      - org.junit.jupiter.params.ParameterizedTest
+      - org.junit.jupiter.api.Test
+      - kotlin.test.Test
   LongParameterList:
     ignoreDataClasses: true
 

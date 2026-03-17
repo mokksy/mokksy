@@ -16,7 +16,7 @@ internal open class AbstractIT(
 ) {
     val mokksy: MokksyServer =
         MokksyServer(verbose = true) {
-            log.info("Running Mokksy server with $engine engine")
+            log.info("Running Mokksy server with ${engine::class.simpleName}")
         }
 
     protected lateinit var client: HttpClient

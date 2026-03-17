@@ -1,10 +1,12 @@
 .PHONY: build
 build:
-	./gradlew checkLegacyAbi build koverVerify koverXmlReport koverHtmlReport koverLog
+	@echo "🏗️ Building..."
+	@./gradlew checkLegacyAbi build koverVerify koverXmlReport koverHtmlReport koverLog
 
 .PHONY: apidump
 apidump:
-	./gradlew updateLegacyAbi
+	@echo "🪏 API dump..."
+	@./gradlew updateLegacyAbi
 
 
 .PHONY: clean
@@ -19,7 +21,8 @@ test:
 
 .PHONY: apidocs
 apidocs:
-	./gradlew dokkaGenerate
+	@echo "📑 Running Dokka.."
+	@./gradlew dokkaGenerate
 
 .PHONY: knit
 knit:
@@ -38,7 +41,7 @@ format:
 	@./gradlew rewriteRun detekt --auto-correct
 
 .PHONY: all
-all: clean format lint knit build apidocs
+all: format lint build
 
 .PHONY: pom
 pom:
