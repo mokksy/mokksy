@@ -142,7 +142,7 @@ internal class TypesafeMethodsIT : AbstractIT() {
 
         mokksy
             .post(name = "post", Input::class) {
-                path = beEqual("/things")
+                path = beEqual("/things-$seed")
                 bodyContains("$id")
             }.respondsWith(String::class) {
                 contentType = ContentType.Application.Json
@@ -157,7 +157,7 @@ internal class TypesafeMethodsIT : AbstractIT() {
 
         // when
         val result =
-            client.post("/things") {
+            client.post("/things-$seed") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     // language=json
@@ -184,7 +184,7 @@ internal class TypesafeMethodsIT : AbstractIT() {
 
         mokksy
             .post<Input>(name = "post example") {
-                path("/things")
+                path("/things-$seed")
                 bodyMatchesPredicate("body should match Input") {
                     it?.name == name
                 }
@@ -196,7 +196,7 @@ internal class TypesafeMethodsIT : AbstractIT() {
 
         // when
         val response =
-            client.post("/things") {
+            client.post("/things-$seed") {
                 contentType(ContentType.Application.Json)
                 setBody(Input(name))
             }

@@ -21,11 +21,13 @@ internal fun createKtorSSEClient(port: Int): HttpClient {
 
     return HttpClient {
         install(ContentNegotiation) {
-            Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
-            }
+            json(
+                Json {
+                    prettyPrint = true
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                },
+            )
         }
         install(SSE) {
             showRetryEvents()
