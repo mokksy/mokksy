@@ -16,34 +16,18 @@ import io.ktor.http.HttpMethod.Companion.Options
 import io.ktor.http.HttpMethod.Companion.Patch
 import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
-import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig
 import io.ktor.server.routing.RoutingContext
 import io.ktor.util.logging.Logger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.serialization.json.Json
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
-/**
- * Configures JSON content negotiation with `Json.ignoreUnknownKeys` enabled.
- * Used as the default [ServerConfiguration.contentNegotiationConfigurer].
- *
- * @param config The [ContentNegotiationConfig] to configure.
- */
-internal fun configureContentNegotiation(config: ContentNegotiationConfig) {
-    config.json(
-        Json {
-            ignoreUnknownKeys = true
-        },
-    )
-}
 
 /**
  * An embedded mock HTTP server for testing. Registers stubs for any HTTP method and verifies
@@ -105,7 +89,7 @@ public class MokksyServer
         private val resolvedPort: AtomicInt = AtomicInt(-1)
 
         private lateinit var logger: Logger
-        internal val httpFormatter: HttpFormatter = HttpFormatter()
+        internal val httpFormatter: HttpFormatter = HttpFormatter(json = configuration.json)
 
         private val stubRegistry: StubRegistry = StubRegistry()
         private val requestJournal: RequestJournal =

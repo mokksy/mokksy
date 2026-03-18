@@ -277,17 +277,20 @@ public final class dev/mokksy/mokksy/ServerConfiguration {
 	public fun <init> (Z)V
 	public fun <init> (ZLjava/lang/String;)V
 	public fun <init> (ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;)V
-	public fun <init> (ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlin/jvm/functions/Function1;)V
-	public synthetic fun <init> (ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlinx/serialization/json/Json;)V
+	public fun <init> (ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;)V
+	public synthetic fun <init> (ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Z
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ldev/mokksy/mokksy/JournalMode;
-	public final fun component4 ()Lkotlin/jvm/functions/Function1;
-	public final fun copy (ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/ServerConfiguration;
-	public static synthetic fun copy$default (Ldev/mokksy/mokksy/ServerConfiguration;ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/ServerConfiguration;
+	public final fun component4 ()Lkotlinx/serialization/json/Json;
+	public final fun component5 ()Lkotlin/jvm/functions/Function1;
+	public final fun copy (ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/ServerConfiguration;
+	public static synthetic fun copy$default (Ldev/mokksy/mokksy/ServerConfiguration;ZLjava/lang/String;Ldev/mokksy/mokksy/JournalMode;Lkotlinx/serialization/json/Json;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/ServerConfiguration;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getContentNegotiationConfigurer ()Lkotlin/jvm/functions/Function1;
 	public final fun getJournalMode ()Ldev/mokksy/mokksy/JournalMode;
+	public final fun getJson ()Lkotlinx/serialization/json/Json;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getVerbose ()Z
 	public fun hashCode ()I
@@ -542,15 +545,17 @@ public final class dev/mokksy/mokksy/utils/highlight/ColorTheme : java/lang/Enum
 public final class dev/mokksy/mokksy/utils/highlight/Highlighting {
 	public static final field INSTANCE Ldev/mokksy/mokksy/utils/highlight/Highlighting;
 	public final fun highlightBody (Ljava/lang/String;Lio/ktor/http/ContentType;Z)Ljava/lang/String;
+	public final fun highlightBody (Lkotlinx/serialization/json/JsonElement;Z)Ljava/lang/String;
 	public static synthetic fun highlightBody$default (Ldev/mokksy/mokksy/utils/highlight/Highlighting;Ljava/lang/String;Lio/ktor/http/ContentType;ZILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun highlightBody$default (Ldev/mokksy/mokksy/utils/highlight/Highlighting;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Ljava/lang/String;
 }
 
 public class dev/mokksy/mokksy/utils/logger/HttpFormatter {
 	public fun <init> ()V
-	public fun <init> (Ldev/mokksy/mokksy/utils/highlight/ColorTheme;Z)V
-	public synthetic fun <init> (Ldev/mokksy/mokksy/utils/highlight/ColorTheme;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun formatBody (Ljava/lang/String;Lio/ktor/http/ContentType;)Ljava/lang/String;
-	public static synthetic fun formatBody$default (Ldev/mokksy/mokksy/utils/logger/HttpFormatter;Ljava/lang/String;Lio/ktor/http/ContentType;ILjava/lang/Object;)Ljava/lang/String;
+	public fun <init> (Ldev/mokksy/mokksy/utils/highlight/ColorTheme;ZLkotlinx/serialization/json/Json;)V
+	public synthetic fun <init> (Ldev/mokksy/mokksy/utils/highlight/ColorTheme;ZLkotlinx/serialization/json/Json;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun formatBody (Ljava/lang/Object;Lio/ktor/http/ContentType;)Ljava/lang/String;
+	public static synthetic fun formatBody$default (Ldev/mokksy/mokksy/utils/logger/HttpFormatter;Ljava/lang/Object;Lio/ktor/http/ContentType;ILjava/lang/Object;)Ljava/lang/String;
 	protected final fun getColors ()Ldev/mokksy/mokksy/utils/logger/HttpFormatter$ColorScheme;
 	protected final fun getUseColor ()Z
 	public final fun header (Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;

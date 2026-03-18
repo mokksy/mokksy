@@ -1,6 +1,8 @@
 package dev.mokksy.mokksy
 
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig
+import kotlinx.serialization.json.Json
 import kotlin.jvm.JvmOverloads
 
 /**
@@ -28,8 +30,12 @@ public enum class JournalMode {
  * @property journalMode Controls which requests are recorded in the
  *                       [dev.mokksy.mokksy.request.RequestJournal].
  *                       Defaults to [JournalMode.LEAN] (only unmatched requests).
+ * @property json The [Json] instance used for both content negotiation and response body logging.
+ *               Defaults to `Json { ignoreUnknownKeys = true }`. Provide a custom instance to
+ *               share serializers modules (e.g. for polymorphic types) between deserialization
+ *               and the verbose debug formatter.
  * @property contentNegotiationConfigurer Configures the Ktor [ContentNegotiationConfig] installed on the server.
- *                                        Defaults to JSON with [Json.ignoreUnknownKeys] enabled.
+ *                                        Defaults to installing [json] as the JSON codec.
  */
 public data class ServerConfiguration
     @JvmOverloads
@@ -37,7 +43,8 @@ public data class ServerConfiguration
         val verbose: Boolean = false,
         val name: String? = "Mokksy",
         val journalMode: JournalMode = JournalMode.LEAN,
+        val json: Json = Json { ignoreUnknownKeys = true },
         val contentNegotiationConfigurer: (
             ContentNegotiationConfig,
-        ) -> Unit = ::configureContentNegotiation,
+        ) -> Unit = { it.json(json) },
     )

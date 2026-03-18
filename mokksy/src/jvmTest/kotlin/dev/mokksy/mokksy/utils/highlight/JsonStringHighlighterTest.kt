@@ -12,55 +12,61 @@ private const val GREEN = "\u001B[32m"
 private const val BLUE = "\u001B[34m"
 private const val YELLOW = "\u001B[33m"
 
+// Each colorized fragment is preceded by a reset to clear any preceding attributes.
+private val RM = "$RESET$MAGENTA"
+private val RG = "$RESET$GREEN"
+private val RB = "$RESET$BLUE"
+private val RY = "$RESET$YELLOW"
+
 @Suppress("MaxLineLength")
-class JsonHighlighterTest {
+class JsonStringHighlighterTest {
     @Test
     fun `Should highlight simple Json`() {
         // language=json
         val input = """{"foo": "bar", "ba\"z": 1}"""
-        val result = JsonHighlighter.highlight(input, useColor = true)
+        val result = JsonStringHighlighter.highlight(input, useColor = true)
         // language=text
         result shouldBe
-            "{$MAGENTA\"foo\"$RESET: $GREEN\"bar\"$RESET, $MAGENTA\"ba\\\"z\"$RESET: ${BLUE}1$RESET}"
+            "{${RM}\"foo\"$RESET: ${RG}\"bar\"$RESET, ${RM}\"ba\\\"z\"$RESET: ${RB}1$RESET}"
     }
 
     @Test
     fun `Should highlight Json with newline`() {
         // language=json
         val input = "{\n  \"foo\"\n  : \n  \"bar\"\n}"
-        val result = JsonHighlighter.highlight(input, useColor = true)
+        val result = JsonStringHighlighter.highlight(input, useColor = true)
         // language=text
         result shouldBe
-            "{\n  $MAGENTA\"foo\"$RESET\n  : \n  $GREEN\"bar\"$RESET\n}"
+            "{\n  ${RM}\"foo\"$RESET\n  : \n  ${RG}\"bar\"$RESET\n}"
     }
 
     @Test
     fun `Should highlight nested Json`() {
         // language=json
         val input = """{"foo": {"bar": "ba\"z"}}"""
-        val result = JsonHighlighter.highlight(input, useColor = true)
+        val result = JsonStringHighlighter.highlight(input, useColor = true)
         // language=text
-        result shouldBe "{$MAGENTA\"foo\"$RESET: {$MAGENTA\"bar\"$RESET: $GREEN\"ba\\\"z\"$RESET}}"
+        result shouldBe "{${RM}\"foo\"$RESET: {${RM}\"bar\"$RESET: ${RG}\"ba\\\"z\"$RESET}}"
     }
 
     @Test
     fun `Should highlight Json with array`() {
         // language=json
         val input = """{"foo": ["bar", "ba\"z"]}"""
-        val result = JsonHighlighter.highlight(input, useColor = true)
+        val result = JsonStringHighlighter.highlight(input, useColor = true)
         // language=text
         result shouldBe
-            "{$MAGENTA\"foo\"$RESET: [$GREEN\"bar\"$RESET, $GREEN\"ba\\\"z\"$RESET]}"
+            "{${RM}\"foo\"$RESET: [${RG}\"bar\"$RESET, ${RG}\"ba\\\"z\"$RESET]}"
     }
 
     @Test
     fun `Should highlight Json with array of objects`() {
         // language=json
         val input = """{"foo": [{"bar": "baz"}]}"""
-        val result = JsonHighlighter.highlight(input, useColor = true)
+        val result = JsonStringHighlighter.highlight(input, useColor = true)
         // language=text
         result shouldBe
-            "{$MAGENTA\"foo\"$RESET: [{$MAGENTA\"bar\"$RESET: $GREEN\"baz\"$RESET}]}"
+            "{${RM}\"foo\"$RESET: [{${RM}\"bar\"$RESET: ${RG}\"baz\"$RESET}]}"
     }
 
     @ParameterizedTest
@@ -82,9 +88,9 @@ class JsonHighlighterTest {
     fun `Should highlight different number types`(numberValue: String) {
         // language=json
         val input = """{"number": $numberValue}"""
-        val result = JsonHighlighter.highlight(input, useColor = true)
+        val result = JsonStringHighlighter.highlight(input, useColor = true)
         // language=text
-        result shouldBe "{$MAGENTA\"number\"$RESET: $BLUE$numberValue$RESET}"
+        result shouldBe "{${RM}\"number\"$RESET: $RB$numberValue$RESET}"
     }
 
     @ParameterizedTest
@@ -92,18 +98,18 @@ class JsonHighlighterTest {
     fun `Should highlight boolean value`(value: Boolean) {
         // language=json
         val input = """{"flag": $value}"""
-        val result = JsonHighlighter.highlight(input, useColor = true)
+        val result = JsonStringHighlighter.highlight(input, useColor = true)
         // language=text
-        result shouldBe "{$MAGENTA\"flag\"$RESET: ${YELLOW}$value$RESET}"
+        result shouldBe "{${RM}\"flag\"$RESET: ${RY}$value$RESET}"
     }
 
     @Test
     fun `Should highlight null value`() {
         // language=json
         val input = """{"value": null}"""
-        val result = JsonHighlighter.highlight(input, useColor = true)
+        val result = JsonStringHighlighter.highlight(input, useColor = true)
         // language=text
-        result shouldBe "{$MAGENTA\"value\"$RESET: ${YELLOW}null$RESET}"
+        result shouldBe "{${RM}\"value\"$RESET: ${RY}null$RESET}"
     }
 
     @ParameterizedTest
@@ -118,8 +124,8 @@ class JsonHighlighterTest {
     ) {
         // language=json
         val input = """{"values": [$value1, $value1]}"""
-        val result = JsonHighlighter.highlight(json = input, useColor = true)
+        val result = JsonStringHighlighter.highlight(json = input, useColor = true)
         // language=text
-        result shouldBe "{$MAGENTA\"values\"$RESET: [$YELLOW$value2$RESET, $YELLOW$value2$RESET]}"
+        result shouldBe "{${RM}\"values\"$RESET: [${RY}$value2$RESET, ${RY}$value2$RESET]}"
     }
 }

@@ -64,7 +64,7 @@ public open class ResponseDefinition<P, T>(
                         headers = call.response.headers,
                         contentType = this.contentType,
                         status = httpStatus,
-                        body = effectiveBody?.toString(),
+                        body = effectiveBody,
                     )
                 }---\n",
             )

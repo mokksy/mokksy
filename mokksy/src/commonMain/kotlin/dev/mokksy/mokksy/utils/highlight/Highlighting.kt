@@ -4,6 +4,7 @@ package dev.mokksy.mokksy.utils.highlight
 
 import dev.mokksy.mokksy.InternalMokksyApi
 import io.ktor.http.ContentType
+import kotlinx.serialization.json.JsonElement
 
 @InternalMokksyApi
 public object Highlighting {
@@ -22,7 +23,7 @@ public object Highlighting {
         when {
             contentType.match(ContentType.Application.Json) ||
                 contentType.contentSubtype.endsWith("+json", ignoreCase = true) -> {
-                JsonHighlighter.highlight(
+                JsonStringHighlighter.highlight(
                     json = body,
                     useColor = useColor,
                 )
@@ -39,6 +40,21 @@ public object Highlighting {
                 body.colorize(AnsiColor.LIGHT_GRAY, enabled = useColor)
             }
         }
+
+    /**
+     * Applies ANSI color highlighting to a [JsonElement] for terminal output.
+     *
+     * Produces pretty-printed output by walking the element tree directly —
+     * no intermediate JSON string, no heuristic scanning.
+     *
+     * @param body The [JsonElement] to highlight.
+     * @param useColor Whether to apply ANSI color codes.
+     * @return The highlighted JSON string.
+     */
+    public fun highlightBody(
+        body: JsonElement,
+        useColor: Boolean = isColorSupported(),
+    ): String = JsonElementHighlighter.highlight(body, useColor)
 }
 
 @InternalMokksyApi
@@ -81,4 +97,4 @@ public enum class AnsiColor(
 internal fun String.colorize(
     color: AnsiColor,
     enabled: Boolean = isColorSupported(),
-): String = if (enabled) "${color.code}$this${AnsiColor.RESET.code}" else this
+): String = if (enabled) "${AnsiColor.RESET.code}${color.code}$this${AnsiColor.RESET.code}" else this
