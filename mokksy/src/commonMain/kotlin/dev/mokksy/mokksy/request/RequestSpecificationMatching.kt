@@ -116,11 +116,11 @@ private suspend fun <P : Any> RequestSpecification<P>.receiveBodyOrNull(
         throw e
     } catch (e: ContentTransformationException) {
         request.call.application.log
-            .debug("Unable to read typed body for scoring: ${e.message}", e)
+            .trace("Unable to read typed body for scoring: ${e.message}")
         null
     } catch (e: BadRequestException) {
         request.call.application.log
-            .debug("Bad request body during scoring: ${e.message}", e)
+            .trace("Bad request body during scoring: ${e.message}")
         null
     }
 

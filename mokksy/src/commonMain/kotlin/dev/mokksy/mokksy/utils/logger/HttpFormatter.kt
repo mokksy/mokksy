@@ -17,6 +17,13 @@ import io.ktor.server.request.receiveText
 import io.ktor.server.request.uri
 import io.ktor.server.response.ResponseHeaders
 import io.ktor.server.routing.RoutingRequest
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.serializerOrNull
+
+private val DefaultJson = Json { ignoreUnknownKeys = true }
 
 /**
  * A utility class to format HTTP requests and responses into colorized strings for better readability.
@@ -26,11 +33,15 @@ import io.ktor.server.routing.RoutingRequest
  *
  * @param theme The color theme to be applied for formatting.
  * @param useColor Boolean flag indicating whether ANSI color codes should be used in the formatting output.
+ * @param json The [Json] instance used to encode typed response bodies for display.
+ *             Should match the instance used by Ktor's ContentNegotiation so that custom
+ *             [kotlinx.serialization.modules.SerializersModule] registrations are reflected in logs.
  */
 @InternalMokksyApi
 public open class HttpFormatter(
     theme: ColorTheme = ColorTheme.LIGHT_ON_DARK,
     protected val useColor: Boolean = isColorSupported(),
+    private val json: Json = DefaultJson,
 ) {
     /**
      * Returns the HTTP method name colorized according to its type and the current color settings.
@@ -116,23 +127,51 @@ public open class HttpFormatter(
         }"
 
     /**
-     * Formats the HTTP request body, applying syntax highlighting if color output is enabled.
+     * Formats the HTTP body for display, applying syntax highlighting if color output is enabled.
      *
-     * Returns an empty string if the body is null or blank.
-     * If color output is enabled, the body is highlighted according to its content type;
-     * otherwise, the raw body string is returned.
+     * Accepts any body type:
+     * - [String] bodies are highlighted using the string-based JSON/form highlighter.
+     * - [JsonElement] bodies are highlighted via the element tree highlighter (no intermediate string).
+     * - Typed objects with a JSON [contentType] are encoded to [JsonElement] first if a serializer
+     *   is available, then highlighted via the element tree highlighter.
+     * - All other cases fall back to [Any.toString].
      *
-     * @param body The HTTP request body to format.
+     * Returns an empty string if [body] is null or blank.
+     *
+     * @param body The HTTP body to format.
      * @param contentType The content type of the body, used for syntax highlighting.
      * @return The formatted body string, or an empty string if the body is null or blank.
      */
+    @Suppress("ReturnCount")
     public fun formatBody(
-        body: String?,
+        body: Any?,
         contentType: ContentType = ContentType.Any,
-    ): String {
-        if (body.isNullOrBlank()) return ""
-        return if (useColor) highlightBody(body, contentType) else body
-    }
+    ): String =
+        when (body) {
+            null -> {
+                ""
+            }
+
+            is String if body.isBlank() -> {
+                ""
+            }
+
+            is String -> {
+                if (useColor) highlightBody(body, contentType) else body
+            }
+
+            is JsonElement -> {
+                highlightBody(body, useColor)
+            }
+
+            else -> {
+                val isJson =
+                    contentType.match(ContentType.Application.Json) ||
+                        contentType.contentSubtype.endsWith("+json", ignoreCase = true)
+                val jsonElement = if (isJson) tryEncodeToJsonElement(body) else null
+                jsonElement?.let { highlightBody(it, useColor) } ?: body.toString()
+            }
+        }
 
     /**
      * Formats an HTTP request into a colorized, multi-line string representation.
@@ -171,7 +210,7 @@ public open class HttpFormatter(
         httpVersion: String,
         status: HttpStatusCode,
         headers: ResponseHeaders,
-        body: String?,
+        body: Any?,
         contentType: ContentType,
     ): String =
         buildString {
@@ -187,6 +226,14 @@ public open class HttpFormatter(
         if (chunk.isNullOrBlank()) return ""
         return if (useColor) highlightBody(chunk, contentType) else chunk
     }
+
+    @OptIn(InternalSerializationApi::class)
+    @Suppress("UNCHECKED_CAST")
+    private fun tryEncodeToJsonElement(body: Any): JsonElement? =
+        runCatching {
+            val serializer = body::class.serializerOrNull() ?: return null
+            json.encodeToJsonElement(serializer as KSerializer<Any>, body)
+        }.getOrNull()
 
     @InternalMokksyApi
     public data class ColorScheme(

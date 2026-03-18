@@ -12,7 +12,7 @@ import kotlin.jvm.JvmStatic
  * Suppressing TooManyFunctions as splitting would fragment the logic unnecessarily.
  */
 @Suppress("TooManyFunctions")
-internal object JsonHighlighter {
+internal object JsonStringHighlighter {
     private const val INITIAL_BUFFER_PADDING = 200
     private const val TRUE_NULL_LENGTH = 4
     private const val FALSE_LENGTH = 5
@@ -68,6 +68,7 @@ internal object JsonHighlighter {
         ) {
             if (buffer.isNotEmpty()) {
                 if (color != null) {
+                    result.append(AnsiColor.RESET.code)
                     result.append(color.code)
                     result.append(buffer)
                     result.append(AnsiColor.RESET.code)

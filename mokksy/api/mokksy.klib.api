@@ -213,12 +213,14 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
 }
 
 final class dev.mokksy.mokksy/ServerConfiguration { // dev.mokksy.mokksy/ServerConfiguration|null[0]
-    constructor <init>(kotlin/Boolean = ..., kotlin/String? = ..., dev.mokksy.mokksy/JournalMode = ..., kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> = ...) // dev.mokksy.mokksy/ServerConfiguration.<init>|<init>(kotlin.Boolean;kotlin.String?;dev.mokksy.mokksy.JournalMode;kotlin.Function1<io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig,kotlin.Unit>){}[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin/String? = ..., dev.mokksy.mokksy/JournalMode = ..., kotlinx.serialization.json/Json = ..., kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> = ...) // dev.mokksy.mokksy/ServerConfiguration.<init>|<init>(kotlin.Boolean;kotlin.String?;dev.mokksy.mokksy.JournalMode;kotlinx.serialization.json.Json;kotlin.Function1<io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig,kotlin.Unit>){}[0]
 
     final val contentNegotiationConfigurer // dev.mokksy.mokksy/ServerConfiguration.contentNegotiationConfigurer|{}contentNegotiationConfigurer[0]
         final fun <get-contentNegotiationConfigurer>(): kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> // dev.mokksy.mokksy/ServerConfiguration.contentNegotiationConfigurer.<get-contentNegotiationConfigurer>|<get-contentNegotiationConfigurer>(){}[0]
     final val journalMode // dev.mokksy.mokksy/ServerConfiguration.journalMode|{}journalMode[0]
         final fun <get-journalMode>(): dev.mokksy.mokksy/JournalMode // dev.mokksy.mokksy/ServerConfiguration.journalMode.<get-journalMode>|<get-journalMode>(){}[0]
+    final val json // dev.mokksy.mokksy/ServerConfiguration.json|{}json[0]
+        final fun <get-json>(): kotlinx.serialization.json/Json // dev.mokksy.mokksy/ServerConfiguration.json.<get-json>|<get-json>(){}[0]
     final val name // dev.mokksy.mokksy/ServerConfiguration.name|{}name[0]
         final fun <get-name>(): kotlin/String? // dev.mokksy.mokksy/ServerConfiguration.name.<get-name>|<get-name>(){}[0]
     final val verbose // dev.mokksy.mokksy/ServerConfiguration.verbose|{}verbose[0]
@@ -227,8 +229,9 @@ final class dev.mokksy.mokksy/ServerConfiguration { // dev.mokksy.mokksy/ServerC
     final fun component1(): kotlin/Boolean // dev.mokksy.mokksy/ServerConfiguration.component1|component1(){}[0]
     final fun component2(): kotlin/String? // dev.mokksy.mokksy/ServerConfiguration.component2|component2(){}[0]
     final fun component3(): dev.mokksy.mokksy/JournalMode // dev.mokksy.mokksy/ServerConfiguration.component3|component3(){}[0]
-    final fun component4(): kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> // dev.mokksy.mokksy/ServerConfiguration.component4|component4(){}[0]
-    final fun copy(kotlin/Boolean = ..., kotlin/String? = ..., dev.mokksy.mokksy/JournalMode = ..., kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> = ...): dev.mokksy.mokksy/ServerConfiguration // dev.mokksy.mokksy/ServerConfiguration.copy|copy(kotlin.Boolean;kotlin.String?;dev.mokksy.mokksy.JournalMode;kotlin.Function1<io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig,kotlin.Unit>){}[0]
+    final fun component4(): kotlinx.serialization.json/Json // dev.mokksy.mokksy/ServerConfiguration.component4|component4(){}[0]
+    final fun component5(): kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> // dev.mokksy.mokksy/ServerConfiguration.component5|component5(){}[0]
+    final fun copy(kotlin/Boolean = ..., kotlin/String? = ..., dev.mokksy.mokksy/JournalMode = ..., kotlinx.serialization.json/Json = ..., kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> = ...): dev.mokksy.mokksy/ServerConfiguration // dev.mokksy.mokksy/ServerConfiguration.copy|copy(kotlin.Boolean;kotlin.String?;dev.mokksy.mokksy.JournalMode;kotlinx.serialization.json.Json;kotlin.Function1<io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig,kotlin.Unit>){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy/ServerConfiguration.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // dev.mokksy.mokksy/ServerConfiguration.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // dev.mokksy.mokksy/ServerConfiguration.toString|toString(){}[0]
@@ -371,14 +374,14 @@ open class <#A: kotlin/Any?> dev.mokksy.mokksy.response/SseStreamResponseDefinit
 }
 
 open class dev.mokksy.mokksy.utils.logger/HttpFormatter { // dev.mokksy.mokksy.utils.logger/HttpFormatter|null[0]
-    constructor <init>(dev.mokksy.mokksy.utils.highlight/ColorTheme = ..., kotlin/Boolean = ...) // dev.mokksy.mokksy.utils.logger/HttpFormatter.<init>|<init>(dev.mokksy.mokksy.utils.highlight.ColorTheme;kotlin.Boolean){}[0]
+    constructor <init>(dev.mokksy.mokksy.utils.highlight/ColorTheme = ..., kotlin/Boolean = ..., kotlinx.serialization.json/Json = ...) // dev.mokksy.mokksy.utils.logger/HttpFormatter.<init>|<init>(dev.mokksy.mokksy.utils.highlight.ColorTheme;kotlin.Boolean;kotlinx.serialization.json.Json){}[0]
 
     final val colors // dev.mokksy.mokksy.utils.logger/HttpFormatter.colors|{}colors[0]
         final fun <get-colors>(): dev.mokksy.mokksy.utils.logger/HttpFormatter.ColorScheme // dev.mokksy.mokksy.utils.logger/HttpFormatter.colors.<get-colors>|<get-colors>(){}[0]
     final val useColor // dev.mokksy.mokksy.utils.logger/HttpFormatter.useColor|{}useColor[0]
         final fun <get-useColor>(): kotlin/Boolean // dev.mokksy.mokksy.utils.logger/HttpFormatter.useColor.<get-useColor>|<get-useColor>(){}[0]
 
-    final fun formatBody(kotlin/String?, io.ktor.http/ContentType = ...): kotlin/String // dev.mokksy.mokksy.utils.logger/HttpFormatter.formatBody|formatBody(kotlin.String?;io.ktor.http.ContentType){}[0]
+    final fun formatBody(kotlin/Any?, io.ktor.http/ContentType = ...): kotlin/String // dev.mokksy.mokksy.utils.logger/HttpFormatter.formatBody|formatBody(kotlin.Any?;io.ktor.http.ContentType){}[0]
     final fun header(kotlin/String, kotlin.collections/List<kotlin/String>): kotlin/String // dev.mokksy.mokksy.utils.logger/HttpFormatter.header|header(kotlin.String;kotlin.collections.List<kotlin.String>){}[0]
     final fun requestLine(io.ktor.http/HttpMethod, kotlin/String): kotlin/String // dev.mokksy.mokksy.utils.logger/HttpFormatter.requestLine|requestLine(io.ktor.http.HttpMethod;kotlin.String){}[0]
     final fun responseLine(kotlin/String, io.ktor.http/HttpStatusCode): kotlin/String // dev.mokksy.mokksy.utils.logger/HttpFormatter.responseLine|responseLine(kotlin.String;io.ktor.http.HttpStatusCode){}[0]
@@ -408,6 +411,7 @@ open class dev.mokksy.mokksy.utils.logger/HttpFormatter { // dev.mokksy.mokksy.u
 
 final object dev.mokksy.mokksy.utils.highlight/Highlighting { // dev.mokksy.mokksy.utils.highlight/Highlighting|null[0]
     final fun highlightBody(kotlin/String, io.ktor.http/ContentType, kotlin/Boolean = ...): kotlin/String // dev.mokksy.mokksy.utils.highlight/Highlighting.highlightBody|highlightBody(kotlin.String;io.ktor.http.ContentType;kotlin.Boolean){}[0]
+    final fun highlightBody(kotlinx.serialization.json/JsonElement, kotlin/Boolean = ...): kotlin/String // dev.mokksy.mokksy.utils.highlight/Highlighting.highlightBody|highlightBody(kotlinx.serialization.json.JsonElement;kotlin.Boolean){}[0]
 }
 
 final const val dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY // dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY|{}DEFAULT_STUB_PRIORITY[0]
