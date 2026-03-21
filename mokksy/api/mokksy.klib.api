@@ -72,6 +72,39 @@ abstract interface dev.mokksy.mokksy/MokksyHandler { // dev.mokksy.mokksy/Mokksy
     abstract suspend fun handle(io.ktor.server.routing/RoutingContext) // dev.mokksy.mokksy/MokksyHandler.handle|handle(io.ktor.server.routing.RoutingContext){}[0]
 }
 
+sealed interface dev.mokksy.mokksy.jsonrpc/RequestId { // dev.mokksy.mokksy.jsonrpc/RequestId|null[0]
+    final class NumericId : dev.mokksy.mokksy.jsonrpc/RequestId { // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId|null[0]
+        constructor <init>(kotlin/Long) // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId.<init>|<init>(kotlin.Long){}[0]
+
+        final val value // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId.value|{}value[0]
+            final fun <get-value>(): kotlin/Long // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId.value.<get-value>|<get-value>(){}[0]
+
+        final fun component1(): kotlin/Long // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId.component1|component1(){}[0]
+        final fun copy(kotlin/Long = ...): dev.mokksy.mokksy.jsonrpc/RequestId.NumericId // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId.copy|copy(kotlin.Long){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // dev.mokksy.mokksy.jsonrpc/RequestId.NumericId.toString|toString(){}[0]
+    }
+
+    final class StringId : dev.mokksy.mokksy.jsonrpc/RequestId { // dev.mokksy.mokksy.jsonrpc/RequestId.StringId|null[0]
+        constructor <init>(kotlin/String) // dev.mokksy.mokksy.jsonrpc/RequestId.StringId.<init>|<init>(kotlin.String){}[0]
+
+        final val value // dev.mokksy.mokksy.jsonrpc/RequestId.StringId.value|{}value[0]
+            final fun <get-value>(): kotlin/String // dev.mokksy.mokksy.jsonrpc/RequestId.StringId.value.<get-value>|<get-value>(){}[0]
+
+        final fun component1(): kotlin/String // dev.mokksy.mokksy.jsonrpc/RequestId.StringId.component1|component1(){}[0]
+        final fun copy(kotlin/String = ...): dev.mokksy.mokksy.jsonrpc/RequestId.StringId // dev.mokksy.mokksy.jsonrpc/RequestId.StringId.copy|copy(kotlin.String){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy.jsonrpc/RequestId.StringId.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/RequestId.StringId.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // dev.mokksy.mokksy.jsonrpc/RequestId.StringId.toString|toString(){}[0]
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // dev.mokksy.mokksy.jsonrpc/RequestId.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/RequestId> // dev.mokksy.mokksy.jsonrpc/RequestId.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // dev.mokksy.mokksy.jsonrpc/RequestId.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
 abstract class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder { // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder|null[0]
     constructor <init>(kotlin.time/Duration = ...) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.<init>|<init>(kotlin.time.Duration){}[0]
 
@@ -131,6 +164,196 @@ final class <#A: kotlin/Any> dev.mokksy.mokksy/BuildingStep { // dev.mokksy.mokk
     final fun <#A1: kotlin/Any> respondsWithStream(kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>) // dev.mokksy.mokksy/BuildingStep.respondsWithStream|respondsWithStream(kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun <#A1: kotlin/Any> respondsWithStream(kotlin.reflect/KClass<#A1>, kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>) // dev.mokksy.mokksy/BuildingStep.respondsWithStream|respondsWithStream(kotlin.reflect.KClass<0:0>;kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun respondsWithStatus(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy/BuildingStep.respondsWithStatus|respondsWithStatus(io.ktor.http.HttpStatusCode){}[0]
+}
+
+final class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder { // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder|null[0]
+    constructor <init>() // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.<init>|<init>(){}[0]
+
+    final var error // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.error|{}error[0]
+        final fun <get-error>(): dev.mokksy.mokksy.jsonrpc/JSONRPCError<#B>? // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.error.<get-error>|<get-error>(){}[0]
+        final fun <set-error>(dev.mokksy.mokksy.jsonrpc/JSONRPCError<#B>?) // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.error.<set-error>|<set-error>(dev.mokksy.mokksy.jsonrpc.JSONRPCError<1:1>?){}[0]
+    final var id // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.id|{}id[0]
+        final fun <get-id>(): dev.mokksy.mokksy.jsonrpc/RequestId? // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.id.<get-id>|<get-id>(){}[0]
+        final fun <set-id>(dev.mokksy.mokksy.jsonrpc/RequestId?) // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.id.<set-id>|<set-id>(dev.mokksy.mokksy.jsonrpc.RequestId?){}[0]
+    final var result // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.result|{}result[0]
+        final fun <get-result>(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.result.<get-result>|<get-result>(){}[0]
+        final fun <set-result>(#A?) // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.result.<set-result>|<set-result>(1:0?){}[0]
+
+    final fun build(): dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<#A, #B> // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.build|build(){}[0]
+    final inline fun error(kotlin/Function1<dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder<#B>, kotlin/Unit>) // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder.error|error(kotlin.Function1<dev.mokksy.mokksy.jsonrpc.JSONRPCErrorBuilder<1:1>,kotlin.Unit>){}[0]
+}
+
+final class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCResponseSerializer : kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<#A, #B>> { // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseSerializer|null[0]
+    constructor <init>(kotlinx.serialization/KSerializer<#A>, kotlinx.serialization/KSerializer<#B>) // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>;kotlinx.serialization.KSerializer<1:1>){}[0]
+
+    final val descriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<#A, #B> // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<#A, #B>) // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;dev.mokksy.mokksy.jsonrpc.JSONRPCResponse<1:0,1:1>){}[0]
+}
+
+final class <#A: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder { // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder|null[0]
+    constructor <init>() // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.<init>|<init>(){}[0]
+
+    final var code // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.code|{}code[0]
+        final fun <get-code>(): kotlin/Int? // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.code.<get-code>|<get-code>(){}[0]
+        final fun <set-code>(kotlin/Int?) // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.code.<set-code>|<set-code>(kotlin.Int?){}[0]
+    final var data // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.data|{}data[0]
+        final fun <get-data>(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.data.<get-data>|<get-data>(){}[0]
+        final fun <set-data>(#A?) // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.data.<set-data>|<set-data>(1:0?){}[0]
+    final var message // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.message|{}message[0]
+        final fun <get-message>(): kotlin/String? // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.message.<get-message>|<get-message>(){}[0]
+        final fun <set-message>(kotlin/String?) // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.message.<set-message>|<set-message>(kotlin.String?){}[0]
+
+    final fun build(): dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A> // dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder.build|build(){}[0]
+}
+
+final class <#A: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer : kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCMessage<#A>> { // dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer|null[0]
+    constructor <init>(kotlinx.serialization/KSerializer<#A>) // dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+    final val descriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): dev.mokksy.mokksy.jsonrpc/JSONRPCMessage<#A> // dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, dev.mokksy.mokksy.jsonrpc/JSONRPCMessage<#A>) // dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;dev.mokksy.mokksy.jsonrpc.JSONRPCMessage<1:0>){}[0]
+}
+
+final class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCError { // dev.mokksy.mokksy.jsonrpc/JSONRPCError|null[0]
+    constructor <init>(kotlin/Int, kotlin/String, #A? = ...) // dev.mokksy.mokksy.jsonrpc/JSONRPCError.<init>|<init>(kotlin.Int;kotlin.String;1:0?){}[0]
+
+    final val code // dev.mokksy.mokksy.jsonrpc/JSONRPCError.code|{}code[0]
+        final fun <get-code>(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCError.code.<get-code>|<get-code>(){}[0]
+    final val data // dev.mokksy.mokksy.jsonrpc/JSONRPCError.data|{}data[0]
+        final fun <get-data>(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCError.data.<get-data>|<get-data>(){}[0]
+    final val message // dev.mokksy.mokksy.jsonrpc/JSONRPCError.message|{}message[0]
+        final fun <get-message>(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCError.message.<get-message>|<get-message>(){}[0]
+
+    final fun component1(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCError.component1|component1(){}[0]
+    final fun component2(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCError.component2|component2(){}[0]
+    final fun component3(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCError.component3|component3(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/String = ..., #A? = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.copy|copy(kotlin.Int;kotlin.String;1:0?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy.jsonrpc/JSONRPCError.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCError.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCError.toString|toString(){}[0]
+
+    final class <#A1: kotlin/Any?> $serializer : kotlinx.serialization.internal/GeneratedSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A1>> { // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer|null[0]
+        constructor <init>(kotlinx.serialization/KSerializer<#A1>) // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+        final val descriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+        final val typeSerial0 // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer.typeSerial0|{}typeSerial0[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A1> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A1>) // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;dev.mokksy.mokksy.jsonrpc.JSONRPCError<1:0>){}[0]
+        final fun typeParametersSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.$serializer.typeParametersSerializers|typeParametersSerializers(){}[0]
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion|null[0]
+        final val $cachedDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.$cachedDescriptor|{}$cachedDescriptor[0]
+            final fun <get-$cachedDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.$cachedDescriptor.<get-$cachedDescriptor>|<get-$cachedDescriptor>(){}[0]
+
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A2>> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun internalError(kotlin/String = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCError<kotlin/Nothing> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.internalError|internalError(kotlin.String){}[0]
+        final fun invalidParams(kotlin/String = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCError<kotlin/Nothing> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.invalidParams|invalidParams(kotlin.String){}[0]
+        final fun invalidRequest(kotlin/String = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCError<kotlin/Nothing> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.invalidRequest|invalidRequest(kotlin.String){}[0]
+        final fun methodNotFound(kotlin/String? = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCError<kotlin/Nothing> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.methodNotFound|methodNotFound(kotlin.String?){}[0]
+        final fun parseError(kotlin/String = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCError<kotlin/Nothing> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.parseError|parseError(kotlin.String){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // dev.mokksy.mokksy.jsonrpc/JSONRPCError.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+
+    final object ErrorCodes { // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes|null[0]
+        final const val INTERNAL_ERROR // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.INTERNAL_ERROR|{}INTERNAL_ERROR[0]
+            final fun <get-INTERNAL_ERROR>(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.INTERNAL_ERROR.<get-INTERNAL_ERROR>|<get-INTERNAL_ERROR>(){}[0]
+        final const val INVALID_PARAMS // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.INVALID_PARAMS|{}INVALID_PARAMS[0]
+            final fun <get-INVALID_PARAMS>(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.INVALID_PARAMS.<get-INVALID_PARAMS>|<get-INVALID_PARAMS>(){}[0]
+        final const val INVALID_REQUEST // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.INVALID_REQUEST|{}INVALID_REQUEST[0]
+            final fun <get-INVALID_REQUEST>(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.INVALID_REQUEST.<get-INVALID_REQUEST>|<get-INVALID_REQUEST>(){}[0]
+        final const val METHOD_NOT_FOUND // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.METHOD_NOT_FOUND|{}METHOD_NOT_FOUND[0]
+            final fun <get-METHOD_NOT_FOUND>(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.METHOD_NOT_FOUND.<get-METHOD_NOT_FOUND>|<get-METHOD_NOT_FOUND>(){}[0]
+        final const val PARSE_ERROR // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.PARSE_ERROR|{}PARSE_ERROR[0]
+            final fun <get-PARSE_ERROR>(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.PARSE_ERROR.<get-PARSE_ERROR>|<get-PARSE_ERROR>(){}[0]
+
+        final fun isServerError(kotlin/Int): kotlin/Boolean // dev.mokksy.mokksy.jsonrpc/JSONRPCError.ErrorCodes.isServerError|isServerError(kotlin.Int){}[0]
+    }
+}
+
+final class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCNotification : dev.mokksy.mokksy.jsonrpc/JSONRPCMessage<#A> { // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification|null[0]
+    constructor <init>(kotlin/String, #A? = ...) // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.<init>|<init>(kotlin.String;1:0?){}[0]
+
+    final val method // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.method|{}method[0]
+        final fun <get-method>(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.method.<get-method>|<get-method>(){}[0]
+    final val params // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.params|{}params[0]
+        final fun <get-params>(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.params.<get-params>|<get-params>(){}[0]
+
+    final fun component1(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.component1|component1(){}[0]
+    final fun component2(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.component2|component2(){}[0]
+    final fun copy(kotlin/String = ..., #A? = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCNotification<#A> // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.copy|copy(kotlin.String;1:0?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.toString|toString(){}[0]
+
+    final class <#A1: kotlin/Any?> $serializer : kotlinx.serialization.internal/GeneratedSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCNotification<#A1>> { // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer|null[0]
+        constructor <init>(kotlinx.serialization/KSerializer<#A1>) // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+        final val descriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+        final val typeSerial0 // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer.typeSerial0|{}typeSerial0[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): dev.mokksy.mokksy.jsonrpc/JSONRPCNotification<#A1> // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, dev.mokksy.mokksy.jsonrpc/JSONRPCNotification<#A1>) // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;dev.mokksy.mokksy.jsonrpc.JSONRPCNotification<1:0>){}[0]
+        final fun typeParametersSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.$serializer.typeParametersSerializers|typeParametersSerializers(){}[0]
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.Companion|null[0]
+        final val $cachedDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.Companion.$cachedDescriptor|{}$cachedDescriptor[0]
+            final fun <get-$cachedDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.Companion.$cachedDescriptor.<get-$cachedDescriptor>|<get-$cachedDescriptor>(){}[0]
+
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCNotification<#A2>> // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // dev.mokksy.mokksy.jsonrpc/JSONRPCNotification.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+final class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCRequest : dev.mokksy.mokksy.jsonrpc/JSONRPCMessage<#A> { // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest|null[0]
+    constructor <init>(dev.mokksy.mokksy.jsonrpc/RequestId?, kotlin/String, #A? = ...) // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.<init>|<init>(dev.mokksy.mokksy.jsonrpc.RequestId?;kotlin.String;1:0?){}[0]
+
+    final val id // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.id|{}id[0]
+        final fun <get-id>(): dev.mokksy.mokksy.jsonrpc/RequestId? // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.id.<get-id>|<get-id>(){}[0]
+    final val method // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.method|{}method[0]
+        final fun <get-method>(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.method.<get-method>|<get-method>(){}[0]
+    final val params // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.params|{}params[0]
+        final fun <get-params>(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.params.<get-params>|<get-params>(){}[0]
+
+    final fun component1(): dev.mokksy.mokksy.jsonrpc/RequestId? // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.component1|component1(){}[0]
+    final fun component2(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.component2|component2(){}[0]
+    final fun component3(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.component3|component3(){}[0]
+    final fun copy(dev.mokksy.mokksy.jsonrpc/RequestId? = ..., kotlin/String = ..., #A? = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCRequest<#A> // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.copy|copy(dev.mokksy.mokksy.jsonrpc.RequestId?;kotlin.String;1:0?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.toString|toString(){}[0]
+
+    final class <#A1: kotlin/Any?> $serializer : kotlinx.serialization.internal/GeneratedSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCRequest<#A1>> { // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer|null[0]
+        constructor <init>(kotlinx.serialization/KSerializer<#A1>) // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+        final val descriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+        final val typeSerial0 // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer.typeSerial0|{}typeSerial0[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): dev.mokksy.mokksy.jsonrpc/JSONRPCRequest<#A1> // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, dev.mokksy.mokksy.jsonrpc/JSONRPCRequest<#A1>) // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;dev.mokksy.mokksy.jsonrpc.JSONRPCRequest<1:0>){}[0]
+        final fun typeParametersSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.$serializer.typeParametersSerializers|typeParametersSerializers(){}[0]
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.Companion|null[0]
+        final val $cachedDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.Companion.$cachedDescriptor|{}$cachedDescriptor[0]
+            final fun <get-$cachedDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.Companion.$cachedDescriptor.<get-$cachedDescriptor>|<get-$cachedDescriptor>(){}[0]
+
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCRequest<#A2>> // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // dev.mokksy.mokksy.jsonrpc/JSONRPCRequest.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
 }
 
 final class dev.mokksy.mokksy.request/RecordedRequest { // dev.mokksy.mokksy.request/RecordedRequest|null[0]
@@ -409,6 +632,80 @@ open class dev.mokksy.mokksy.utils.logger/HttpFormatter { // dev.mokksy.mokksy.u
     }
 }
 
+sealed class <#A: out kotlin/Any?, #B: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCResponse { // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse|null[0]
+    abstract val id // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.id|{}id[0]
+        abstract fun <get-id>(): dev.mokksy.mokksy.jsonrpc/RequestId? // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.id.<get-id>|<get-id>(){}[0]
+    final val jsonrpc // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.jsonrpc|{}jsonrpc[0]
+        final fun <get-jsonrpc>(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.jsonrpc.<get-jsonrpc>|<get-jsonrpc>(){}[0]
+
+    final class <#A1: out kotlin/Any?> Error : dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<kotlin/Nothing, #A1> { // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error|null[0]
+        constructor <init>(dev.mokksy.mokksy.jsonrpc/RequestId?, dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A1>) // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.<init>|<init>(dev.mokksy.mokksy.jsonrpc.RequestId?;dev.mokksy.mokksy.jsonrpc.JSONRPCError<1:0>){}[0]
+
+        final val error // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.error|{}error[0]
+            final fun <get-error>(): dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A1> // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.error.<get-error>|<get-error>(){}[0]
+        final val id // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.id|{}id[0]
+            final fun <get-id>(): dev.mokksy.mokksy.jsonrpc/RequestId? // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.id.<get-id>|<get-id>(){}[0]
+
+        final fun component1(): dev.mokksy.mokksy.jsonrpc/RequestId? // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.component1|component1(){}[0]
+        final fun component2(): dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A1> // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.component2|component2(){}[0]
+        final fun copy(dev.mokksy.mokksy.jsonrpc/RequestId? = ..., dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A1> = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error<#A1> // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.copy|copy(dev.mokksy.mokksy.jsonrpc.RequestId?;dev.mokksy.mokksy.jsonrpc.JSONRPCError<1:0>){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Error.toString|toString(){}[0]
+    }
+
+    final class <#A1: out kotlin/Any?> Success : dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<#A1, kotlin/Nothing> { // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success|null[0]
+        constructor <init>(dev.mokksy.mokksy.jsonrpc/RequestId, #A1) // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.<init>|<init>(dev.mokksy.mokksy.jsonrpc.RequestId;1:0){}[0]
+
+        final val id // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.id|{}id[0]
+            final fun <get-id>(): dev.mokksy.mokksy.jsonrpc/RequestId // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.id.<get-id>|<get-id>(){}[0]
+        final val result // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.result|{}result[0]
+            final fun <get-result>(): #A1 // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.result.<get-result>|<get-result>(){}[0]
+
+        final fun component1(): dev.mokksy.mokksy.jsonrpc/RequestId // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.component1|component1(){}[0]
+        final fun component2(): #A1 // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.component2|component2(){}[0]
+        final fun copy(dev.mokksy.mokksy.jsonrpc/RequestId = ..., #A1 = ...): dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success<#A1> // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.copy|copy(dev.mokksy.mokksy.jsonrpc.RequestId;1:0){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Success.toString|toString(){}[0]
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Companion|null[0]
+        final fun <#A2: kotlin/Any?, #B2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>, kotlinx.serialization/KSerializer<#B2>): kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<#A2, #B2>> // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>;kotlinx.serialization.KSerializer<0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // dev.mokksy.mokksy.jsonrpc/JSONRPCResponse.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+sealed class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCMessage { // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage|null[0]
+    abstract val method // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.method|{}method[0]
+        abstract fun <get-method>(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.method.<get-method>|<get-method>(){}[0]
+    abstract val params // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.params|{}params[0]
+        abstract fun <get-params>(): #A? // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.params.<get-params>|<get-params>(){}[0]
+    final val jsonrpc // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.jsonrpc|{}jsonrpc[0]
+        final fun <get-jsonrpc>(): kotlin/String // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.jsonrpc.<get-jsonrpc>|<get-jsonrpc>(){}[0]
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.Companion|null[0]
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/JSONRPCMessage<#A2>> // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // dev.mokksy.mokksy.jsonrpc/JSONRPCMessage.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+final object dev.mokksy.mokksy.jsonrpc/NullableRequestIdSerializer : kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/RequestId?> { // dev.mokksy.mokksy.jsonrpc/NullableRequestIdSerializer|null[0]
+    final val descriptor // dev.mokksy.mokksy.jsonrpc/NullableRequestIdSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/NullableRequestIdSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): dev.mokksy.mokksy.jsonrpc/RequestId? // dev.mokksy.mokksy.jsonrpc/NullableRequestIdSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, dev.mokksy.mokksy.jsonrpc/RequestId?) // dev.mokksy.mokksy.jsonrpc/NullableRequestIdSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;dev.mokksy.mokksy.jsonrpc.RequestId?){}[0]
+}
+
+final object dev.mokksy.mokksy.jsonrpc/RequestIdSerializer : kotlinx.serialization/KSerializer<dev.mokksy.mokksy.jsonrpc/RequestId> { // dev.mokksy.mokksy.jsonrpc/RequestIdSerializer|null[0]
+    final val descriptor // dev.mokksy.mokksy.jsonrpc/RequestIdSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // dev.mokksy.mokksy.jsonrpc/RequestIdSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): dev.mokksy.mokksy.jsonrpc/RequestId // dev.mokksy.mokksy.jsonrpc/RequestIdSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, dev.mokksy.mokksy.jsonrpc/RequestId) // dev.mokksy.mokksy.jsonrpc/RequestIdSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;dev.mokksy.mokksy.jsonrpc.RequestId){}[0]
+}
+
 final object dev.mokksy.mokksy.utils.highlight/Highlighting { // dev.mokksy.mokksy.utils.highlight/Highlighting|null[0]
     final fun highlightBody(kotlin/String, io.ktor.http/ContentType, kotlin/Boolean = ...): kotlin/String // dev.mokksy.mokksy.utils.highlight/Highlighting.highlightBody|highlightBody(kotlin.String;io.ktor.http.ContentType;kotlin.Boolean){}[0]
     final fun highlightBody(kotlinx.serialization.json/JsonElement, kotlin/Boolean = ...): kotlin/String // dev.mokksy.mokksy.utils.highlight/Highlighting.highlightBody|highlightBody(kotlinx.serialization.json.JsonElement;kotlin.Boolean){}[0]
@@ -427,9 +724,15 @@ final fun (kotlin/String?).dev.mokksy.mokksy.utils/ellipsizeMiddle(kotlin/Int): 
 final fun <#A: kotlin/Any> dev.mokksy.mokksy.kotest/objectEquals(#A?, kotlin/String): io.kotest.matchers/Matcher<#A?> // dev.mokksy.mokksy.kotest/objectEquals|objectEquals(0:0?;kotlin.String){0§<kotlin.Any>}[0]
 final fun <#A: kotlin/Any?> dev.mokksy.mokksy.request/predicateMatcher(kotlin/String? = ..., kotlin/Function1<#A?, kotlin/Boolean>): io.kotest.matchers/Matcher<#A?> // dev.mokksy.mokksy.request/predicateMatcher|predicateMatcher(kotlin.String?;kotlin.Function1<0:0?,kotlin.Boolean>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> dev.mokksy.mokksy.request/successCallMatcher(kotlin/String? = ..., kotlin/Function1<#A?, kotlin/Unit>): io.kotest.matchers/Matcher<#A?> // dev.mokksy.mokksy.request/successCallMatcher|successCallMatcher(kotlin.String?;kotlin.Function1<0:0?,kotlin.Unit>){0§<kotlin.Any?>}[0]
+final fun dev.mokksy.mokksy.jsonrpc/RequestId(kotlin/Int): dev.mokksy.mokksy.jsonrpc/RequestId // dev.mokksy.mokksy.jsonrpc/RequestId|RequestId(kotlin.Int){}[0]
+final fun dev.mokksy.mokksy.jsonrpc/RequestId(kotlin/Long): dev.mokksy.mokksy.jsonrpc/RequestId // dev.mokksy.mokksy.jsonrpc/RequestId|RequestId(kotlin.Long){}[0]
+final fun dev.mokksy.mokksy.jsonrpc/RequestId(kotlin/String): dev.mokksy.mokksy.jsonrpc/RequestId // dev.mokksy.mokksy.jsonrpc/RequestId|RequestId(kotlin.String){}[0]
 final fun dev.mokksy.mokksy.kotest/doesNotContain(kotlin/String): io.kotest.matchers/Matcher<kotlin/String?> // dev.mokksy.mokksy.kotest/doesNotContain|doesNotContain(kotlin.String){}[0]
 final fun dev.mokksy.mokksy.kotest/doesNotContainIgnoringCase(kotlin/String): io.kotest.matchers/Matcher<kotlin/String?> // dev.mokksy.mokksy.kotest/doesNotContainIgnoringCase|doesNotContainIgnoringCase(kotlin.String){}[0]
 final fun dev.mokksy.mokksy/Mokksy(kotlin/String = ..., kotlin/Int = ..., kotlin/Boolean = ..., kotlin/Function1<io.ktor.server.application/Application, kotlin/Unit> = ...): dev.mokksy.mokksy/MokksyServer // dev.mokksy.mokksy/Mokksy|Mokksy(kotlin.String;kotlin.Int;kotlin.Boolean;kotlin.Function1<io.ktor.server.application.Application,kotlin.Unit>){}[0]
+final inline fun <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/jsonRPCResponse(kotlin/Function1<dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder<#A, #B>, kotlin/Unit>): dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<#A, #B> // dev.mokksy.mokksy.jsonrpc/jsonRPCResponse|jsonRPCResponse(kotlin.Function1<dev.mokksy.mokksy.jsonrpc.JSONRPCResponseBuilder<0:0,0:1>,kotlin.Unit>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/jsonRPCError(kotlin/Function1<dev.mokksy.mokksy.jsonrpc/JSONRPCErrorBuilder<#A>, kotlin/Unit>): dev.mokksy.mokksy.jsonrpc/JSONRPCError<#A> // dev.mokksy.mokksy.jsonrpc/jsonRPCError|jsonRPCError(kotlin.Function1<dev.mokksy.mokksy.jsonrpc.JSONRPCErrorBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+final inline fun <#A: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/jsonRPCResponse(kotlin/Function1<dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder<#A, kotlin/Nothing>, kotlin/Unit>): dev.mokksy.mokksy.jsonrpc/JSONRPCResponse<#A, kotlin/Nothing> // dev.mokksy.mokksy.jsonrpc/jsonRPCResponse|jsonRPCResponse(kotlin.Function1<dev.mokksy.mokksy.jsonrpc.JSONRPCResponseBuilder<0:0,kotlin.Nothing>,kotlin.Unit>){0§<kotlin.Any?>}[0]
 final inline fun <#A: reified kotlin/Any> (dev.mokksy.mokksy/MokksyServer).dev.mokksy.mokksy/delete(dev.mokksy.mokksy/StubConfiguration, noinline kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A> // dev.mokksy.mokksy/delete|delete@dev.mokksy.mokksy.MokksyServer(dev.mokksy.mokksy.StubConfiguration;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
 final inline fun <#A: reified kotlin/Any> (dev.mokksy.mokksy/MokksyServer).dev.mokksy.mokksy/delete(kotlin/String? = ..., noinline kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A> // dev.mokksy.mokksy/delete|delete@dev.mokksy.mokksy.MokksyServer(kotlin.String?;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
 final inline fun <#A: reified kotlin/Any> (dev.mokksy.mokksy/MokksyServer).dev.mokksy.mokksy/get(dev.mokksy.mokksy/StubConfiguration, noinline kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A> // dev.mokksy.mokksy/get|get@dev.mokksy.mokksy.MokksyServer(dev.mokksy.mokksy.StubConfiguration;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
