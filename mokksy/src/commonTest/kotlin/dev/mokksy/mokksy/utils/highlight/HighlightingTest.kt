@@ -82,7 +82,7 @@ internal class HighlightingTest {
 
             result shouldContain colorize("null", AnsiColor.YELLOW)
 
-            // Check spacing is retained (e.g., double space before/after colon in "name")
+            // Check spacing is retained (e.g. double space before/after colon in "name")
             result shouldContain "name\"\u001B[0m  :  "
         }
     }

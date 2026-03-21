@@ -14,10 +14,10 @@ private const val BLUE = "\u001B[34m"
 private const val YELLOW = "\u001B[33m"
 
 // Each colorized fragment is preceded by a reset to clear any preceding attributes.
-private val RM = "$RESET$MAGENTA"
-private val RG = "$RESET$GREEN"
-private val RB = "$RESET$BLUE"
-private val RY = "$RESET$YELLOW"
+private const val RM = "$RESET$MAGENTA"
+private const val RG = "$RESET$GREEN"
+private const val RB = "$RESET$BLUE"
+private const val RY = "$RESET$YELLOW"
 
 class JsonElementHighlighterTest {
     @Test
