@@ -1,71 +1,73 @@
 import dev.detekt.gradle.extensions.FailOnSeverity
 
-plugins {
+    plugins {
     base
-    alias(libs.plugins.detekt)
-    alias(libs.plugins.kover)
-    alias(libs.plugins.nexusPublish) // https://github.com/gradle-nexus/publish-plugin
-    alias(libs.plugins.openrewrite)
-    kotlin("plugin.serialization") version libs.versions.kotlin apply false
+        alias(libs.plugins.detekt)
+        alias(libs.plugins.kover)
+        alias(libs.plugins.nexusPublish) // https://github.com/gradle-nexus/publish-plugin
+        alias(libs.plugins.openrewrite)
+        kotlin("plugin.serialization") version libs.versions.kotlin apply false
     `dokka-convention`
     signing
-}
-
-allprojects {
-    repositories {
-        mavenCentral()
     }
-}
+
+    allprojects {
+        repositories {
+            mavenCentral()
+        }
+    }
 
 // Common configuration for subprojects
-subprojects {
-    apply(plugin = "org.jetbrains.dokka")
-    apply(plugin = "dev.detekt")
+    subprojects {
+        apply(plugin = "org.jetbrains.dokka")
+        apply(plugin = "dev.detekt")
 
-    detekt {
-        config.from(rootProject.file("detekt.yml"))
-        buildUponDefaultConfig = true
-        parallel = true
-        debug = false
-        failOnSeverity = FailOnSeverity.Warning
-    }
-}
-
-dependencies {
-    kover(project(":mokksy"))
-}
-
-kover {
-    reports {
-        filters {
-            includes {
-                classes("dev.mokksy.mokksy.*")
-            }
-            excludes {
-                classes("**.*StressTest*")
-            }
+        detekt {
+            config.from(rootProject.file("detekt.yml"))
+            buildUponDefaultConfig = true
+            parallel = true
+            debug = false
+            failOnSeverity = FailOnSeverity.Warning
         }
+    }
 
-        total {
+    dependencies {
+        kover(project(":mokksy"))
+    }
+
+    kover {
+        reports {
+            filters {
+                includes {
+                    classes("dev.mokksy.mokksy.*")
+                }
+                excludes {
+                    classes("**.*StressTest*")
+                }
+            }
+
+            total {
             xml
             html
-        }
+            }
 
-        verify {
-            rule {
-                bound {
-                    minValue = 80
+            verify {
+                rule {
+                    bound {
+                        minValue = 80
+                    }
                 }
             }
         }
     }
-}
 
-rewrite {
-    activeRecipe(
-        "org.openrewrite.gradle.RemoveRedundantDependencyVersions",
-        "org.openrewrite.kotlin.cleanup.RemoveLambdaArgumentParentheses",
-        "org.openrewrite.kotlin.cleanup.UnnecessaryTypeParentheses",
+    rewrite {
+        activeRecipe(
+            "org.openrewrite.gradle.RemoveRedundantDependencyVersions",
+            "org.openrewrite.kotlin.cleanup.RemoveLambdaArgumentParentheses",
+            "org.openrewrite.kotlin.cleanup.UnnecessaryTypeParentheses",
+            "org.openrewrite.kotlin.format.AutoFormat",
+            "org.openrewrite.gradle.GradleBestPractices",
     )
-    isExportDatatables = true
-}
+        isExportDatatables = true
+    }

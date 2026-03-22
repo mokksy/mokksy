@@ -1,8 +1,8 @@
 rootProject.name = "mokksy-server"
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+    enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include(
-    ":mokksy",
-    ":integration-tests",
+    include(
+        ":mokksy",
+        ":integration-tests",
 )

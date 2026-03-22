@@ -12,8 +12,8 @@ import io.ktor.http.withCharset
 import io.ktor.server.response.ResponseHeaders
 import io.ktor.utils.io.charsets.Charsets
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow as buildFlow
 import kotlin.time.Duration
+import kotlinx.coroutines.flow.flow as buildFlow
 
 /**
  * Represents a base abstraction for defining the attributes of an HTTP response in the context of

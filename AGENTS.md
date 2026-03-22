@@ -28,7 +28,8 @@ Use [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotl
 and [Kotest-assertions](https://kotest.io/docs/assertions/assertions.html).
 For Java tests use JUnit5, Mockito, AssertJ core.
 
-- Backtick test names: `fun `should return 200 OK`()`
+- Backtick test names: "fun `should return 200 OK`()"
+- When testing suspend functions, you can make test method `suspend` in JVM since JUnit supports it.
 - No KDocs on tests (don't delete existing ones)
 - Infix assertions: `shouldBe` not `assertEquals`; `shouldContain` not `.contains(...) shouldBe true`
 - `withClue("reason")` only when the assertion is not self-evident

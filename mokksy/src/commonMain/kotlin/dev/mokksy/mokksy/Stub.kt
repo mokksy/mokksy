@@ -6,7 +6,6 @@ import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.response.ResponseDefinitionSupplier
 import io.ktor.server.application.ApplicationCall
 import kotlinx.atomicfu.atomic
-import kotlin.jvm.JvmRecord
 
 /**
  * Represents a mapping between an inbound [RequestSpecification] and an outbound response definition.
