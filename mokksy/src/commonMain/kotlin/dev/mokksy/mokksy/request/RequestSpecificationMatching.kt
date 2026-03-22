@@ -22,12 +22,6 @@ import kotlin.jvm.JvmName
 internal val CAPTURED_TYPED_BODY: AttributeKey<Any> = AttributeKey("mokksy.capturedTypedBody")
 
 /**
- * Attribute key for storing the raw request body text captured during stub matching.
- * Used by [RecordedRequest.from] to avoid redundant body reads.
- */
-internal val CAPTURED_BODY_TEXT: AttributeKey<String> = AttributeKey("mokksy.capturedBodyText")
-
-/**
  * Evaluates every matcher independently (no short-circuit) and returns a scored [MatchResult].
  *
  * Used by the stub registry to pick the *most specific* full match and, when nothing matches,
@@ -142,9 +136,7 @@ private suspend fun <P : Any> RequestSpecification<P>.receiveBodyOrNull(
 @Suppress("TooGenericExceptionCaught")
 private suspend fun receiveBodyStringOrNull(request: ApplicationRequest): String? =
     try {
-        val received = request.call.receive(type = String::class)
-        request.call.attributes.put(CAPTURED_BODY_TEXT, received)
-        received
+        request.call.receive(type = String::class)
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {

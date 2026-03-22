@@ -2,7 +2,6 @@ package dev.mokksy.mokksy
 
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.request.get
@@ -68,9 +67,9 @@ internal class RecordedRequestBodyIT : AbstractIT() {
     }
 
     @Test
-    suspend fun `large body is truncated at maxBodyCaptureSize`() {
+    suspend fun `large body is captured in full`() {
         val path = "/large-body-$seed"
-        val largeBody = "x".repeat(DEFAULT_MAX_BODY_CAPTURE_SIZE + 1000)
+        val largeBody = "x".repeat(100_000)
 
         client.post(path) {
             contentType(ContentType.Text.Plain)
@@ -79,8 +78,7 @@ internal class RecordedRequestBodyIT : AbstractIT() {
 
         val unexpected = mokksy.findAllUnexpectedRequests().filter { it.uri == path }
         unexpected shouldHaveSize 1
-        unexpected[0].bodyAsText.shouldNotBeNull()
-        unexpected[0].bodyAsText!!.length shouldBe DEFAULT_MAX_BODY_CAPTURE_SIZE
+        unexpected[0].bodyAsText shouldBe largeBody
     }
 
     @Test

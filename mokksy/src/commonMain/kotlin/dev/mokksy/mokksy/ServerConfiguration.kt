@@ -23,12 +23,6 @@ public enum class JournalMode {
 }
 
 /**
- * Default maximum size (in characters) for request bodies captured in
- * [dev.mokksy.mokksy.request.RecordedRequest]. Bodies exceeding this limit are truncated.
- */
-public const val DEFAULT_MAX_BODY_CAPTURE_SIZE: Int = 64 * 1024
-
-/**
  * Configuration for a [MokksyServer] instance.
  *
  * @property verbose Enables `DEBUG`-level request logging when `true`. Defaults to `false`.
@@ -42,9 +36,6 @@ public const val DEFAULT_MAX_BODY_CAPTURE_SIZE: Int = 64 * 1024
  *               and the verbose debug formatter.
  * @property contentNegotiationConfigurer Configures the Ktor [ContentNegotiationConfig] installed on the server.
  *                                        Defaults to installing [json] as the JSON codec.
- * @property maxBodyCaptureSize Maximum size (in characters) for request bodies captured in
- *                              [dev.mokksy.mokksy.request.RecordedRequest]. Bodies exceeding
- *                              this limit are truncated. Defaults to [DEFAULT_MAX_BODY_CAPTURE_SIZE] (64 KB).
  */
 public data class ServerConfiguration
     @JvmOverloads
@@ -56,5 +47,4 @@ public data class ServerConfiguration
         val contentNegotiationConfigurer: (
             ContentNegotiationConfig,
         ) -> Unit = { it.json(json) },
-        val maxBodyCaptureSize: Int = DEFAULT_MAX_BODY_CAPTURE_SIZE,
     )

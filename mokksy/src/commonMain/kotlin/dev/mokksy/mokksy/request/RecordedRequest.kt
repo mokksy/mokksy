@@ -1,6 +1,5 @@
 package dev.mokksy.mokksy.request
 
-import dev.mokksy.mokksy.DEFAULT_MAX_BODY_CAPTURE_SIZE
 import dev.mokksy.mokksy.InternalMokksyApi
 import io.ktor.http.HttpMethod
 import io.ktor.server.request.receiveText
@@ -21,9 +20,7 @@ import kotlin.jvm.JvmStatic
  * @property body The typed request body captured during stub matching, or `null`
  *               if no typed body matchers ran or deserialization failed.
  * @property bodyAsText The raw request body as text, or `null` if the body was
- *                      empty, binary, or a typed body was captured instead.
- *                      Truncated to [dev.mokksy.mokksy.DEFAULT_MAX_BODY_CAPTURE_SIZE]
- *                      if the original body exceeds that limit.
+ *                      empty or binary.
  */
 public class RecordedRequest internal constructor(
     public val method: HttpMethod,
@@ -37,35 +34,25 @@ public class RecordedRequest internal constructor(
         /**
          * Creates a [RecordedRequest] snapshot from a [RoutingRequest].
          *
-         * Body capture priority:
-         * 1. Typed body from [CAPTURED_TYPED_BODY] call attribute (set during matching) → [body]
-         * 2. Body text from [CAPTURED_BODY_TEXT] call attribute (set during matching) → [bodyAsText]
-         * 3. If neither attribute exists, falls back to [receiveText] → [bodyAsText]
-         * 4. If typed body was captured, skips the text fallback to avoid redundant I/O
+         * Body capture:
+         * - Typed body from [CAPTURED_TYPED_BODY] call attribute (set during matching) → [body]
+         * - Raw text via [receiveText] → [bodyAsText] (requires `DoubleReceive` plugin)
+         *
+         * Both [body] and [bodyAsText] may be populated for the same request.
          */
         @InternalMokksyApi
         @JvmStatic
         internal suspend fun from(
             request: RoutingRequest,
             matched: Boolean,
-            maxBodyCaptureSize: Int = DEFAULT_MAX_BODY_CAPTURE_SIZE,
         ): RecordedRequest {
-            val attrs = request.call.attributes
-            val typedBody = attrs.getOrNull(CAPTURED_TYPED_BODY)
+            val typedBody = request.call.attributes.getOrNull(CAPTURED_TYPED_BODY)
 
-            // Priority: use text from matching if available, else fall back to receiveText()
-            // If typed body was captured, skip text read — typed representation is sufficient
             @Suppress("TooGenericExceptionCaught")
-            val bodyText = when {
-                attrs.contains(CAPTURED_BODY_TEXT) -> {
-                    attrs[CAPTURED_BODY_TEXT].truncateOrNull(maxBodyCaptureSize)
-                }
-                typedBody != null -> null
-                else -> try {
-                    request.call.receiveText().truncateOrNull(maxBodyCaptureSize)
-                } catch (_: Exception) {
-                    null
-                }
+            val bodyText = try {
+                request.call.receiveText().blankToNull()
+            } catch (_: Exception) {
+                null
             }
 
             return RecordedRequest(
@@ -111,8 +98,4 @@ public class RecordedRequest internal constructor(
     }
 }
 
-private fun String.truncateOrNull(maxSize: Int): String? = when {
-    isBlank() -> null
-    length > maxSize -> take(maxSize)
-    else -> this
-}
+private fun String.blankToNull(): String? = ifBlank { null }
