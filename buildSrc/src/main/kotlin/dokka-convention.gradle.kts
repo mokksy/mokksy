@@ -1,8 +1,8 @@
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
-    /*
-     * Dokka convention plugin for documentation generation.
-     */
+/*
+ * Dokka convention plugin for documentation generation.
+ */
 plugins {
     id("org.jetbrains.dokka")
 }

@@ -1,12 +1,13 @@
 package dev.mokksy.mokksy
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.sse.ServerSentEventMetadata
 import java.util.function.Consumer
 
 /**
- * A Java-friendly wrapper around [BuildingStep] that exposes `respondsWith` and
- * `respondsWithStream` as instance methods accepting [Consumer] instead of
- * Kotlin suspend lambdas.
+ * A Java-friendly wrapper around [BuildingStep] that exposes `respondsWith`,
+ * `respondsWithStream`, and `respondsWithSseStream` as instance methods accepting [Consumer]
+ * instead of Kotlin suspend lambdas.
  *
  * Instances are returned by [dev.mokksy.Mokksy]'s HTTP method stubs (`get`, `post`, etc.).
  * Do not construct directly.
@@ -80,6 +81,49 @@ public class JavaBuildingStep<P : Any> internal constructor(
     public fun respondsWithStream(
         configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, String>>,
     ): Unit = respondsWithStream(String::class.java, configurer)
+
+    /**
+     * Configures a typed SSE streaming response for this stub.
+     *
+     * The [dataType] parameter represents the type of the `data` field in each
+     * [ServerSentEventMetadata] event. The consumer receives a
+     * [JavaStreamingResponseDefinitionBuilder] parameterised over [ServerSentEventMetadata]`<T>`,
+     * so chunks should be `ServerSentEvent` or `TypedServerSentEvent` instances.
+     *
+     * Example (Java):
+     * ```java
+     * mokksy.get(spec -> spec.path("/sse"))
+     *       .respondsWithSseStream(String.class, builder -> builder
+     *           .chunk(new ServerSentEvent("Hello", null, null, null, null))
+     *           .chunk(new ServerSentEvent("World", null, null, null, null)));
+     * ```
+     *
+     * @param T The type of the `data` field in each SSE event.
+     * @param dataType The Java [Class] of the SSE event data type.
+     * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
+     */
+    public fun <T : Any> respondsWithSseStream(
+        dataType: Class<T>,
+        configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<T>>>,
+    ): Unit =
+        step.respondsWithSseStream(dataType.kotlin) {
+            configurer.accept(JavaStreamingResponseDefinitionBuilder(this))
+        }
+
+    /**
+     * Configures an SSE streaming response for this stub with [ServerSentEventMetadata]`<String>` chunks.
+     *
+     * Shorthand for `respondsWithSseStream(String.class, configurer)`.
+     *
+     * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
+     */
+    // Cannot delegate to typed overload: ServerSentEvent vs ServerSentEventMetadata<String> variance
+    public fun respondsWithSseStream(
+        configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<String>>>,
+    ): Unit =
+        step.respondsWithSseStream(String::class) {
+            configurer.accept(JavaStreamingResponseDefinitionBuilder(this))
+        }
 
     /**
      * Associates this stub with a body-free response carrying only an HTTP status code.
