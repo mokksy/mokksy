@@ -11,8 +11,21 @@ import io.ktor.server.request.ContentTransformationException
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.ktor.server.request.receive
+import io.ktor.util.AttributeKey
 import kotlinx.coroutines.CancellationException
 import kotlin.jvm.JvmName
+
+/**
+ * Attribute key for storing the typed request body captured during stub matching.
+ * Used by [RecordedRequest.from] to avoid redundant body reads.
+ */
+internal val CAPTURED_TYPED_BODY: AttributeKey<Any> = AttributeKey("mokksy.capturedTypedBody")
+
+/**
+ * Attribute key for storing the raw request body text captured during stub matching.
+ * Used by [RecordedRequest.from] to avoid redundant body reads.
+ */
+internal val CAPTURED_BODY_TEXT: AttributeKey<String> = AttributeKey("mokksy.capturedBodyText")
 
 /**
  * Evaluates every matcher independently (no short-circuit) and returns a scored [MatchResult].
@@ -111,7 +124,9 @@ private suspend fun <P : Any> RequestSpecification<P>.receiveBodyOrNull(
     request: ApplicationRequest,
 ): P? =
     try {
-        request.call.receive(requestType)
+        val received = request.call.receive(requestType)
+        request.call.attributes.put(CAPTURED_TYPED_BODY, received)
+        received
     } catch (e: CancellationException) {
         throw e
     } catch (e: ContentTransformationException) {
@@ -127,7 +142,9 @@ private suspend fun <P : Any> RequestSpecification<P>.receiveBodyOrNull(
 @Suppress("TooGenericExceptionCaught")
 private suspend fun receiveBodyStringOrNull(request: ApplicationRequest): String? =
     try {
-        request.call.receive(type = String::class)
+        val received = request.call.receive(type = String::class)
+        request.call.attributes.put(CAPTURED_BODY_TEXT, received)
+        received
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {

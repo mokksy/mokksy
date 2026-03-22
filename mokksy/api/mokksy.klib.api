@@ -357,6 +357,10 @@ final class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCRequest : dev
 }
 
 final class dev.mokksy.mokksy.request/RecordedRequest { // dev.mokksy.mokksy.request/RecordedRequest|null[0]
+    final val body // dev.mokksy.mokksy.request/RecordedRequest.body|{}body[0]
+        final fun <get-body>(): kotlin/Any? // dev.mokksy.mokksy.request/RecordedRequest.body.<get-body>|<get-body>(){}[0]
+    final val bodyAsText // dev.mokksy.mokksy.request/RecordedRequest.bodyAsText|{}bodyAsText[0]
+        final fun <get-bodyAsText>(): kotlin/String? // dev.mokksy.mokksy.request/RecordedRequest.bodyAsText.<get-bodyAsText>|<get-bodyAsText>(){}[0]
     final val headers // dev.mokksy.mokksy.request/RecordedRequest.headers|{}headers[0]
         final fun <get-headers>(): kotlin.collections/Map<kotlin/String, kotlin.collections/List<kotlin/String>> // dev.mokksy.mokksy.request/RecordedRequest.headers.<get-headers>|<get-headers>(){}[0]
     final val matched // dev.mokksy.mokksy.request/RecordedRequest.matched|{}matched[0]
@@ -436,7 +440,7 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
 }
 
 final class dev.mokksy.mokksy/ServerConfiguration { // dev.mokksy.mokksy/ServerConfiguration|null[0]
-    constructor <init>(kotlin/Boolean = ..., kotlin/String? = ..., dev.mokksy.mokksy/JournalMode = ..., kotlinx.serialization.json/Json = ..., kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> = ...) // dev.mokksy.mokksy/ServerConfiguration.<init>|<init>(kotlin.Boolean;kotlin.String?;dev.mokksy.mokksy.JournalMode;kotlinx.serialization.json.Json;kotlin.Function1<io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig,kotlin.Unit>){}[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin/String? = ..., dev.mokksy.mokksy/JournalMode = ..., kotlinx.serialization.json/Json = ..., kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> = ..., kotlin/Int = ...) // dev.mokksy.mokksy/ServerConfiguration.<init>|<init>(kotlin.Boolean;kotlin.String?;dev.mokksy.mokksy.JournalMode;kotlinx.serialization.json.Json;kotlin.Function1<io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig,kotlin.Unit>;kotlin.Int){}[0]
 
     final val contentNegotiationConfigurer // dev.mokksy.mokksy/ServerConfiguration.contentNegotiationConfigurer|{}contentNegotiationConfigurer[0]
         final fun <get-contentNegotiationConfigurer>(): kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> // dev.mokksy.mokksy/ServerConfiguration.contentNegotiationConfigurer.<get-contentNegotiationConfigurer>|<get-contentNegotiationConfigurer>(){}[0]
@@ -444,6 +448,8 @@ final class dev.mokksy.mokksy/ServerConfiguration { // dev.mokksy.mokksy/ServerC
         final fun <get-journalMode>(): dev.mokksy.mokksy/JournalMode // dev.mokksy.mokksy/ServerConfiguration.journalMode.<get-journalMode>|<get-journalMode>(){}[0]
     final val json // dev.mokksy.mokksy/ServerConfiguration.json|{}json[0]
         final fun <get-json>(): kotlinx.serialization.json/Json // dev.mokksy.mokksy/ServerConfiguration.json.<get-json>|<get-json>(){}[0]
+    final val maxBodyCaptureSize // dev.mokksy.mokksy/ServerConfiguration.maxBodyCaptureSize|{}maxBodyCaptureSize[0]
+        final fun <get-maxBodyCaptureSize>(): kotlin/Int // dev.mokksy.mokksy/ServerConfiguration.maxBodyCaptureSize.<get-maxBodyCaptureSize>|<get-maxBodyCaptureSize>(){}[0]
     final val name // dev.mokksy.mokksy/ServerConfiguration.name|{}name[0]
         final fun <get-name>(): kotlin/String? // dev.mokksy.mokksy/ServerConfiguration.name.<get-name>|<get-name>(){}[0]
     final val verbose // dev.mokksy.mokksy/ServerConfiguration.verbose|{}verbose[0]
@@ -454,7 +460,8 @@ final class dev.mokksy.mokksy/ServerConfiguration { // dev.mokksy.mokksy/ServerC
     final fun component3(): dev.mokksy.mokksy/JournalMode // dev.mokksy.mokksy/ServerConfiguration.component3|component3(){}[0]
     final fun component4(): kotlinx.serialization.json/Json // dev.mokksy.mokksy/ServerConfiguration.component4|component4(){}[0]
     final fun component5(): kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> // dev.mokksy.mokksy/ServerConfiguration.component5|component5(){}[0]
-    final fun copy(kotlin/Boolean = ..., kotlin/String? = ..., dev.mokksy.mokksy/JournalMode = ..., kotlinx.serialization.json/Json = ..., kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> = ...): dev.mokksy.mokksy/ServerConfiguration // dev.mokksy.mokksy/ServerConfiguration.copy|copy(kotlin.Boolean;kotlin.String?;dev.mokksy.mokksy.JournalMode;kotlinx.serialization.json.Json;kotlin.Function1<io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig,kotlin.Unit>){}[0]
+    final fun component6(): kotlin/Int // dev.mokksy.mokksy/ServerConfiguration.component6|component6(){}[0]
+    final fun copy(kotlin/Boolean = ..., kotlin/String? = ..., dev.mokksy.mokksy/JournalMode = ..., kotlinx.serialization.json/Json = ..., kotlin/Function1<io.ktor.server.plugins.contentnegotiation/ContentNegotiationConfig, kotlin/Unit> = ..., kotlin/Int = ...): dev.mokksy.mokksy/ServerConfiguration // dev.mokksy.mokksy/ServerConfiguration.copy|copy(kotlin.Boolean;kotlin.String?;dev.mokksy.mokksy.JournalMode;kotlinx.serialization.json.Json;kotlin.Function1<io.ktor.server.plugins.contentnegotiation.ContentNegotiationConfig,kotlin.Unit>;kotlin.Int){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // dev.mokksy.mokksy/ServerConfiguration.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // dev.mokksy.mokksy/ServerConfiguration.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // dev.mokksy.mokksy/ServerConfiguration.toString|toString(){}[0]
@@ -713,6 +720,8 @@ final object dev.mokksy.mokksy.utils.highlight/Highlighting { // dev.mokksy.mokk
 
 final const val dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY // dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY|{}DEFAULT_STUB_PRIORITY[0]
     final fun <get-DEFAULT_STUB_PRIORITY>(): kotlin/Int // dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY.<get-DEFAULT_STUB_PRIORITY>|<get-DEFAULT_STUB_PRIORITY>(){}[0]
+final const val dev.mokksy.mokksy/DEFAULT_MAX_BODY_CAPTURE_SIZE // dev.mokksy.mokksy/DEFAULT_MAX_BODY_CAPTURE_SIZE|{}DEFAULT_MAX_BODY_CAPTURE_SIZE[0]
+    final fun <get-DEFAULT_MAX_BODY_CAPTURE_SIZE>(): kotlin/Int // dev.mokksy.mokksy/DEFAULT_MAX_BODY_CAPTURE_SIZE.<get-DEFAULT_MAX_BODY_CAPTURE_SIZE>|<get-DEFAULT_MAX_BODY_CAPTURE_SIZE>(){}[0]
 
 final fun (io.ktor.http/ContentType).dev.mokksy.mokksy.utils/asMimeType(): kotlin/String // dev.mokksy.mokksy.utils/asMimeType|asMimeType@io.ktor.http.ContentType(){}[0]
 final fun (io.ktor.http/Headers).dev.mokksy.mokksy.request/shouldHaveHeader(kotlin/Pair<kotlin/String, kotlin/String>) // dev.mokksy.mokksy.request/shouldHaveHeader|shouldHaveHeader@io.ktor.http.Headers(kotlin.Pair<kotlin.String,kotlin.String>){}[0]

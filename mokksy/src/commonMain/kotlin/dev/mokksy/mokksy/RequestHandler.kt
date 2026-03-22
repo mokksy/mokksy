@@ -45,7 +45,7 @@ internal suspend fun handleRequest(
             formatter = formatter,
         )
 
-    val recorded = RecordedRequest.from(request, matchedStub != null)
+    val recorded = RecordedRequest.from(request, matchedStub != null, configuration.maxBodyCaptureSize)
 
     if (matchedStub != null) {
         requestJournal.recordMatched(recorded)
