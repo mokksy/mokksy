@@ -55,6 +55,7 @@
   * [Route-level installation](#route-level-installation)
 * [Java API](#java-api)
   * [Streaming responses](#streaming-responses)
+  * [SSE streaming responses](#sse-streaming-responses)
   * [Jackson support](#jackson-support)
 
 <!--- END -->
@@ -934,6 +935,52 @@ mokksy.get(spec -> spec.path("/typed"))
       .respondsWithStream(MyEvent.class, builder -> builder
           .chunk(new MyEvent("start"))
           .chunk(new MyEvent("end")));
+```
+
+### SSE streaming responses
+
+Use `respondsWithSseStream` to stub a true [Server-Sent Events (SSE)][sse] response.
+Each chunk is a `ServerSentEvent` that Mokksy sends using the standard SSE wire format
+(`data: ...\r\n`), including proper `Cache-Control` and `Connection` headers.
+
+**Basic SSE** — chunks are `ServerSentEvent` instances from `io.ktor.sse`:
+
+```java
+import io.ktor.sse.ServerSentEvent;
+
+mokksy.get(spec -> spec.path("/sse"))
+      .respondsWithSseStream(builder -> builder
+          .chunk(new ServerSentEvent("Hello", null, null, null, null))
+          .chunk(new ServerSentEvent("World", null, null, null, null)));
+```
+
+**From a list:**
+
+```java
+mokksy.get(spec -> spec.path("/sse-list"))
+      .respondsWithSseStream(builder -> builder
+          .chunks(List.of(
+              new ServerSentEvent("event-1", null, null, null, null),
+              new ServerSentEvent("event-2", null, null, null, null))));
+```
+
+**With delays:**
+
+```java
+mokksy.get(spec -> spec.path("/sse-slow"))
+      .respondsWithSseStream(builder -> builder
+          .chunk(new ServerSentEvent("first", null, null, null, null))
+          .chunk(new ServerSentEvent("second", null, null, null, null))
+          .delayMillis(200L)
+          .delayBetweenChunksMillis(100L));
+```
+
+**Typed SSE** — pass the data-type class token for the event's `data` field type:
+
+```java
+mokksy.get(spec -> spec.path("/typed-sse"))
+      .respondsWithSseStream(String.class, builder -> builder
+          .chunk(new ServerSentEvent("typed-event", null, null, null, null)));
 ```
 
 ### Jackson support

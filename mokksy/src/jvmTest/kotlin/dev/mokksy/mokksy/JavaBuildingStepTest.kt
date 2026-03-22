@@ -13,6 +13,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.testing.testApplication
+import io.ktor.sse.ServerSentEvent
 import kotlinx.coroutines.flow.toList
 import kotlin.test.Test
 
@@ -89,6 +90,45 @@ class JavaBuildingStepTest {
     @Test
     fun `respondsWithStream(Class, Consumer) registers a typed stub and consumer chunk is set`() {
         sut.respondsWithStream(String::class.java) { it.chunk("typed-stream") }
+        registeredStubs shouldHaveSize 1
+        val supplier = registeredStubs.single().responseDefinitionSupplier
+        testApplication {
+            routing {
+                get("/test") {
+                    val definition = supplier.invoke(call) as StreamResponseDefinition<*, *>
+                    call.respondText("${definition.chunkFlow.toList().size}")
+                }
+            }
+            client.get("/test").bodyAsText() shouldBe "1"
+        }
+    }
+
+    // endregion
+
+    // region respondsWithSseStream
+
+    @Test
+    fun `respondsWithSseStream(Consumer) registers a stub and consumer chunk is set`() {
+        sut.respondsWithSseStream { it.chunk(ServerSentEvent(data = "sse-item")) }
+        registeredStubs shouldHaveSize 1
+        val supplier = registeredStubs.single().responseDefinitionSupplier
+        testApplication {
+            routing {
+                get("/test") {
+                    @Suppress("UNCHECKED_CAST")
+                    val definition = supplier.invoke(call) as StreamResponseDefinition<*, *>
+                    call.respondText("${definition.chunkFlow.toList().size}")
+                }
+            }
+            client.get("/test").bodyAsText() shouldBe "1"
+        }
+    }
+
+    @Test
+    fun `respondsWithSseStream(Class, Consumer) registers a typed stub and consumer chunk is set`() {
+        sut.respondsWithSseStream(
+            String::class.java,
+        ) { it.chunk(ServerSentEvent(data = "typed-sse")) }
         registeredStubs shouldHaveSize 1
         val supplier = registeredStubs.single().responseDefinitionSupplier
         testApplication {
