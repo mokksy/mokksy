@@ -24,76 +24,110 @@ internal suspend fun RequestSpecification<*>.matches(
     request: ApplicationRequest,
 ): Result<MatchResult> = this.matchesTyped(request)
 
+/**
+ * Intermediate scoring accumulator used by the matcher evaluation functions.
+ */
+private data class ScoringResult(
+    val score: Int,
+    val failedLabels: List<String>,
+    val diagnostics: List<MatcherDiagnostic>,
+) {
+    companion object {
+        val EMPTY = ScoringResult(0, emptyList(), emptyList())
+    }
+}
+
 private suspend fun <P : Any> RequestSpecification<P>.matchesTyped(
     request: ApplicationRequest,
 ): Result<MatchResult> =
     runCatching {
         var score = 0
         val failed = mutableListOf<String>()
+        val diagnostics = mutableListOf<MatcherDiagnostic>()
 
         if (method != null) {
-            val (s, f) =
+            val r =
                 scoreSingleMatcher(
                     method,
                     request.httpMethod,
                     "method",
                     request.call,
                 )
-            score += s
-            failed += f
+            score += r.score
+            failed += r.failedLabels
+            diagnostics += r.diagnostics
         }
         if (path != null) {
-            val (s, f) =
+            val r =
                 scoreSingleMatcher(
                     path,
                     request.path(),
                     "path",
                     request.call,
                 )
-            score += s
-            failed += f
+            score += r.score
+            failed += r.failedLabels
+            diagnostics += r.diagnostics
         }
         if (headers.isNotEmpty()) {
-            val (headersScore, headersFailed) =
+            val r =
                 scoreMatchersSafely(
                     headers,
                     request.headers,
                     "headers",
                     request.call,
                 )
-            score += headersScore
-            failed += headersFailed
+            score += r.score
+            failed += r.failedLabels
+            diagnostics += r.diagnostics
         }
 
-        val (bodyScore, bodyFailed) = scoreBodyMatchers(request)
-        score += bodyScore
-        failed += bodyFailed
+        val bodyResult = scoreBodyMatchers(request)
+        score += bodyResult.score
+        failed += bodyResult.failedLabels
+        diagnostics += bodyResult.diagnostics
 
-        val (bodyStringScore, bodyStringFailed) = scoreBodyStringMatchers(request)
-        score += bodyStringScore
-        failed += bodyStringFailed
+        val bodyStringResult = scoreBodyStringMatchers(request)
+        score += bodyStringResult.score
+        failed += bodyStringResult.failedLabels
+        diagnostics += bodyStringResult.diagnostics
 
-        MatchResult(matched = failed.isEmpty(), score = score, failedMatchers = failed)
+        MatchResult(
+            matched = failed.isEmpty(),
+            score = score,
+            failedMatchers = failed,
+            diagnostics = diagnostics,
+        )
     }.onFailure {
         if (it is CancellationException || it is Error) throw it
     }
 
 private suspend fun <P : Any> RequestSpecification<P>.scoreBodyMatchers(
     request: ApplicationRequest,
-): Pair<Int, List<String>> =
+): ScoringResult =
     if (body.isEmpty()) {
-        0 to emptyList()
+        ScoringResult.EMPTY
     } else {
         receiveBodyOrNull(request)
             ?.let { scoreMatchersSafely(body, it, "body", request.call) }
-            ?: (0 to body.indices.map { "body[$it]" })
+            ?: ScoringResult(
+                score = 0,
+                failedLabels = body.indices.map { "body[$it]" },
+                diagnostics = body.indices.map {
+                    MatcherDiagnostic(
+                        "body[$it]",
+                        matched = false,
+                        reason = "Unable to deserialize request body",
+                    )
+                },
+            )
     }
 
 private suspend fun RequestSpecification<*>.scoreBodyStringMatchers(
     request: ApplicationRequest,
-): Pair<Int, List<String>> =
+): ScoringResult =
     if (bodyString.isEmpty()) {
-        0 to emptyList()
+        ScoringResult.EMPTY
     } else {
         receiveBodyStringOrNull(request)
             ?.let {
@@ -104,7 +138,17 @@ private suspend fun RequestSpecification<*>.scoreBodyStringMatchers(
                     request.call,
                 )
             }
-            ?: (0 to bodyString.indices.map { "bodyString[$it]" })
+            ?: ScoringResult(
+                score = 0,
+                failedLabels = bodyString.indices.map { "bodyString[$it]" },
+                diagnostics = bodyString.indices.map {
+                    MatcherDiagnostic(
+                        "bodyString[$it]",
+                        matched = false,
+                        reason = "Unable to read request body as string",
+                    )
+                },
+            )
     }
 
 private suspend fun <P : Any> RequestSpecification<P>.receiveBodyOrNull(
@@ -141,8 +185,7 @@ private suspend fun receiveBodyStringOrNull(request: ApplicationRequest): String
     }
 
 /**
- * Guards a single matcher invocation. Returns `1 to emptyList()` on pass,
- * `0 to listOf(label)` on mismatch or throw.
+ * Guards a single matcher invocation and captures diagnostic detail.
  */
 @Suppress("TooGenericExceptionCaught")
 private fun <T> scoreSingleMatcher(
@@ -150,14 +193,20 @@ private fun <T> scoreSingleMatcher(
     value: T,
     label: String,
     call: ApplicationCall,
-): Pair<Int, List<String>> =
+): ScoringResult =
     try {
-        if (matcher.test(value).passed()) 1 to emptyList() else 0 to listOf(label)
+        val result = matcher.test(value)
+        if (result.passed()) {
+            ScoringResult(1, emptyList(), listOf(MatcherDiagnostic(label, matched = true)))
+        } else {
+            val reason = result.failureMessage()
+            ScoringResult(0, listOf(label), listOf(MatcherDiagnostic(label, matched = false, reason = reason)))
+        }
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
         call.application.log.debug("Matcher $label threw during scoring: ${e.message}", e)
-        0 to listOf(label)
+        ScoringResult(0, listOf(label), listOf(MatcherDiagnostic(label, matched = false, reason = e.message)))
     }
 
 /**
@@ -170,18 +219,28 @@ private fun <T> scoreMatchersSafely(
     value: T,
     label: String,
     call: ApplicationCall,
-): Pair<Int, List<String>> {
+): ScoringResult {
     var score = 0
-    val failed = mutableListOf<String>()
+    val failedLabels = mutableListOf<String>()
+    val diagnostics = mutableListOf<MatcherDiagnostic>()
     matchers.forEachIndexed { i, matcher ->
+        val slotLabel = "$label[$i]"
         try {
-            if (matcher.test(value).passed()) score++ else failed += "$label[$i]"
+            val result = matcher.test(value)
+            if (result.passed()) {
+                score++
+                diagnostics += MatcherDiagnostic(slotLabel, matched = true)
+            } else {
+                failedLabels += slotLabel
+                diagnostics += MatcherDiagnostic(slotLabel, matched = false, reason = result.failureMessage())
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            call.application.log.debug("Matcher $label[$i] threw during scoring: ${e.message}", e)
-            failed += "$label[$i]"
+            call.application.log.debug("Matcher $slotLabel threw during scoring: ${e.message}", e)
+            failedLabels += slotLabel
+            diagnostics += MatcherDiagnostic(slotLabel, matched = false, reason = e.message)
         }
     }
-    return score to failed
+    return ScoringResult(score, failedLabels, diagnostics)
 }

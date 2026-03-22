@@ -2,16 +2,23 @@
 
 package dev.mokksy.mokksy
 
+import dev.mokksy.mokksy.request.NearMissFailedMatcher
+import dev.mokksy.mokksy.request.NearMissRequest
+import dev.mokksy.mokksy.request.NearMissResponse
+import dev.mokksy.mokksy.request.NearMissStub
 import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestJournal
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.log
 import io.ktor.server.logging.toLogString
-import io.ktor.server.response.respond
+import io.ktor.server.request.receiveText
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.RoutingRequest
+import kotlinx.serialization.encodeToString
 
 /**
  * Processes an incoming HTTP request by matching it against available stubs and handling the response.
@@ -37,7 +44,7 @@ internal suspend fun handleRequest(
 ) {
     val request = context.call.request
 
-    val matchedStub: Stub<*, *>? =
+    val findResult =
         stubRegistry.findMatchingStub(
             request = request,
             verbose = configuration.verbose,
@@ -45,42 +52,53 @@ internal suspend fun handleRequest(
             formatter = formatter,
         )
 
-    val recorded = RecordedRequest.from(request, matchedStub != null)
-
-    if (matchedStub != null) {
-        requestJournal.recordMatched(recorded)
-        handleMatchedStub(
-            matchedStub = matchedStub,
-            serverConfig = configuration,
-            application = application,
-            request = request,
-            context = context,
-            formatter = formatter,
-        )
-    } else {
-        requestJournal.recordUnmatched(recorded)
-        val errorMessage = "No matched mapping for request: ${request.toLogString()}"
-        if (configuration.verbose) {
-            val availableStubs = stubRegistry.getAll()
-            val availableStubsMessage =
-                if (availableStubs.isNotEmpty()) {
-                    val stubsInfo = availableStubs.joinToString("\n---\n") { it.toLogString() }
-                    "Available stubs:\n$stubsInfo"
-                } else {
-                    "No stubs are available."
-                }
-            application.log.warn(
-                "NO STUBS FOUND for the request:\n---\n${
-                    formatter.formatRequest(request)
-                }\n---\n$availableStubsMessage\n",
-            )
-        } else {
-            application.log.warn(
-                "No matched mapping for request:\n---\n${request.toLogString()}\n---",
+    when (findResult) {
+        is FindResult.Matched -> {
+            val matchedStub = findResult.stub
+            val recorded = RecordedRequest.from(request, matched = true)
+            requestJournal.recordMatched(recorded)
+            handleMatchedStub(
+                matchedStub = matchedStub,
+                serverConfig = configuration,
+                application = application,
+                request = request,
+                context = context,
+                formatter = formatter,
             )
         }
-        // Send a proper HTTP response when stub not found
-        context.call.respond(HttpStatusCode.NotFound, errorMessage)
+
+        is FindResult.NoMatch -> {
+            val recorded = RecordedRequest.from(request, matched = false)
+            requestJournal.recordUnmatched(recorded)
+
+            if (configuration.verbose) {
+                val availableStubs = stubRegistry.getAll()
+                val availableStubsMessage =
+                    if (availableStubs.isNotEmpty()) {
+                        val stubsInfo = availableStubs.joinToString("\n---\n") { it.toLogString() }
+                        "Available stubs:\n$stubsInfo"
+                    } else {
+                        "No stubs are available."
+                    }
+                application.log.warn(
+                    "NO STUBS FOUND for the request:\n---\n${
+                        formatter.formatRequest(request)
+                    }\n---\n$availableStubsMessage\n",
+                )
+            } else {
+                application.log.warn(
+                    "No matched mapping for request:\n---\n${request.toLogString()}\n---",
+                )
+            }
+
+            val nearMissResponse = buildNearMissResponse(context, findResult.evaluations)
+            val jsonBody = configuration.json.encodeToString(nearMissResponse)
+            context.call.respondText(
+                text = jsonBody,
+                contentType = ContentType.Application.Json,
+                status = HttpStatusCode.NotFound,
+            )
+        }
     }
 }
 
@@ -114,4 +132,47 @@ private suspend fun handleMatchedStub(
         }
         respond(context.call, verbose)
     }
+}
+
+/**
+ * Builds a [NearMissResponse] from the request and per-stub evaluation results.
+ */
+@Suppress("TooGenericExceptionCaught")
+private suspend fun buildNearMissResponse(
+    context: RoutingContext,
+    evaluations: List<StubEvaluation>,
+): NearMissResponse {
+    val request = context.call.request
+    val bodyText =
+        try {
+            context.call.receiveText().ifBlank { null }
+        } catch (_: Exception) {
+            null
+        }
+
+    val nearMissRequest =
+        NearMissRequest(
+            method = request.local.method.value,
+            path = request.local.uri,
+            headers = request.headers.entries().associate { it.key to it.value },
+            body = bodyText,
+        )
+
+    val nearMissStubs =
+        evaluations.map { (stub, matchResult) ->
+            NearMissStub(
+                name = stub.configuration.name,
+                passed = matchResult.diagnostics.filter { it.matched }.map { it.label },
+                failed =
+                    matchResult.diagnostics
+                        .filter { !it.matched }
+                        .map { NearMissFailedMatcher(matcher = it.label, reason = it.reason) },
+            )
+        }
+
+    return NearMissResponse(
+        message = "No stub matched the incoming request",
+        request = nearMissRequest,
+        nearMisses = nearMissStubs,
+    )
 }

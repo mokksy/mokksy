@@ -17,6 +17,25 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
+ * Result of looking up a stub in the registry.
+ */
+internal sealed class FindResult {
+    /** A stub matched the request. */
+    data class Matched(val stub: Stub<*, *>) : FindResult()
+
+    /** No stub fully matched. [evaluations] contains per-stub scoring details. */
+    data class NoMatch(val evaluations: List<StubEvaluation>) : FindResult()
+}
+
+/**
+ * Scoring details for a single stub evaluated against a request.
+ */
+internal data class StubEvaluation(
+    val stub: Stub<*, *>,
+    val matchResult: MatchResult,
+)
+
+/**
  * Thread-safe, multiplatform stub registry.
  *
  * The stub list is kept sorted by (priority, creationOrder) at insertion time so that
@@ -63,23 +82,25 @@ internal class StubRegistry {
      * If another coroutine already claimed it (lost CAS on an [StubConfiguration.eventuallyRemove]
      * stub), retry from Phase 1 with a fresh snapshot.
      *
-     * @return The matched stub, or `null` if no stub matched.
+     * @return [FindResult.Matched] with the winning stub, or [FindResult.NoMatch] with
+     *         per-stub evaluation details when nothing matched.
      */
     suspend fun findMatchingStub(
         request: RoutingRequest,
         verbose: Boolean,
         logger: Logger,
         formatter: HttpFormatter,
-    ): Stub<*, *>? {
+    ): FindResult {
         val formattedRequest = formatRequest(request, verbose, formatter)
 
         // Retries only when an eventuallyRemove stub is claimed by a concurrent coroutine
         // between Phase 1 evaluation and the Phase 2 claim — an extremely rare edge case.
         while (true) {
             // Phase 1: snapshot + evaluate outside the lock (suspend I/O runs freely).
-            val candidate =
+            val evalResult =
                 evaluate(stubs.value, request, verbose, logger, formattedRequest)
-                    ?: return null
+            if (evalResult is FindResult.NoMatch) return evalResult
+            val candidate = (evalResult as FindResult.Matched).stub
 
             // Phase 2: claim the winner (lock held only for this brief step).
             if (candidate.configuration.eventuallyRemove) {
@@ -102,7 +123,7 @@ internal class StubRegistry {
                 candidate.claimMatch()
             }
 
-            return candidate
+            return evalResult
         }
     }
 
@@ -135,7 +156,7 @@ internal class StubRegistry {
         verbose: Boolean,
         logger: Logger,
         formattedRequest: String,
-    ): Stub<*, *>? {
+    ): FindResult {
         val results =
             snapshot
                 .filter { !it.configuration.eventuallyRemove || !it.hasBeenMatched() }
@@ -158,13 +179,15 @@ internal class StubRegistry {
         val fullMatches = evaluated.filter { (_, mr) -> mr.matched }
 
         if (fullMatches.isNotEmpty()) {
-            return fullMatches
-                .sortedWith(
-                    compareByDescending<Pair<Stub<*, *>, MatchResult>> { (_, r) -> r.score }
-                        .thenBy { (s, _) -> s.requestSpecification.priority }
-                        .thenBy { (s, _) -> s.creationOrder },
-                ).first()
-                .first
+            return FindResult.Matched(
+                fullMatches
+                    .sortedWith(
+                        compareByDescending<Pair<Stub<*, *>, MatchResult>> { (_, r) -> r.score }
+                            .thenBy { (s, _) -> s.requestSpecification.priority }
+                            .thenBy { (s, _) -> s.creationOrder },
+                    ).first()
+                    .first,
+            )
         }
 
         if (verbose) {
@@ -175,7 +198,9 @@ internal class StubRegistry {
                 )
             }
         }
-        return null
+        return FindResult.NoMatch(
+            evaluated.map { (stub, mr) -> StubEvaluation(stub, mr) },
+        )
     }
 
     // endregion

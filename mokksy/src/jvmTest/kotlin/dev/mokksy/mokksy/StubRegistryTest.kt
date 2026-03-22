@@ -5,6 +5,7 @@ package dev.mokksy.mokksy
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.server.routing.RoutingRequest
 import io.ktor.util.logging.Logger
 import io.mockk.impl.annotations.MockK
@@ -106,7 +107,7 @@ class StubRegistryTest {
                 registry.add(lowPrio)
                 registry.add(highPrio)
 
-                val matched =
+                val result =
                     registry.findMatchingStub(
                         request = routingRequest,
                         verbose = false,
@@ -115,7 +116,8 @@ class StubRegistryTest {
                             HttpFormatter(),
                     )
 
-                matched shouldBe highPrio
+                result.shouldBeInstanceOf<FindResult.Matched>()
+                result.stub shouldBe highPrio
                 highPrio.hasBeenMatched() shouldBe true
                 lowPrio.hasBeenMatched() shouldBe false
             }
@@ -140,7 +142,7 @@ class StubRegistryTest {
                 registry.add(first)
                 registry.add(second)
 
-                val matched =
+                val result =
                     registry.findMatchingStub(
                         request = routingRequest,
                         verbose = false,
@@ -149,7 +151,8 @@ class StubRegistryTest {
                             HttpFormatter(),
                     )
 
-                matched shouldBe first
+                result.shouldBeInstanceOf<FindResult.Matched>()
+                result.stub shouldBe first
             }
 
         @Test
@@ -166,7 +169,7 @@ class StubRegistryTest {
 
                 registry.add(removable)
 
-                val matched1 =
+                val result1 =
                     registry.findMatchingStub(
                         request = routingRequest,
                         verbose = false,
@@ -174,11 +177,12 @@ class StubRegistryTest {
                         formatter =
                             HttpFormatter(),
                     )
-                matched1 shouldBe removable
+                result1.shouldBeInstanceOf<FindResult.Matched>()
+                result1.stub shouldBe removable
                 removable.hasBeenMatched() shouldBe true
 
                 // Next time it should not be present
-                val matched2 =
+                val result2 =
                     registry.findMatchingStub(
                         request = routingRequest,
                         verbose = false,
@@ -186,7 +190,7 @@ class StubRegistryTest {
                         formatter =
                             HttpFormatter(),
                     )
-                matched2 shouldBe null
+                result2.shouldBeInstanceOf<FindResult.NoMatch>()
                 registry.getAll().isEmpty() shouldBe true
             }
 
@@ -219,7 +223,7 @@ class StubRegistryTest {
                         formatter = HttpFormatter(),
                     )
 
-                result shouldBe null
+                result.shouldBeInstanceOf<FindResult.NoMatch>()
             }
     }
 
@@ -294,8 +298,9 @@ class StubRegistryTest {
                     }
                 val results = jobs.awaitAll()
 
-                results.filterNotNull().size shouldBe count
-                results.toSet().size shouldBe count // All unique
+                val matched = results.filterIsInstance<FindResult.Matched>()
+                matched.size shouldBe count
+                matched.map { it.stub }.toSet().size shouldBe count // All unique
                 registry.getAll().shouldBeEmpty()
             }
     }

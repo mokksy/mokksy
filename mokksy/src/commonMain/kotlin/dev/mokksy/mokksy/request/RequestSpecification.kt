@@ -21,16 +21,31 @@ import kotlin.reflect.KClass
 public const val DEFAULT_STUB_PRIORITY: Int = Int.MAX_VALUE
 
 /**
+ * Diagnostic detail for a single matcher evaluation.
+ *
+ * @property label Human-readable label identifying the matcher (e.g. `"method"`, `"body[0]"`).
+ * @property matched `true` when the matcher passed.
+ * @property reason Failure message from the matcher when [matched] is `false`; `null` when passed.
+ */
+internal data class MatcherDiagnostic(
+    val label: String,
+    val matched: Boolean,
+    val reason: String? = null,
+)
+
+/**
  * Result of evaluating a [RequestSpecification] against an incoming request.
  *
  * @property matched `true` when every defined matcher passed.
  * @property score Number of matchers that passed; higher means more specific.
  * @property failedMatchers Human-readable labels of matchers that did not pass.
+ * @property diagnostics Per-matcher evaluation details (both passed and failed).
  */
 internal data class MatchResult(
     val matched: Boolean,
     val score: Int,
     val failedMatchers: List<String>,
+    val diagnostics: List<MatcherDiagnostic> = emptyList(),
 )
 
 /**
