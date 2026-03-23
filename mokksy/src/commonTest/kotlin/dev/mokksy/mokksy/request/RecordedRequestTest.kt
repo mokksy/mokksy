@@ -27,27 +27,6 @@ internal class RecordedRequestTest {
     }
 
     @Test
-    fun `toString with typed body but no bodyAsText uses body toString`() {
-        val typedBody = mapOf("key" to "value")
-        val request = RecordedRequest(
-            HttpMethod.Post, "/api", emptyMap(), true,
-            body = typedBody,
-        )
-        request.toString() shouldContain "Body: {key=value}"
-    }
-
-    @Test
-    fun `toString prefers bodyAsText over typed body toString`() {
-        val request = RecordedRequest(
-            HttpMethod.Post, "/api", emptyMap(), true,
-            body = mapOf("key" to "value"),
-            bodyAsText = """{"key":"value"}""",
-        )
-        request.toString() shouldContain """Body: {"key":"value"}"""
-        request.toString() shouldNotContain "{key=value}"
-    }
-
-    @Test
     fun `toString with blank bodyAsText and null body omits body`() {
         val request = RecordedRequest(
             HttpMethod.Post, "/api", emptyMap(), false,
@@ -71,19 +50,6 @@ internal class RecordedRequestTest {
     }
 
     @Test
-    fun `equals ignores typed body`() {
-        val a = RecordedRequest(
-            HttpMethod.Post, "/api", emptyMap(), false,
-            body = "typed-a",
-        )
-        val b = RecordedRequest(
-            HttpMethod.Post, "/api", emptyMap(), false,
-            body = "typed-b",
-        )
-        a shouldBe b
-    }
-
-    @Test
     fun `hashCode considers bodyAsText`() {
         val base = RecordedRequest(HttpMethod.Post, "/api", emptyMap(), false)
         val withBody = RecordedRequest(
@@ -98,9 +64,8 @@ internal class RecordedRequestTest {
     // region defaults
 
     @Test
-    fun `body defaults to null`() {
+    fun `bodyAsText defaults to null`() {
         val request = RecordedRequest(HttpMethod.Get, "/test", emptyMap(), true)
-        request.body shouldBe null
         request.bodyAsText shouldBe null
     }
 

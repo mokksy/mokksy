@@ -11,15 +11,8 @@ import io.ktor.server.request.ContentTransformationException
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.ktor.server.request.receive
-import io.ktor.util.AttributeKey
 import kotlinx.coroutines.CancellationException
 import kotlin.jvm.JvmName
-
-/**
- * Attribute key for storing the typed request body captured during stub matching.
- * Used by [RecordedRequest.from] to avoid redundant body reads.
- */
-internal val CAPTURED_TYPED_BODY: AttributeKey<Any> = AttributeKey("mokksy.capturedTypedBody")
 
 /**
  * Evaluates every matcher independently (no short-circuit) and returns a scored [MatchResult].
@@ -118,9 +111,7 @@ private suspend fun <P : Any> RequestSpecification<P>.receiveBodyOrNull(
     request: ApplicationRequest,
 ): P? =
     try {
-        val received = request.call.receive(requestType)
-        request.call.attributes.put(CAPTURED_TYPED_BODY, received)
-        received
+        request.call.receive(requestType)
     } catch (e: CancellationException) {
         throw e
     } catch (e: ContentTransformationException) {

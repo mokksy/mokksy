@@ -31,7 +31,7 @@ internal class RecordedRequestBodyIT : AbstractIT() {
     }
 
     @Test
-    suspend fun `unmatched POST with typed stub captures typed body`() {
+    suspend fun `unmatched POST with typed stub captures bodyAsText`() {
         val path = "/typed-body-$seed"
         val input = Input("typed-$seed")
 
@@ -50,7 +50,6 @@ internal class RecordedRequestBodyIT : AbstractIT() {
 
         val unexpected = mokksy.findAllUnexpectedRequests().filter { it.uri == path }
         unexpected shouldHaveSize 1
-        // Body text should be captured via receiveText fallback (no body matchers ran for this request)
         unexpected[0].bodyAsText shouldBe Json.encodeToString(input)
     }
 
@@ -63,7 +62,6 @@ internal class RecordedRequestBodyIT : AbstractIT() {
         val unexpected = mokksy.findAllUnexpectedRequests().filter { it.uri == path }
         unexpected shouldHaveSize 1
         unexpected[0].bodyAsText.shouldBeNull()
-        unexpected[0].body.shouldBeNull()
     }
 
     @Test

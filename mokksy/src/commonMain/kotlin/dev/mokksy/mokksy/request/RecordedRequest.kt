@@ -4,6 +4,7 @@ import dev.mokksy.mokksy.InternalMokksyApi
 import io.ktor.http.HttpMethod
 import io.ktor.server.request.receiveText
 import io.ktor.server.routing.RoutingRequest
+import kotlinx.coroutines.CancellationException
 import kotlin.jvm.JvmStatic
 
 /**
@@ -17,8 +18,6 @@ import kotlin.jvm.JvmStatic
  * @property uri The URI of the request.
  * @property headers The headers of the request.
  * @property matched Whether the request was matched by a stub.
- * @property body The typed request body captured during stub matching, or `null`
- *               if no typed body matchers ran or deserialization failed.
  * @property bodyAsText The raw request body as text, or `null` if the body was
  *                      empty or binary.
  */
@@ -27,18 +26,14 @@ public class RecordedRequest internal constructor(
     public val uri: String,
     public val headers: Map<String, List<String>>,
     public val matched: Boolean,
-    public val body: Any? = null,
     public val bodyAsText: String? = null,
 ) {
     internal companion object {
         /**
          * Creates a [RecordedRequest] snapshot from a [RoutingRequest].
          *
-         * Body capture:
-         * - Typed body from [CAPTURED_TYPED_BODY] call attribute (set during matching) → [body]
-         * - Raw text via [receiveText] → [bodyAsText] (requires `DoubleReceive` plugin)
-         *
-         * Both [body] and [bodyAsText] may be populated for the same request.
+         * Captures the raw request body via [receiveText] into [bodyAsText].
+         * Requires the `DoubleReceive` plugin when body matchers have already read the body.
          */
         @InternalMokksyApi
         @JvmStatic
@@ -46,11 +41,11 @@ public class RecordedRequest internal constructor(
             request: RoutingRequest,
             matched: Boolean,
         ): RecordedRequest {
-            val typedBody = request.call.attributes.getOrNull(CAPTURED_TYPED_BODY)
-
             @Suppress("TooGenericExceptionCaught")
             val bodyText = try {
                 request.call.receiveText().blankToNull()
+            } catch (e: CancellationException) {
+                throw e
             } catch (_: Exception) {
                 null
             }
@@ -60,7 +55,6 @@ public class RecordedRequest internal constructor(
                 uri = request.local.uri,
                 headers = request.headers.entries().associate { it.key to it.value },
                 matched = matched,
-                body = typedBody,
                 bodyAsText = bodyText,
             )
         }
@@ -68,10 +62,9 @@ public class RecordedRequest internal constructor(
 
     override fun toString(): String = buildString {
         append("${method.value} $uri")
-        val preview = bodyAsText ?: body?.toString()
-        if (!preview.isNullOrBlank()) {
+        if (!bodyAsText.isNullOrBlank()) {
             append("\nBody: ")
-            append(preview)
+            append(bodyAsText)
         }
     }
 

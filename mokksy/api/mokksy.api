@@ -612,7 +612,6 @@ public final class dev/mokksy/mokksy/request/CapturedRequest {
 public final class dev/mokksy/mokksy/request/RecordedRequest {
 	public fun equals (Ljava/lang/Object;)Z
 	public static final fun from$mokksy (Lio/ktor/server/routing/RoutingRequest;ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getBody ()Ljava/lang/Object;
 	public final fun getBodyAsText ()Ljava/lang/String;
 	public final fun getHeaders ()Ljava/util/Map;
 	public final fun getMatched ()Z

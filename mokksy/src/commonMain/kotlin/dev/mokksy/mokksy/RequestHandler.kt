@@ -45,10 +45,10 @@ internal suspend fun handleRequest(
             formatter = formatter,
         )
 
-    val recorded = RecordedRequest.from(request, matchedStub != null)
-
     if (matchedStub != null) {
-        requestJournal.recordMatched(recorded)
+        if (requestJournal.recordsMatched) {
+            requestJournal.recordMatched(RecordedRequest.from(request, matched = true))
+        }
         handleMatchedStub(
             matchedStub = matchedStub,
             serverConfig = configuration,
@@ -58,7 +58,7 @@ internal suspend fun handleRequest(
             formatter = formatter,
         )
     } else {
-        requestJournal.recordUnmatched(recorded)
+        requestJournal.recordUnmatched(RecordedRequest.from(request, matched = false))
         val errorMessage = "No matched mapping for request: ${request.toLogString()}"
         if (configuration.verbose) {
             val availableStubs = stubRegistry.getAll()

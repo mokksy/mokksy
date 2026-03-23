@@ -357,8 +357,6 @@ final class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCRequest : dev
 }
 
 final class dev.mokksy.mokksy.request/RecordedRequest { // dev.mokksy.mokksy.request/RecordedRequest|null[0]
-    final val body // dev.mokksy.mokksy.request/RecordedRequest.body|{}body[0]
-        final fun <get-body>(): kotlin/Any? // dev.mokksy.mokksy.request/RecordedRequest.body.<get-body>|<get-body>(){}[0]
     final val bodyAsText // dev.mokksy.mokksy.request/RecordedRequest.bodyAsText|{}bodyAsText[0]
         final fun <get-bodyAsText>(): kotlin/String? // dev.mokksy.mokksy.request/RecordedRequest.bodyAsText.<get-bodyAsText>|<get-bodyAsText>(){}[0]
     final val headers // dev.mokksy.mokksy.request/RecordedRequest.headers|{}headers[0]
