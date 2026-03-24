@@ -1,6 +1,8 @@
 package dev.mokksy.mokksy.request
 
 import dev.mokksy.mokksy.JournalMode
+import io.kotest.matchers.booleans.shouldBeFalse
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -21,6 +23,9 @@ internal class RequestJournalTest {
     fun `LEAN mode should only record unmatched requests`() {
         val journal = RequestJournal(JournalMode.LEAN)
 
+        journal.recordsMatched.shouldBeFalse()
+        journal.recordsUnmatched.shouldBeTrue()
+
         journal.recordMatched(request1)
         journal.recordUnmatched(request2)
 
@@ -31,6 +36,9 @@ internal class RequestJournalTest {
     @Test
     fun `FULL mode should record both matched and unmatched requests`() {
         val journal = RequestJournal(JournalMode.FULL)
+
+        journal.recordsMatched.shouldBeTrue()
+        journal.recordsUnmatched.shouldBeTrue()
 
         journal.recordMatched(request1)
         journal.recordUnmatched(request2)

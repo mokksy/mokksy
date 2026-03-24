@@ -21,6 +21,10 @@ import kotlinx.collections.immutable.persistentListOf
 internal class RequestJournal(
     private val mode: JournalMode = JournalMode.LEAN,
 ) {
+    /** Whether this journal records matched requests (i.e. [JournalMode.FULL]). */
+    internal val recordsMatched: Boolean = (mode == JournalMode.FULL)
+    internal val recordsUnmatched: Boolean = true
+
     private val matched: AtomicRef<PersistentList<RecordedRequest>> = atomic(persistentListOf())
     private val unmatched: AtomicRef<PersistentList<RecordedRequest>> = atomic(persistentListOf())
 

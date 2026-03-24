@@ -2,7 +2,9 @@ package dev.mokksy.mokksy.request
 
 import dev.mokksy.mokksy.InternalMokksyApi
 import io.ktor.http.HttpMethod
+import io.ktor.server.request.receiveText
 import io.ktor.server.routing.RoutingRequest
+import kotlinx.coroutines.CancellationException
 import kotlin.jvm.JvmStatic
 
 /**
@@ -16,32 +18,60 @@ import kotlin.jvm.JvmStatic
  * @property uri The URI of the request.
  * @property headers The headers of the request.
  * @property matched Whether the request was matched by a stub.
+ * @property bodyAsText The raw request body as text, or `null` if the body was
+ *                      empty or binary.
  */
 public class RecordedRequest internal constructor(
     public val method: HttpMethod,
     public val uri: String,
     public val headers: Map<String, List<String>>,
     public val matched: Boolean,
+    public val bodyAsText: String? = null,
 ) {
     internal companion object {
         /**
-         * Creates a [RecordedRequest] snapshot from a [io.ktor.server.routing.RoutingRequest].
+         * Creates a [RecordedRequest] snapshot from a [RoutingRequest].
+         *
+         * Captures the raw request body via [receiveText] into [bodyAsText].
+         * Requires the `DoubleReceive` plugin when body matchers have already read the body.
+         *
+         * Note: The entire body is captured without size limits. For requests with
+         *       very large bodies (e.g., file uploads), this may consume significant memory.
          */
         @InternalMokksyApi
         @JvmStatic
-        internal fun from(
+        internal suspend fun from(
             request: RoutingRequest,
             matched: Boolean,
-        ): RecordedRequest =
-            RecordedRequest(
+        ): RecordedRequest {
+            @Suppress("TooGenericExceptionCaught")
+            val bodyText =
+                try {
+                    request.call.receiveText().blankToNull()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    null
+                }
+
+            return RecordedRequest(
                 method = request.local.method,
                 uri = request.local.uri,
                 headers = request.headers.entries().associate { it.key to it.value },
                 matched = matched,
+                bodyAsText = bodyText,
             )
+        }
     }
 
-    override fun toString(): String = "${method.value} $uri"
+    override fun toString(): String =
+        buildString {
+            append("${method.value} $uri")
+            if (!bodyAsText.isNullOrBlank()) {
+                append("\nBody: ")
+                append(bodyAsText)
+            }
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -51,6 +81,7 @@ public class RecordedRequest internal constructor(
         if (method != other.method) return false
         if (uri != other.uri) return false
         if (headers != other.headers) return false
+        if (bodyAsText != other.bodyAsText) return false
 
         return true
     }
@@ -60,6 +91,9 @@ public class RecordedRequest internal constructor(
         result = 31 * result + method.hashCode()
         result = 31 * result + uri.hashCode()
         result = 31 * result + headers.hashCode()
+        result = 31 * result + (bodyAsText?.hashCode() ?: 0)
         return result
     }
 }
+
+private fun String.blankToNull(): String? = ifBlank { null }

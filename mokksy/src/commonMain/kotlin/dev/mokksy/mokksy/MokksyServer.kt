@@ -6,6 +6,7 @@ import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestJournal
 import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
+import dev.mokksy.mokksy.request.handleRequest
 import dev.mokksy.mokksy.request.methodEqual
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.HttpMethod
@@ -27,7 +28,6 @@ import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
-
 
 /**
  * An embedded mock HTTP server for testing. Registers stubs for any HTTP method and verifies
@@ -659,6 +659,15 @@ public class MokksyServer
          */
         public fun findAllUnexpectedRequests(): List<RecordedRequest> =
             requestJournal.getUnmatched()
+
+        /**
+         * Returns all HTTP requests that were successfully matched by a stub.
+         * Only populated when [ServerConfiguration.journalMode] is [JournalMode.FULL].
+         *
+         * @return A list of [RecordedRequest] snapshots, empty in [JournalMode.LEAN].
+         */
+        public fun findAllMatchedRequests(): List<RecordedRequest> =
+            requestJournal.getMatched()
 
         /**
          * Resets the match state of all currently registered stubs to unmatched,
