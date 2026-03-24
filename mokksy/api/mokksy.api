@@ -216,6 +216,7 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHand
 	public final fun delete (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun delete (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun delete$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
+	public final fun findAllMatchedRequests ()Ljava/util/List;
 	public final fun findAllUnexpectedRequests ()Ljava/util/List;
 	public final fun findAllUnmatchedRequests ()Ljava/util/List;
 	public final fun findAllUnmatchedStubs ()Ljava/util/List;

@@ -138,4 +138,36 @@ internal class RecordedRequestBodyIT : AbstractIT() {
         // In default LEAN mode, matched requests are not recorded as unexpected
         mokksy.findAllUnexpectedRequests().filter { it.uri == path } shouldHaveSize 0
     }
+
+    @Test
+    suspend fun `matched POST body is recorded in FULL mode`() {
+        val fullModeServer = MokksyServer(
+            configuration = ServerConfiguration(journalMode = JournalMode.FULL, verbose = true),
+        )
+        fullModeServer.startSuspend()
+        val fullClient = createKtorClient(fullModeServer.port())
+        try {
+            val path = "/full-matched-$seed"
+            val json = """{"name":"full-$seed"}"""
+
+            fullModeServer.post {
+                path(path)
+            } respondsWith {
+                body = "ok"
+            }
+
+            val result = fullClient.post(path) {
+                contentType(ContentType.Application.Json)
+                setBody(json)
+            }
+
+            result.status shouldBe HttpStatusCode.OK
+            val matched = fullModeServer.findAllMatchedRequests().filter { it.uri == path }
+            matched shouldHaveSize 1
+            matched[0].bodyAsText shouldBe json
+        } finally {
+            fullClient.close()
+            fullModeServer.shutdownSuspend()
+        }
+    }
 }

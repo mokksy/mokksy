@@ -1,9 +1,11 @@
 @file:OptIn(InternalMokksyApi::class)
 
-package dev.mokksy.mokksy
+package dev.mokksy.mokksy.request
 
-import dev.mokksy.mokksy.request.RecordedRequest
-import dev.mokksy.mokksy.request.RequestJournal
+import dev.mokksy.mokksy.InternalMokksyApi
+import dev.mokksy.mokksy.ServerConfiguration
+import dev.mokksy.mokksy.Stub
+import dev.mokksy.mokksy.StubRegistry
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -58,7 +60,9 @@ internal suspend fun handleRequest(
             formatter = formatter,
         )
     } else {
-        requestJournal.recordUnmatched(RecordedRequest.from(request, matched = false))
+        if (requestJournal.recordsUnmatched) {
+            requestJournal.recordUnmatched(RecordedRequest.from(request, matched = false))
+        }
         val errorMessage = "No matched mapping for request: ${request.toLogString()}"
         if (configuration.verbose) {
             val availableStubs = stubRegistry.getAll()
