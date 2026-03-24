@@ -18,20 +18,28 @@ internal class RecordedRequestTest {
 
     @Test
     fun `toString with bodyAsText includes body preview`() {
-        val request = RecordedRequest(
-            HttpMethod.Post, "/api", emptyMap(), false,
-            bodyAsText = """{"name":"test"}""",
-        )
+        val request =
+            RecordedRequest(
+                HttpMethod.Post,
+                "/api",
+                emptyMap(),
+                false,
+                bodyAsText = """{"name":"test"}""",
+            )
         request.toString() shouldContain "POST /api"
         request.toString() shouldContain """Body: {"name":"test"}"""
     }
 
     @Test
     fun `toString with blank bodyAsText and null body omits body`() {
-        val request = RecordedRequest(
-            HttpMethod.Post, "/api", emptyMap(), false,
-            bodyAsText = "   ",
-        )
+        val request =
+            RecordedRequest(
+                HttpMethod.Post,
+                "/api",
+                emptyMap(),
+                false,
+                bodyAsText = "   ",
+            )
         request.toString() shouldNotContain "Body:"
     }
 
@@ -42,20 +50,32 @@ internal class RecordedRequestTest {
     @Test
     fun `equals considers bodyAsText`() {
         val base = RecordedRequest(HttpMethod.Post, "/api", emptyMap(), false)
-        val withBody = RecordedRequest(
-            HttpMethod.Post, "/api", emptyMap(), false,
-            bodyAsText = """{"name":"test"}""",
-        )
+        val withBody =
+            RecordedRequest(
+                HttpMethod.Post,
+                "/api",
+                emptyMap(),
+                false,
+                bodyAsText = """{"name":"test"}""",
+            )
         base shouldNotBe withBody
     }
 
     @Test
     fun `hashCode considers bodyAsText`() {
         val base = RecordedRequest(HttpMethod.Post, "/api", emptyMap(), false)
-        val withBody = RecordedRequest(
-            HttpMethod.Post, "/api", emptyMap(), false,
-            bodyAsText = """{"name":"test"}""",
-        )
+        val withBody =
+            RecordedRequest(
+                HttpMethod.Post,
+                "/api",
+                emptyMap(),
+                false,
+                bodyAsText = """{"name":"test"}""",
+            )
+        // Different objects should have different hashCodes (not guaranteed but expected)
+        // Also verify consistent hashing
+        val copy = RecordedRequest(HttpMethod.Post, "/api", emptyMap(), false)
+        base.hashCode() shouldBe copy.hashCode()
         base.hashCode() shouldNotBe withBody.hashCode()
     }
 

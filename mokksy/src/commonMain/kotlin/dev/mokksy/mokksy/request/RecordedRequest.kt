@@ -34,6 +34,9 @@ public class RecordedRequest internal constructor(
          *
          * Captures the raw request body via [receiveText] into [bodyAsText].
          * Requires the `DoubleReceive` plugin when body matchers have already read the body.
+         *
+         * Note: The entire body is captured without size limits. For requests with
+         *       very large bodies (e.g., file uploads), this may consume significant memory.
          */
         @InternalMokksyApi
         @JvmStatic
@@ -42,13 +45,14 @@ public class RecordedRequest internal constructor(
             matched: Boolean,
         ): RecordedRequest {
             @Suppress("TooGenericExceptionCaught")
-            val bodyText = try {
-                request.call.receiveText().blankToNull()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                null
-            }
+            val bodyText =
+                try {
+                    request.call.receiveText().blankToNull()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    null
+                }
 
             return RecordedRequest(
                 method = request.local.method,
@@ -60,13 +64,14 @@ public class RecordedRequest internal constructor(
         }
     }
 
-    override fun toString(): String = buildString {
-        append("${method.value} $uri")
-        if (!bodyAsText.isNullOrBlank()) {
-            append("\nBody: ")
-            append(bodyAsText)
+    override fun toString(): String =
+        buildString {
+            append("${method.value} $uri")
+            if (!bodyAsText.isNullOrBlank()) {
+                append("\nBody: ")
+                append(bodyAsText)
+            }
         }
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
