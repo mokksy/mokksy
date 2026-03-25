@@ -118,6 +118,59 @@ public abstract interface annotation class dev/mokksy/mokksy/ExperimentalMokksyA
 public abstract interface annotation class dev/mokksy/mokksy/InternalMokksyApi : java/lang/annotation/Annotation {
 }
 
+public abstract class dev/mokksy/mokksy/IoParallelism {
+	public static final field Companion Ldev/mokksy/mokksy/IoParallelism$Companion;
+	public static final fun defaultParallelism ()Ldev/mokksy/mokksy/IoParallelism;
+	public static final fun fixed (I)Ldev/mokksy/mokksy/IoParallelism;
+	public static final fun of (Ljava/lang/String;)Ldev/mokksy/mokksy/IoParallelism;
+	public static final fun processorMultiplier (F)Ldev/mokksy/mokksy/IoParallelism;
+}
+
+public final class dev/mokksy/mokksy/IoParallelism$Companion {
+	public final fun defaultParallelism ()Ldev/mokksy/mokksy/IoParallelism;
+	public final fun fixed (I)Ldev/mokksy/mokksy/IoParallelism;
+	public final fun of (Ljava/lang/String;)Ldev/mokksy/mokksy/IoParallelism;
+	public final fun processorMultiplier (F)Ldev/mokksy/mokksy/IoParallelism;
+}
+
+public final class dev/mokksy/mokksy/IoParallelism$Default : dev/mokksy/mokksy/IoParallelism {
+	public static final field INSTANCE Ldev/mokksy/mokksy/IoParallelism$Default;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/mokksy/mokksy/IoParallelism$Fixed : dev/mokksy/mokksy/IoParallelism {
+	public fun <init> (I)V
+	public final fun component1 ()I
+	public final fun copy (I)Ldev/mokksy/mokksy/IoParallelism$Fixed;
+	public static synthetic fun copy$default (Ldev/mokksy/mokksy/IoParallelism$Fixed;IILjava/lang/Object;)Ldev/mokksy/mokksy/IoParallelism$Fixed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCount ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/mokksy/mokksy/IoParallelism$ProcessorMultiplier : dev/mokksy/mokksy/IoParallelism {
+	public fun <init> (F)V
+	public final fun component1 ()F
+	public final fun copy (F)Ldev/mokksy/mokksy/IoParallelism$ProcessorMultiplier;
+	public static synthetic fun copy$default (Ldev/mokksy/mokksy/IoParallelism$ProcessorMultiplier;FILjava/lang/Object;)Ldev/mokksy/mokksy/IoParallelism$ProcessorMultiplier;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMultiplier ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class dev/mokksy/mokksy/IoThreadMode : java/lang/Enum {
+	public static final field AUTO Ldev/mokksy/mokksy/IoThreadMode;
+	public static final field PLATFORM Ldev/mokksy/mokksy/IoThreadMode;
+	public static final field VIRTUAL Ldev/mokksy/mokksy/IoThreadMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Ldev/mokksy/mokksy/IoThreadMode;
+	public static fun values ()[Ldev/mokksy/mokksy/IoThreadMode;
+}
+
 public final class dev/mokksy/mokksy/JavaBuildingStep {
 	public final fun respondsWith (Ljava/lang/Class;Ljava/util/function/Consumer;)V
 	public final fun respondsWith (Ljava/util/function/Consumer;)V
@@ -193,6 +246,20 @@ public final class dev/mokksy/mokksy/MokksyJava {
 	public static synthetic fun shutdown$default (Ldev/mokksy/mokksy/MokksyServer;JJLkotlinx/coroutines/CoroutineDispatcher;ILjava/lang/Object;)V
 	public static final fun start (Ldev/mokksy/mokksy/MokksyServer;)Ldev/mokksy/mokksy/MokksyServer;
 	public static final synthetic fun start (Ldev/mokksy/mokksy/MokksyServer;Lkotlinx/coroutines/CoroutineDispatcher;)Ldev/mokksy/mokksy/MokksyServer;
+}
+
+public final class dev/mokksy/mokksy/MokksyProperties {
+	public static final field Companion Ldev/mokksy/mokksy/MokksyProperties$Companion;
+	public synthetic fun <init> (Ldev/mokksy/mokksy/IoThreadMode;Ldev/mokksy/mokksy/IoParallelism;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun fromProperties (Ljava/util/Properties;)Ldev/mokksy/mokksy/MokksyProperties;
+	public final fun getIoParallelism ()Ldev/mokksy/mokksy/IoParallelism;
+	public final fun getIoThreadMode ()Ldev/mokksy/mokksy/IoThreadMode;
+	public static final fun load ()Ldev/mokksy/mokksy/MokksyProperties;
+}
+
+public final class dev/mokksy/mokksy/MokksyProperties$Companion {
+	public final fun fromProperties (Ljava/util/Properties;)Ldev/mokksy/mokksy/MokksyProperties;
+	public final fun load ()Ldev/mokksy/mokksy/MokksyProperties;
 }
 
 public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHandler {

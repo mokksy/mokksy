@@ -53,6 +53,7 @@
 * [Embedding in an existing Ktor application](#embedding-in-an-existing-ktor-application)
   * [Application-level installation](#application-level-installation)
   * [Route-level installation](#route-level-installation)
+* [JVM IO configuration](#jvm-io-configuration)
 * [Java API](#java-api)
   * [Streaming responses](#streaming-responses)
   * [SSE streaming responses](#sse-streaming-responses)
@@ -796,6 +797,39 @@ which matches all routes). Narrow the scope by passing a prefix:
 ```kotlin
 mokksy(server, path = "/api/{...}")
 ```
+
+## JVM IO configuration
+
+On JVM, Mokksy can run its internal IO work (stub matching, response writing, journal recording)
+on virtual threads (Java 21+) or platform threads. Netty's event loops are **not** affected —
+they always run on platform threads.
+
+Configure via a `mokksy.properties` file on the classpath:
+
+```properties
+mokksy.io.threads=auto
+mokksy.io.parallelism=2c
+```
+
+| Property                | Values                        | Default   |
+|-------------------------|-------------------------------|-----------|
+| `mokksy.io.threads`     | `auto`, `virtual`, `platform` | `auto`    |
+| `mokksy.io.parallelism` | `default`, `<n>`, `<n>c`      | `default` |
+
+**Thread mode** (`mokksy.io.threads`):
+
+- `auto` — use virtual threads if available (Java 21+), otherwise fall back to platform threads
+- `virtual` — force virtual threads; fails fast at startup on Java < 21
+- `platform` — use platform threads via `Dispatchers.IO`
+
+**Parallelism** (`mokksy.io.parallelism`) — applies to platform threads only; virtual threads
+scale automatically:
+
+- `default` — use the default parallelism of `Dispatchers.IO`
+- `4` — fixed thread count
+- `2c` — multiplier applied to available processors (e.g. `2c` on an 8-core machine yields 16 threads)
+
+If the file is absent, Mokksy defaults to `auto` thread mode with `default` parallelism.
 
 ## Java API
 

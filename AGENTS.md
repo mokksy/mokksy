@@ -86,3 +86,23 @@ make          # or: gradle build
 ```
 
 Generate API docs: `./gradlew :docs:dokkaGenerate` → output in `docs/public/apidocs/`
+
+## Architecture
+
+Kotlin Multiplatform library. Targets: JVM (Netty), JS/wasmJS (CIO), Native (CIO).
+
+### Key source sets
+
+- `commonMain` — core: `MokksyServer`, `ServerConfiguration`, `StubRegistry`, `RequestHandler`, routing (`KtorExtensions.kt`)
+- `jvmMain` — Netty engine (`platform.jvm.kt`), Java wrapper (`dev.mokksy.Mokksy`), blocking extensions (`MokksyServer.jvm.kt`), shutdown hook
+- `webMain` / `nativeMain` — CIO engine variants
+
+### Platform abstraction
+
+`expect fun createEmbeddedServer(…)` in `commonMain/platform.kt`, with `actual` in each platform source set.
+JVM uses Netty; web/native use CIO.
+
+### Threading
+
+- Netty engine uses native (epoll/kqueue) event loops — **not safe for virtual threads**
+- Virtual threads are only suitable for Mokksy's internal IO machinery (request handling, stub matching, response writing)

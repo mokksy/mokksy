@@ -78,6 +78,7 @@ kotlin {
                 implementation(libs.assertj.core)
                 implementation(libs.datafaker)
                 implementation(libs.junit.jupiter.params)
+                implementation(libs.junit.pioneer)
                 implementation(libs.ktor.client.java)
                 implementation(libs.ktor.serialization.jackson)
                 implementation(libs.lincheck)
