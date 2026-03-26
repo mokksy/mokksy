@@ -159,3 +159,4 @@ kotlin-js-store/
 !/.idea/ktlint-plugin.xml
 
 .claude/
+!.claude/skills/

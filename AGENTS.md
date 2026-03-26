@@ -19,45 +19,10 @@
 
 ### Testing
 
-Prefer integration tests over unit tests for better coverage and less fragility.
-Use unit tests for edge cases where integration tests are hard to write.
-
-#### Kotlin Tests
-
-Use [kotlin-test](https://github.com/JetBrains/kotlin/tree/master/libraries/kotlin.test)
-and [Kotest-assertions](https://kotest.io/docs/assertions/assertions.html).
-For Java tests use JUnit5, Mockito, AssertJ core.
-
-- Backtick test names: "fun `should return 200 OK`()"
-- When testing suspend functions, you can make test method `suspend` in JVM since JUnit supports it.
-- No KDocs on tests (don't delete existing ones)
-- Infix assertions: `shouldBe` not `assertEquals`; `shouldContain` not `.contains(...) shouldBe true`
-- `withClue("reason")` only when the assertion is not self-evident
-- Nullable fields: check null first — `params shouldNotBeNull { params.id shouldBe 1 }`
-- JSON: use [Kotest-assertions-json](https://kotest.io/docs/assertions/json/json-overview.html)
-  (`shouldEqualJson`), never substring comparison
-- `assertSoftly(subject) { ... }` for multiple assertions on the same subject.
-  Don't use for different subjects, single assertions, or with `this`.
-  Combine same-scenario assertions into one test; don't split across multiple `@Test` functions
-- Prefer `@ParameterizedTest` with `@ValueSource`/`@MethodSource` over duplicate `@Test` methods.
-  For HTTP methods: `@ValueSource(strings = ["GET", "POST", ...])` with `HttpMethod.parse(methodName)`
-- No `Random`/`UUID` in assertions — use `seed` only for path suffixes; fixed constants elsewhere
-- Always use current non-deprecated API in tests
-
-#### Multiplatform Tests
-
-- Call `mokksy.awaitStarted()` at the start of each `commonTest` test body, even after `startSuspend()`
-  in `@BeforeTest` — JS/wasmJS may start the test body before the server finishes binding
-- **Path isolation**: in `@TestInstance(PER_CLASS)` tests (`AbstractIT` subclasses), include `seed` in
-  every stub path (`"/resource-$seed"`) to prevent stub accumulation
-
-#### Testing Ktor Request/Response
-
-- **Never mock** `ApplicationRequest`, `ApplicationCall`, `Headers` — use `testApplication` from
-  `ktor-server-test-host`. See `CapturedRequestTest`, `RequestSpecificationTest` for patterns
-- `testApplication` uses internal `runBlocking` — do **not** wrap in `runTest`
-- Install `DoubleReceive` when body is read more than once
-- Install `ContentNegotiation { json() }` when deserializing typed request bodies
+- Prefer integration tests over unit tests for better coverage and less fragility
+- Use unit tests only for edge cases where integration tests are hard to write
+- Never mock Ktor request/response types — use `testApplication` instead
+- Test new and modified code
 
 ### Documentation
 

@@ -1,3 +1,3 @@
-Always use `jetbrains` and `intellij-index` MCP when available
+Consider using `jetbrains` and `intellij-index` MCPs when available
 
 @AGENTS.md
