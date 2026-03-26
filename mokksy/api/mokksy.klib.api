@@ -57,6 +57,7 @@ final enum class dev.mokksy.mokksy.utils.highlight/ColorTheme : kotlin/Enum<dev.
 final enum class dev.mokksy.mokksy/JournalMode : kotlin/Enum<dev.mokksy.mokksy/JournalMode> { // dev.mokksy.mokksy/JournalMode|null[0]
     enum entry FULL // dev.mokksy.mokksy/JournalMode.FULL|null[0]
     enum entry LEAN // dev.mokksy.mokksy/JournalMode.LEAN|null[0]
+    enum entry NONE // dev.mokksy.mokksy/JournalMode.NONE|null[0]
 
     final val entries // dev.mokksy.mokksy/JournalMode.entries|#static{}entries[0]
         final fun <get-entries>(): kotlin.enums/EnumEntries<dev.mokksy.mokksy/JournalMode> // dev.mokksy.mokksy/JournalMode.entries.<get-entries>|<get-entries>#static(){}[0]

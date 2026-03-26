@@ -699,10 +699,11 @@ val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnmatchedStubs
 Mokksy records incoming requests in a `RequestJournal`. The recording mode is controlled by `JournalMode` in
 `ServerConfiguration`:
 
-| Mode                           | Behaviour                                                                                                   |
-|--------------------------------|-------------------------------------------------------------------------------------------------------------|
-| `JournalMode.LEAN` _(default)_ | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`. |
-| `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                 |
+| Mode                           | Behaviour                                                                                                                                                        |
+|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `JournalMode.NONE`             | Disables request recording entirely. findAllUnexpectedRequests()`, `findAllMatchedRequests()`, and `verifyNoUnexpectedRequests()` throw `IllegalStateException`. |
+| `JournalMode.LEAN` _(default)_ | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`.                                                      |
+| `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                                                                      |
 
 ```kotlin
 val mokksy = MokksyServer(

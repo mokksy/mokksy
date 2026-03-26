@@ -162,6 +162,7 @@ public final class dev/mokksy/mokksy/JavaStreamingResponseDefinitionBuilder {
 public final class dev/mokksy/mokksy/JournalMode : java/lang/Enum {
 	public static final field FULL Ldev/mokksy/mokksy/JournalMode;
 	public static final field LEAN Ldev/mokksy/mokksy/JournalMode;
+	public static final field NONE Ldev/mokksy/mokksy/JournalMode;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Ldev/mokksy/mokksy/JournalMode;
 	public static fun values ()[Ldev/mokksy/mokksy/JournalMode;

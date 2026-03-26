@@ -20,6 +20,20 @@ internal class RequestJournalTest {
         )
 
     @Test
+    fun `NONE mode should not record any requests`() {
+        val journal = RequestJournal(JournalMode.NONE)
+
+        journal.recordsMatched.shouldBeFalse()
+        journal.recordsUnmatched.shouldBeFalse()
+
+        journal.recordMatched(request1)
+        journal.recordUnmatched(request2)
+
+        journal.getMatched().shouldBeEmpty()
+        journal.getUnmatched().shouldBeEmpty()
+    }
+
+    @Test
     fun `LEAN mode should only record unmatched requests`() {
         val journal = RequestJournal(JournalMode.LEAN)
 

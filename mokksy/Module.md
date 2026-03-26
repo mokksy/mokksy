@@ -31,7 +31,7 @@ mokksy.shutdown()
 | Request matching | `RequestSpecificationBuilder` | Path, method, headers, query params, body predicates. |
 | Response | `ResponseDefinitionBuilder` | Status, headers, body, delay. |
 | Streaming | `StreamingResponseDefinitionBuilder` | Chunked body or SSE stream with per-chunk delay. |
-| Request journal | [JournalMode] | `LEAN` (unmatched only) or `FULL` (all requests). |
+| Request journal | [JournalMode] | `NONE` (disabled), `LEAN` (unmatched only) or `FULL` (all requests). |
 
 ## Package contents
 

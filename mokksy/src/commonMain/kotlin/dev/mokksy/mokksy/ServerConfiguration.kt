@@ -10,6 +10,13 @@ import kotlin.jvm.JvmOverloads
  */
 public enum class JournalMode {
     /**
+     * This mode disables request recording entirely.
+     * Journal-dependent methods like [MokksyServer.verifyNoUnexpectedRequests] and
+     * [MokksyServer.findAllUnexpectedRequests] throw [IllegalStateException] when active.
+     */
+    NONE,
+
+    /**
      * Records only requests with no matching stub.
      * Lower overhead; sufficient for [MokksyServer.verifyNoUnexpectedRequests].
      */
@@ -30,6 +37,7 @@ public enum class JournalMode {
  * @property journalMode Controls which requests are recorded in the
  *                       [dev.mokksy.mokksy.request.RequestJournal].
  *                       Defaults to [JournalMode.LEAN] (only unmatched requests).
+ *                       Supported: [JournalMode.NONE], [JournalMode.LEAN], [JournalMode.FULL].
  * @property json The [Json] instance used for both content negotiation and response body logging.
  *               Defaults to `Json { ignoreUnknownKeys = true }`. Provide a custom instance to
  *               share serializers modules (e.g. for polymorphic types) between deserialization

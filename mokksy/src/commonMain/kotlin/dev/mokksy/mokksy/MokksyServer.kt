@@ -640,6 +640,13 @@ public class MokksyServer
                 }.map { it.requestSpecification }
                 .toList()
 
+        private fun ensureJournalAvailable() {
+            check(configuration.journalMode != JournalMode.NONE) {
+                "Journal-dependent methods are disabled because [JournalMode.NONE] is active. " +
+                    "Use [JournalMode.LEAN] or [JournalMode.FULL] during configuration."
+            }
+        }
+
         /**
          * Returns all HTTP requests that arrived at the server but were not matched by any stub.
          *
@@ -656,9 +663,12 @@ public class MokksyServer
          * Returns all HTTP requests that arrived at the server but were not matched by any stub.
          *
          * @return A list of [RecordedRequest] snapshots.
+         * @throws IllegalStateException when [configuration.journalMode] is [JournalMode.NONE].
          */
-        public fun findAllUnexpectedRequests(): List<RecordedRequest> =
-            requestJournal.getUnmatched()
+        public fun findAllUnexpectedRequests(): List<RecordedRequest> {
+            ensureJournalAvailable()
+            return requestJournal.getUnmatched()
+        }
 
         /**
          * Returns all HTTP requests that were successfully matched by a stub.
@@ -666,8 +676,10 @@ public class MokksyServer
          *
          * @return A list of [RecordedRequest] snapshots, empty in [JournalMode.LEAN].
          */
-        public fun findAllMatchedRequests(): List<RecordedRequest> =
-            requestJournal.getMatched()
+        public fun findAllMatchedRequests(): List<RecordedRequest> {
+            ensureJournalAvailable()
+            return requestJournal.getMatched()
+        }
 
         /**
          * Resets the match state of all currently registered stubs to unmatched,
@@ -755,6 +767,7 @@ public class MokksyServer
          * ```
          *
          * @throws AssertionError If there are any requests that have not been matched by a stub.
+         * @throws IllegalStateException when [configuration.journalMode] is [JournalMode.NONE].
          */
         public fun verifyNoUnexpectedRequests() {
             val unmatched = findAllUnexpectedRequests()
