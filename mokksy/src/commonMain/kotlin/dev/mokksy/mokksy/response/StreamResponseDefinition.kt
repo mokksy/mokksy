@@ -121,9 +121,10 @@ public open class StreamResponseDefinition<P, T>(
         }
         writer.writeStringUtf8(serializedValue)
         writer.flush()
-        yield()
         if (delayBetweenChunks.isPositive()) {
             delay(delayBetweenChunks)
+        } else {
+            yield()
         }
     }
 

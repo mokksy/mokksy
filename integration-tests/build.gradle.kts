@@ -64,6 +64,7 @@ kotlin {
                 implementation(libs.junit.jupiter.params)
                 implementation(libs.ktor.serialization.jackson)
                 implementation(libs.ktor.server.test.host)
+                implementation(libs.okhttp)
                 runtimeOnly(libs.slf4j.simple)
                 runtimeOnly(libs.ktor.client.apache5)
             }
