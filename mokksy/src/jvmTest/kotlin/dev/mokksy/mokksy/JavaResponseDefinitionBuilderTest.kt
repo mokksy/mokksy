@@ -4,15 +4,23 @@ import dev.mokksy.mokksy.response.ResponseDefinitionBuilder
 import io.kotest.matchers.shouldBe
 import io.ktor.http.ContentType
 import io.ktor.http.withCharset
+import io.mockk.clearMocks
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.text.Charsets.UTF_8
 import kotlin.time.Duration.Companion.milliseconds
 
 class JavaResponseDefinitionBuilderTest {
     private val delegate = mockk<ResponseDefinitionBuilder<String, String>>(relaxed = true)
-    private val sut = JavaResponseDefinitionBuilder(delegate)
+    private lateinit var sut: JavaResponseDefinitionBuilder<String, String>
+
+    @BeforeEach
+    fun setup() {
+        clearMocks(delegate)
+        sut = JavaResponseDefinitionBuilder(delegate)
+    }
 
     // region body
 
@@ -61,16 +69,16 @@ class JavaResponseDefinitionBuilderTest {
     // region contentType
 
     @Test
-    fun `contentType(ContentType) sets contentType on delegate and returns this`() {
-        val result = sut.contentType("application/json; charset=utf-8")
+    fun `contentType with charset sets contentType on delegate and returns this`() {
+        val result = sut.contentType("application/json; charset=UTF-8")
         verify { delegate.contentType = ContentType.Application.Json.withCharset(UTF_8) }
         result shouldBe sut
     }
 
     @Test
-    fun `contentType(String) parses and sets contentType on delegate and returns this`() {
+    fun `contentType parses and sets contentType on delegate and returns this`() {
         val result = sut.contentType("application/json")
-        verify { delegate.contentType = ContentType.Application.Json }
+        verify { delegate.contentType = ContentType.parse("application/json") }
         result shouldBe sut
     }
 
