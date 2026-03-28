@@ -250,17 +250,16 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constr
         this.httpStatus = httpStatus
     }
 
-    /**
-         * Constructs a StreamResponseDefinition populated from the builder's configured values.
-         *
-         * @return A [StreamResponseDefinition] with a single resolved [Flow] source.
-         * If chunks were added via [plusAssign], they are converted to a cold [Flow] at build time.
-         */
     public override fun build(): StreamResponseDefinition<P, T> {
         check(flow == null || chunks.isEmpty()) {
             "Cannot configure both flow and chunks on the same streaming response"
         }
-        val resolvedFlow: Flow<T> = flow ?: buildFlow { chunks.forEach { emit(it) } }
+        val resolvedFlow: Flow<T> =
+            flow ?: buildFlow {
+                chunks.forEach {
+                    emit(it)
+                }
+            }
         return StreamResponseDefinition(
             chunkFlow = resolvedFlow,
             httpStatus = httpStatus,
