@@ -41,7 +41,7 @@ format:
 	@./gradlew detekt --auto-correct
 
 .PHONY: all
-all: format lint build
+all: format lint build apidocs
 
 .PHONY: pom
 pom:
@@ -49,7 +49,7 @@ pom:
 
 .PHONY: publish
 publish:
-	rm -rf ~/.m2/repository/me/kpavlov/mokksy
+	rm -rf ~/.m2/repository/dev/mokksy/
 	./gradlew --rerun-tasks clean build check sourcesJar publishToMavenLocal
 	echo "Publishing 📢"
 	## https://vanniktech.github.io/gradle-maven-publish-plugin/central/#configuring-maven-central

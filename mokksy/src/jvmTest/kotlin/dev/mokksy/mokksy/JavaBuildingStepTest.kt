@@ -41,7 +41,7 @@ class JavaBuildingStepTest {
             routing {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
-                    val definition = supplier.invoke(call) as ResponseDefinition<*, *>
+                    val definition = supplier.invoke(call) as ResponseDefinition<*>
                     call.respondText("${definition.body}")
                 }
             }
@@ -58,7 +58,7 @@ class JavaBuildingStepTest {
             routing {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
-                    val definition = supplier.invoke(call) as ResponseDefinition<*, *>
+                    val definition = supplier.invoke(call) as ResponseDefinition<*>
                     call.respondText("${definition.body}")
                 }
             }
@@ -79,7 +79,7 @@ class JavaBuildingStepTest {
             routing {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
-                    val definition = supplier.invoke(call) as StreamResponseDefinition<*, *>
+                    val definition = supplier.invoke(call) as StreamResponseDefinition<*>
                     call.respondText("${definition.chunkFlow.toList().size}")
                 }
             }
@@ -95,7 +95,7 @@ class JavaBuildingStepTest {
         testApplication {
             routing {
                 get("/test") {
-                    val definition = supplier.invoke(call) as StreamResponseDefinition<*, *>
+                    val definition = supplier.invoke(call) as StreamResponseDefinition<*>
                     call.respondText("${definition.chunkFlow.toList().size}")
                 }
             }
@@ -116,7 +116,7 @@ class JavaBuildingStepTest {
             routing {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
-                    val definition = supplier.invoke(call) as StreamResponseDefinition<*, *>
+                    val definition = supplier.invoke(call) as StreamResponseDefinition<*>
                     call.respondText("${definition.chunkFlow.toList().size}")
                 }
             }
@@ -135,7 +135,7 @@ class JavaBuildingStepTest {
             routing {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
-                    val definition = supplier.invoke(call) as StreamResponseDefinition<*, *>
+                    val definition = supplier.invoke(call) as StreamResponseDefinition<*>
                     call.respondText("${definition.chunkFlow.toList().size}")
                 }
             }
@@ -156,7 +156,7 @@ class JavaBuildingStepTest {
             routing {
                 get("/test") {
                     @Suppress("UNCHECKED_CAST")
-                    val definition = supplier.invoke(call) as ResponseDefinition<*, *>
+                    val definition = supplier.invoke(call) as ResponseDefinition<*>
                     definition.body shouldBe null
                     call.response.status(definition.httpStatus)
                     call.respondText("")

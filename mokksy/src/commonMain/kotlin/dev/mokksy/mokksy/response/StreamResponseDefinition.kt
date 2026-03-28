@@ -16,6 +16,7 @@ import io.ktor.server.response.cacheControl
 import io.ktor.server.response.respondBytesWriter
 import io.ktor.util.logging.Logger
 import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.CancellationException
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.writeStringUtf8
 import kotlinx.coroutines.channels.BufferOverflow
@@ -36,11 +37,9 @@ internal const val SEND_BUFFER_CAPACITY = 256
  * to streamed responses. It handles flow-based content delivery, manages chunk-wise delays,
  * and supports various output formats.
  *
- * @param P The type of the request body.
  * @param T The type of the response data being streamed.
  * @property chunkFlow A [Flow] of chunks to be streamed as part of the response.
  * @property delayBetweenChunks Delay between the transmission of each chunk.
- * @property httpStatusCode The HTTP status code of the response as Int, defaulting to 200.
  * @property httpStatus The HTTP status code of the response, defaulting to HttpStatusCode.OK.
  *
  * @see AbstractResponseDefinition
@@ -48,19 +47,17 @@ internal const val SEND_BUFFER_CAPACITY = 256
  * @author Konstantin Pavlov
  */
 @Suppress("LongParameterList")
-public open class StreamResponseDefinition<P, T>(
+public open class StreamResponseDefinition<T>(
     public open val chunkFlow: Flow<T>,
     public val delayBetweenChunks: Duration = Duration.ZERO,
     contentType: ContentType = ContentType.Text.EventStream.withCharset(Charsets.UTF_8),
     private val chunkContentType: ContentType? = null,
-    httpStatusCode: Int = 200,
-    httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
+    httpStatus: HttpStatusCode = HttpStatusCode.OK,
     headers: (ResponseHeaders.() -> Unit)? = null,
     delay: Duration,
     private val formatter: HttpFormatter,
 ) : AbstractResponseDefinition<T>(
         contentType = contentType,
-        httpStatusCode = httpStatusCode,
         httpStatus = httpStatus,
         headers = headers,
         delay = delay,
@@ -80,7 +77,9 @@ public open class StreamResponseDefinition<P, T>(
                 capacity = SEND_BUFFER_CAPACITY,
                 onBufferOverflow = BufferOverflow.SUSPEND,
             ).catch { e ->
-                logger.warn("Error while sending chunks", e)
+                if (e !is CancellationException) {
+                    logger.warn("Error while sending chunks", e)
+                }
                 throw e
             }.collect {
                 writeChunk(

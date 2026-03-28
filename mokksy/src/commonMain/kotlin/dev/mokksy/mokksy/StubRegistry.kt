@@ -99,7 +99,7 @@ internal class StubRegistry {
                     }
                 if (!claimed) continue
             } else {
-                candidate.claimMatch()
+                candidate.markMatched()
             }
 
             return candidate
