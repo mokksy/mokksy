@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.flow as buildFlow
  * request-to-response mappings. This class allows customization of the HTTP status code and headers
  * and provides a mechanism for building concrete response definitions.
  *
- * @param P The type of the request body. This determines the input type for which the response is being defined.
+ * @param P The type of the request body, used to type the [CapturedRequest] available during building.
  * @param T The type of the response data, which is returned to the client.
  * @property httpStatus The HTTP status code to be associated with the response.
  * @author Konstantin Pavlov
@@ -96,7 +96,7 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
      * Merges [addHeader] pairs and the [headers] lambda into a single [ResponseHeaders] configurator.
      * Returns `null` when no headers have been configured.
      */
-    protected fun buildCombinedHeaders(): (ResponseHeaders.() -> Unit)? {
+    internal fun buildCombinedHeaders(): (ResponseHeaders.() -> Unit)? {
         val pairs = headerPairs.toList()
         val lambda = headersLambda
         return if (pairs.isEmpty() && lambda == null) {
@@ -110,11 +110,11 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
     }
 
     /**
-     * Abstract method to build a concrete response definition.
+     * Builds a concrete response definition from this builder's current state.
      *
      * @return An instance of [AbstractResponseDefinition].
      */
-    protected abstract fun build(): AbstractResponseDefinition<T>
+    internal abstract fun build(): AbstractResponseDefinition<T>
 }
 
 /**
@@ -203,11 +203,10 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any> internal construct
      *
      * @return A new instance of [ResponseDefinition] containing the response attributes defined in the builder.
      */
-    public override fun build(): ResponseDefinition<P, T> =
+    override fun build(): ResponseDefinition<T> =
         ResponseDefinition(
             body = body,
             contentType = contentType ?: ContentType.Application.Json,
-            httpStatusCode = httpStatus.value,
             httpStatus = httpStatus,
             headers = buildCombinedHeaders(),
             delay = delay,
@@ -250,7 +249,7 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constr
         this.httpStatus = httpStatus
     }
 
-    public override fun build(): StreamResponseDefinition<P, T> {
+    override fun build(): StreamResponseDefinition<T> {
         check(flow == null || chunks.isEmpty()) {
             "Cannot configure both flow and chunks on the same streaming response"
         }

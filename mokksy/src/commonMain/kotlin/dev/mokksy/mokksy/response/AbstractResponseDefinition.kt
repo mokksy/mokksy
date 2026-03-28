@@ -24,34 +24,19 @@ internal typealias ResponseDefinitionSupplier<T> = suspend (
  *
  * @param T The type of the response data.
  * @property contentType The MIME type of the response content.
- * @property httpStatusCode The HTTP status code of the response as Int, defaulting to 200.
  * @property httpStatus The HTTP status code of the response. Defaults to HttpStatusCode.OK.
  * @property headers A lambda that configures the response headers. Defaults to `null`.
  * @property delay A delay applied before sending the response. Defaults to Duration.ZERO.
- * @property responseBody The optional response payload associated with this definition.
  * @author Konstantin Pavlov
  */
-@Suppress("LongParameterList")
 public abstract class AbstractResponseDefinition<T>(
     public val contentType: ContentType,
-    public val httpStatusCode: Int = 200,
-    public val httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
+    public val httpStatus: HttpStatusCode = HttpStatusCode.OK,
     public val headers: (ResponseHeaders.() -> Unit)? = null,
     public open val delay: Duration = Duration.ZERO,
-    public var responseBody: T? = null,
 ) {
     internal abstract suspend fun writeResponse(
         call: ApplicationCall,
         verbose: Boolean,
     )
-
-    /**
-     * Modifies the response body of this response definition using the provided transformation logic.
-     *
-     * @param block A lambda function that takes the current response body (or `null`) as an input
-     * and returns the modified response body or `null`.
-     */
-    public fun withResponseBody(block: T?.() -> T?) {
-        this.responseBody = block(responseBody)
-    }
 }

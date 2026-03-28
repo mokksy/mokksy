@@ -61,6 +61,13 @@ internal data class Stub<P : Any, T : Any>(
     fun hasBeenMatched(): Boolean = matched.value
 
     /**
+     * Marks this stub as matched. Used for reusable stubs where every match succeeds.
+     */
+    fun markMatched() {
+        matched.value = true
+    }
+
+    /**
      * Atomically claims this stub for a match.
      *
      * Returns `true` exactly once — the first caller wins and is responsible for

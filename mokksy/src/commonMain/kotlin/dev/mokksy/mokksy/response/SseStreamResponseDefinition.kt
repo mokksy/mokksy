@@ -12,6 +12,7 @@ import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.sse.SSEServerContent
 import io.ktor.sse.ServerSentEvent
+import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -28,19 +29,18 @@ import kotlin.time.Duration
  * It provides functionality for sending a stream of SSE events to the client, utilizing a specified
  * [chunkFlow] and configuring response metadata.
  *
- * @param P The payload type for the SSE events.
  * @param chunkFlow A Flow of ServerSentEvent representing the stream of SSE events. Defaults to [emptyFlow].
  * @param chunkContentType The ContentType for the chunks in the SSE stream. Defaults to `null`.
  * @param delay An optional delay between chunks, specified as a Duration. Defaults to `Duration.ZERO`.
  * @param formatter An [HttpFormatter] responsible for formatting the HTTP response or payloads.
  * @author Konstantin Pavlov
  */
-public open class SseStreamResponseDefinition<P>(
+public open class SseStreamResponseDefinition(
     override val chunkFlow: Flow<ServerSentEvent> = emptyFlow(),
     chunkContentType: ContentType? = null,
     delay: Duration = Duration.ZERO,
     formatter: HttpFormatter,
-) : StreamResponseDefinition<P, ServerSentEvent>(
+) : StreamResponseDefinition<ServerSentEvent>(
         chunkFlow = chunkFlow,
         chunkContentType = chunkContentType,
         delay = delay,
@@ -60,8 +60,12 @@ public open class SseStreamResponseDefinition<P>(
                     .buffer(
                         capacity = SEND_BUFFER_CAPACITY,
                         onBufferOverflow = BufferOverflow.SUSPEND,
-                    ).catch { call.application.log.error("Error while sending SSE events", it) }
-                    .collect {
+                    ).catch { e ->
+                        if (e !is CancellationException) {
+                            call.application.log.warn("Error while sending SSE events", e)
+                        }
+                        throw e
+                    }.collect {
                         if (verbose) {
                             call.application.log.debug("Sending $httpStatus: $it")
                         }

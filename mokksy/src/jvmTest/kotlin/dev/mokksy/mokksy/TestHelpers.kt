@@ -12,7 +12,6 @@ internal inline fun <reified T : Any> okResponseSupplier(): ResponseDefinitionSu
     { _ ->
         object : AbstractResponseDefinition<T>(
             contentType = ContentType.Any,
-            httpStatusCode = 200,
         ) {
             override suspend fun writeResponse(
                 call: ApplicationCall,

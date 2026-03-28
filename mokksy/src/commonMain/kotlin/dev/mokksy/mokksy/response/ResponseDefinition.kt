@@ -20,11 +20,9 @@ import kotlin.time.Duration
  * Represents a concrete implementation of an HTTP response definition with a specific response body.
  * This class builds on the [AbstractResponseDefinition] to provide additional configuration and behavior.
  *
- * @param P The type of the request body.
  * @param T The type of the response body.
  * @property contentType The MIME type of the response content with a default to ContentType.Application.Json.
  * @property body The body of the response, which can be null.
- * @property httpStatusCode The HTTP status code of the response as Int, defaulting to 200.
  * @property httpStatus The HTTP status code of the response, defaulting to HttpStatusCode.OK.
  * @property headers A lambda that configures additional response headers. Defaults to `null`.
  * @property delay Delay before the response is sent. The default value is zero.
@@ -33,17 +31,15 @@ import kotlin.time.Duration
  * @author Konstantin Pavlov
  */
 @Suppress("LongParameterList")
-public open class ResponseDefinition<P, T>(
+public open class ResponseDefinition<T>(
     contentType: ContentType = ContentType.Application.Json,
     public val body: T? = null,
-    httpStatusCode: Int = 200,
-    httpStatus: HttpStatusCode = HttpStatusCode.fromValue(httpStatusCode),
+    httpStatus: HttpStatusCode = HttpStatusCode.OK,
     headers: (ResponseHeaders.() -> Unit)? = null,
     delay: Duration,
     private val formatter: HttpFormatter,
 ) : AbstractResponseDefinition<T>(
         contentType = contentType,
-        httpStatusCode = httpStatusCode,
         httpStatus = httpStatus,
         headers = headers,
         delay = delay,
@@ -55,7 +51,7 @@ public open class ResponseDefinition<P, T>(
         if (this.delay.isPositive()) {
             delay(delay)
         }
-        val effectiveBody = responseBody ?: body
+        val effectiveBody = body
         if (verbose) {
             call.application.log.debug(
                 "Sending:\n---\n${

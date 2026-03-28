@@ -41,7 +41,7 @@ format:
 	@./gradlew detekt --auto-correct
 
 .PHONY: all
-all: format lint build
+all: format lint build apidocs
 
 .PHONY: pom
 pom:
