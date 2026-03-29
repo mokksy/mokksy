@@ -450,12 +450,12 @@ class MokksyJavaIT {
     @Test
     void combinedShortcuts_pathAndBodyAndStatus() throws IOException, InterruptedException {
         mokksy.get(StubConfiguration.once("combined"), "/combined-shortcut")
-            .respondsWith("one-time", 200);
+            .respondsWith("one-time", 201);
 
         var first = get("/combined-shortcut");
         var second = get("/combined-shortcut");
 
-        assertThat(first.statusCode()).isEqualTo(200);
+        assertThat(first.statusCode()).isEqualTo(201);
         assertThat(first.body()).isEqualTo("one-time");
         assertThat(second.statusCode()).isEqualTo(404);
     }
