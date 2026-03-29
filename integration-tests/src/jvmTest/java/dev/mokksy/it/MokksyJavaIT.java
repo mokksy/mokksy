@@ -310,6 +310,184 @@ class MokksyJavaIT {
 
     // endregion
 
+    // region Path shortcut API
+
+    @Test
+    void pathShortcut_get_shouldReturn200WithBody() throws IOException, InterruptedException {
+        mokksy.get("/shortcut-get")
+            .respondsWith(builder -> builder.body("shortcut-ok"));
+
+        var response = get("/shortcut-get");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("shortcut-ok");
+    }
+
+    @Test
+    void pathShortcut_post_shouldReturn201() throws IOException, InterruptedException {
+        mokksy.post("/shortcut-post")
+            .respondsWith(builder -> builder.body("created").status(201));
+
+        var response = post("/shortcut-post", "{}");
+
+        assertThat(response.statusCode()).isEqualTo(201);
+        assertThat(response.body()).isEqualTo("created");
+    }
+
+    @Test
+    void pathShortcut_put_shouldReturn200() throws IOException, InterruptedException {
+        mokksy.put("/shortcut-put")
+            .respondsWith(builder -> builder.body("put-ok"));
+
+        var response = send("PUT", "/shortcut-put", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("put-ok");
+    }
+
+    @Test
+    void pathShortcut_delete_shouldReturn200() throws IOException, InterruptedException {
+        mokksy.delete("/shortcut-delete")
+            .respondsWith(builder -> builder.body("deleted"));
+
+        var response = send("DELETE", "/shortcut-delete", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("deleted");
+    }
+
+    @Test
+    void pathShortcut_patch_shouldReturn200() throws IOException, InterruptedException {
+        mokksy.patch("/shortcut-patch")
+            .respondsWith(builder -> builder.body("patched"));
+
+        var response = send("PATCH", "/shortcut-patch", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("patched");
+    }
+
+    @Test
+    void pathShortcut_head_shouldReturn200() throws IOException, InterruptedException {
+        mokksy.head("/shortcut-head")
+            .respondsWith(builder -> builder.body("ignored"));
+
+        var response = send("HEAD", "/shortcut-head", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+    }
+
+    @Test
+    void pathShortcut_options_shouldReturn200() throws IOException, InterruptedException {
+        mokksy.options("/shortcut-options")
+            .respondsWith(builder -> builder.body("OK"));
+
+        var response = send("OPTIONS", "/shortcut-options", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("OK");
+    }
+
+    // endregion
+
+    // region respondsWith shortcut API
+
+    @Test
+    void respondsWithBody_shouldReturn200WithStringBody() throws IOException, InterruptedException {
+        mokksy.get("/responds-body")
+            .respondsWith("simple-body");
+
+        var response = get("/responds-body");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("simple-body");
+    }
+
+    @Test
+    void respondsWithBodyAndStatus_shouldReturnCustomStatus() throws IOException, InterruptedException {
+        mokksy.post("/responds-body-status")
+            .respondsWith("{\"id\":42}", 201);
+
+        var response = post("/responds-body-status", "{}");
+
+        assertThat(response.statusCode()).isEqualTo(201);
+        assertThat(response.body()).isEqualTo("{\"id\":42}");
+    }
+
+    // endregion
+
+    // region StubConfiguration.once()
+
+    @Test
+    void stubConfigOnce_shouldReturn404OnSecondRequest() throws IOException, InterruptedException {
+        mokksy.get(StubConfiguration.once("once-factory"), "/once-factory")
+            .respondsWith("First!");
+
+        var first = get("/once-factory");
+        var second = get("/once-factory");
+
+        assertThat(first.statusCode()).isEqualTo(200);
+        assertThat(first.body()).isEqualTo("First!");
+        assertThat(second.statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void stubConfigOnce_noName_shouldReturn404OnSecondRequest() throws IOException, InterruptedException {
+        mokksy.get(StubConfiguration.once(), "/once-no-name")
+            .respondsWith("One-shot");
+
+        var first = get("/once-no-name");
+        var second = get("/once-no-name");
+
+        assertThat(first.statusCode()).isEqualTo(200);
+        assertThat(second.statusCode()).isEqualTo(404);
+    }
+
+    // endregion
+
+    // region Combined shortcut API
+
+    @Test
+    void combinedShortcuts_pathAndBodyAndStatus() throws IOException, InterruptedException {
+        mokksy.get(StubConfiguration.once("combined"), "/combined-shortcut")
+            .respondsWith("one-time", 201);
+
+        var first = get("/combined-shortcut");
+        var second = get("/combined-shortcut");
+
+        assertThat(first.statusCode()).isEqualTo(201);
+        assertThat(first.body()).isEqualTo("one-time");
+        assertThat(second.statusCode()).isEqualTo(404);
+    }
+
+    // endregion
+
+    // region Arbitrary method
+
+    @Test
+    void method_withConsumer_shouldReturn200() throws IOException, InterruptedException {
+        mokksy.method("PATCH", spec -> spec.path("/method-consumer"))
+            .respondsWith(builder -> builder.body("method-ok"));
+
+        var response = send("PATCH", "/method-consumer", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("method-ok");
+    }
+
+    @Test
+    void method_withPathShortcut_shouldReturn200() throws IOException, InterruptedException {
+        mokksy.method("PATCH", "/method-shortcut")
+            .respondsWith("method-shortcut-ok");
+
+        var response = send("PATCH", "/method-shortcut", null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("method-shortcut-ok");
+    }
+
+    // endregion
+
     // region delay
 
     @Test

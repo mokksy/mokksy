@@ -1,5 +1,3 @@
-@file:JvmName("Mokksy")
-
 package dev.mokksy
 
 import dev.mokksy.Mokksy.Companion.create
@@ -179,6 +177,15 @@ public class Mokksy(
         spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Get, requestType.kotlin, spec)
 
+    /** Registers a GET stub matching the given [path] exactly. */
+    public fun get(path: String): JavaBuildingStep<String> = get(Consumer { it.path(path) })
+
+    /** Registers a GET stub matching the given [path] exactly, with [StubConfiguration]. */
+    public fun get(
+        configuration: StubConfiguration,
+        path: String,
+    ): JavaBuildingStep<String> = get(configuration, Consumer { it.path(path) })
+
     // endregion
 
     // region POST
@@ -206,6 +213,15 @@ public class Mokksy(
         requestType: Class<P>,
         spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Post, requestType.kotlin, spec)
+
+    /** Registers a POST stub matching the given [path] exactly. */
+    public fun post(path: String): JavaBuildingStep<String> = post(Consumer { it.path(path) })
+
+    /** Registers a POST stub matching the given [path] exactly, with [StubConfiguration]. */
+    public fun post(
+        configuration: StubConfiguration,
+        path: String,
+    ): JavaBuildingStep<String> = post(configuration, Consumer { it.path(path) })
 
     // endregion
 
@@ -235,6 +251,15 @@ public class Mokksy(
         spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Put, requestType.kotlin, spec)
 
+    /** Registers a PUT stub matching the given [path] exactly. */
+    public fun put(path: String): JavaBuildingStep<String> = put(Consumer { it.path(path) })
+
+    /** Registers a PUT stub matching the given [path] exactly, with [StubConfiguration]. */
+    public fun put(
+        configuration: StubConfiguration,
+        path: String,
+    ): JavaBuildingStep<String> = put(configuration, Consumer { it.path(path) })
+
     // endregion
 
     // region DELETE
@@ -262,6 +287,15 @@ public class Mokksy(
         requestType: Class<P>,
         spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Delete, requestType.kotlin, spec)
+
+    /** Registers a DELETE stub matching the given [path] exactly. */
+    public fun delete(path: String): JavaBuildingStep<String> = delete(Consumer { it.path(path) })
+
+    /** Registers a DELETE stub matching the given [path] exactly, with [StubConfiguration]. */
+    public fun delete(
+        configuration: StubConfiguration,
+        path: String,
+    ): JavaBuildingStep<String> = delete(configuration, Consumer { it.path(path) })
 
     // endregion
 
@@ -291,6 +325,15 @@ public class Mokksy(
         spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Patch, requestType.kotlin, spec)
 
+    /** Registers a PATCH stub matching the given [path] exactly. */
+    public fun patch(path: String): JavaBuildingStep<String> = patch(Consumer { it.path(path) })
+
+    /** Registers a PATCH stub matching the given [path] exactly, with [StubConfiguration]. */
+    public fun patch(
+        configuration: StubConfiguration,
+        path: String,
+    ): JavaBuildingStep<String> = patch(configuration, Consumer { it.path(path) })
+
     // endregion
 
     // region HEAD
@@ -319,6 +362,15 @@ public class Mokksy(
         spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Head, requestType.kotlin, spec)
 
+    /** Registers a HEAD stub matching the given [path] exactly. */
+    public fun head(path: String): JavaBuildingStep<String> = head(Consumer { it.path(path) })
+
+    /** Registers a HEAD stub matching the given [path] exactly, with [StubConfiguration]. */
+    public fun head(
+        configuration: StubConfiguration,
+        path: String,
+    ): JavaBuildingStep<String> = head(configuration, Consumer { it.path(path) })
+
     // endregion
 
     // region OPTIONS
@@ -346,6 +398,15 @@ public class Mokksy(
         requestType: Class<P>,
         spec: Consumer<JavaRequestSpecificationBuilder<P>>,
     ): JavaBuildingStep<P> = method(configuration, Options, requestType.kotlin, spec)
+
+    /** Registers an OPTIONS stub matching the given [path] exactly. */
+    public fun options(path: String): JavaBuildingStep<String> = options(Consumer { it.path(path) })
+
+    /** Registers an OPTIONS stub matching the given [path] exactly, with [StubConfiguration]. */
+    public fun options(
+        configuration: StubConfiguration,
+        path: String,
+    ): JavaBuildingStep<String> = options(configuration, Consumer { it.path(path) })
 
     // endregion
 
@@ -387,7 +448,18 @@ public class Mokksy(
         spec: Consumer<JavaRequestSpecificationBuilder<String>>,
     ): JavaBuildingStep<String> = method(configuration, HttpMethod(httpMethod), spec)
 
-    // endregion
+    /** Registers a stub for an arbitrary HTTP method matching the given [path] exactly. */
+    public fun method(
+        httpMethod: String,
+        path: String,
+    ): JavaBuildingStep<String> = method(httpMethod, Consumer { it.path(path) })
+
+    /** Registers a stub for an arbitrary HTTP method matching the given [path] exactly, with [StubConfiguration]. */
+    public fun method(
+        configuration: StubConfiguration,
+        httpMethod: String,
+        path: String,
+    ): JavaBuildingStep<String> = method(configuration, httpMethod, Consumer { it.path(path) })
 
     // endregion
 
@@ -418,7 +490,7 @@ public class Mokksy(
     public fun verifyNoUnmatchedStubs(): Unit = delegate.verifyNoUnmatchedStubs()
 
     /**
-     * Asserts that every request received by the server was matched by a stub.
+     * Asserts that a stub matched every request received by the server.
      *
      * @throws AssertionError if any request had no matching stub.
      */
@@ -448,6 +520,7 @@ public class Mokksy(
      * @param timeoutMillis Maximum milliseconds before shutdown is forced.
      */
     @JvmSynthetic
+    @JvmOverloads
     public suspend fun shutdownSuspend(
         gracePeriodMillis: Long = 500,
         timeoutMillis: Long = 1000,
@@ -472,6 +545,14 @@ public class Mokksy(
         block: RequestSpecificationBuilder<P>.() -> Unit,
     ): BuildingStep<P> = delegate.method(StubConfiguration(), Get, requestType, block)
 
+    /** Registers a GET stub for a typed request body with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> get(
+        configuration: StubConfiguration,
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.method(configuration, Get, requestType, block)
+
     /** Registers a POST stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun post(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
@@ -491,6 +572,14 @@ public class Mokksy(
         block: RequestSpecificationBuilder<P>.() -> Unit,
     ): BuildingStep<P> = delegate.method(StubConfiguration(), Post, requestType, block)
 
+    /** Registers a POST stub for a typed request body with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> post(
+        configuration: StubConfiguration,
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.method(configuration, Post, requestType, block)
+
     /** Registers a PUT stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun put(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
@@ -509,6 +598,14 @@ public class Mokksy(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
     ): BuildingStep<P> = delegate.method(StubConfiguration(), Put, requestType, block)
+
+    /** Registers a PUT stub for a typed request body with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> put(
+        configuration: StubConfiguration,
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.method(configuration, Put, requestType, block)
 
     /** Registers a DELETE stub using a Kotlin DSL block. */
     @JvmSynthetic
@@ -530,6 +627,14 @@ public class Mokksy(
         block: RequestSpecificationBuilder<P>.() -> Unit,
     ): BuildingStep<P> = delegate.method(StubConfiguration(), Delete, requestType, block)
 
+    /** Registers a DELETE stub for a typed request body with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> delete(
+        configuration: StubConfiguration,
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.method(configuration, Delete, requestType, block)
+
     /** Registers a PATCH stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun patch(block: RequestSpecificationBuilder<String>.() -> Unit): BuildingStep<String> =
@@ -548,6 +653,14 @@ public class Mokksy(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
     ): BuildingStep<P> = delegate.method(StubConfiguration(), Patch, requestType, block)
+
+    /** Registers a PATCH stub for a typed request body with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> patch(
+        configuration: StubConfiguration,
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.method(configuration, Patch, requestType, block)
 
     /** Registers a HEAD stub using a Kotlin DSL block. */
     @JvmSynthetic
@@ -568,6 +681,14 @@ public class Mokksy(
         block: RequestSpecificationBuilder<P>.() -> Unit,
     ): BuildingStep<P> = delegate.method(StubConfiguration(), Head, requestType, block)
 
+    /** Registers a HEAD stub for a typed request body with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> head(
+        configuration: StubConfiguration,
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.method(configuration, Head, requestType, block)
+
     /** Registers an OPTIONS stub using a Kotlin DSL block. */
     @JvmSynthetic
     public fun options(
@@ -587,6 +708,14 @@ public class Mokksy(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
     ): BuildingStep<P> = delegate.method(StubConfiguration(), Options, requestType, block)
+
+    /** Registers an OPTIONS stub for a typed request body with [StubConfiguration] using a Kotlin DSL block. */
+    @JvmSynthetic
+    public fun <P : Any> options(
+        configuration: StubConfiguration,
+        requestType: KClass<P>,
+        block: RequestSpecificationBuilder<P>.() -> Unit,
+    ): BuildingStep<P> = delegate.method(configuration, Options, requestType, block)
 
     // endregion
 

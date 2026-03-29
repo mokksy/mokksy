@@ -126,6 +126,33 @@ public class JavaBuildingStep<P : Any> internal constructor(
         }
 
     /**
+     * Configures a simple [String] response body for this stub with HTTP 200.
+     *
+     * Shorthand for `respondsWith(builder -> builder.body(body))`:
+     * ```java
+     * mokksy.get("/hello").respondsWith("Hello, World!");
+     * ```
+     *
+     * @param body The response body string.
+     */
+    public fun respondsWith(body: String): Unit =
+        respondsWith { it.body(body) }
+
+    /**
+     * Configures a simple [String] response body with a custom HTTP status code.
+     *
+     * Shorthand for `respondsWith(builder -> builder.body(body).status(statusCode))`:
+     * ```java
+     * mokksy.post("/items").respondsWith("{\"id\":42}", 201);
+     * ```
+     *
+     * @param body The response body string.
+     * @param statusCode The HTTP status code, e.g. `201`, `400`.
+     */
+    public fun respondsWith(body: String, statusCode: Int): Unit =
+        respondsWith { it.body(body).status(statusCode) }
+
+    /**
      * Associates this stub with a body-free response carrying only an HTTP status code.
      *
      * Example (Java):

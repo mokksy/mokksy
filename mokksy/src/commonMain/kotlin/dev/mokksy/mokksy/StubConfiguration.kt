@@ -43,6 +43,23 @@ public data class StubConfiguration
 
         public companion object {
             /**
+             * Creates a [StubConfiguration] that is removed after its first match.
+             *
+             * Java-friendly alternative to `StubConfiguration(eventuallyRemove = true)`:
+             * ```java
+             * mokksy.get(StubConfiguration.once("my-stub"), "/path")
+             *     .respondsWith("one-time response");
+             * ```
+             *
+             * @param name Optional human-readable name for log and error output.
+             * @return A new [StubConfiguration] with [eventuallyRemove] set to `true`.
+             */
+            @JvmStatic
+            @JvmOverloads
+            public fun once(name: String? = null): StubConfiguration =
+                StubConfiguration(name = name, eventuallyRemove = true)
+
+            /**
              * Deprecated factory for callers that previously used `StubConfiguration(removeAfterMatch = …)`.
              *
              * Migrate to the primary constructor: `StubConfiguration(eventuallyRemove = …)`.
