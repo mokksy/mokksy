@@ -41,13 +41,19 @@ kotlin {
     macosArm64()
 
     sourceSets {
+
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinx.coroutines.core)
+            }
+        }
+
         commonTest {
             dependencies {
                 implementation(project(":mokksy"))
                 implementation(kotlin("test"))
                 implementation(project.dependencies.platform(libs.ktor.bom))
                 implementation(libs.kotest.assertions.core)
-                implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.ktor.client.auth)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.serialization.kotlinx.json)

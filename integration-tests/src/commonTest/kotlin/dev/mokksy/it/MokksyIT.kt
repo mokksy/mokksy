@@ -22,30 +22,41 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.delay
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTimedValue
 
 /**
  * This test intentionally creates and starts Mokksy once and never shuts it down after each test.
  * This verifies a scenario when Mokksy is started once and used across multiple tests.
  */
-class MokksyIT {
-    val mokksy =
-        Mokksy().apply {
-            runTest {
-                startSuspend()
-                awaitStarted()
+internal class MokksyIT {
+    companion object {
+        val mokksy = Mokksy()
+
+        val client = HttpClient()
+
+        init {
+            runIntegrationTest {
+                mokksy.startSuspend()
+                mokksy.awaitStarted()
+
+                delay(10.seconds)
+
+                mokksy.shutdownSuspend()
+
+                shutdownTests(1.seconds)
             }
         }
-    val client = HttpClient()
+    }
 
     // region GET
 
     @Test
     fun `GET returns 200 with body`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get { path("/hello") } respondsWith { body = "Hello, World!" }
 
             val response = client.get(mokksy.baseUrl() + "/hello")
@@ -58,7 +69,7 @@ class MokksyIT {
 
     @Test
     fun `GET returns 404 when no stub matches`() =
-        runTest {
+        runIntegrationTest {
             val response = client.get(mokksy.baseUrl() + "/no-stub")
 
             response.status shouldBe HttpStatusCode.NotFound
@@ -66,7 +77,7 @@ class MokksyIT {
 
     @Test
     fun `GET matches by header value`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get {
                 path("/secured")
                 containsHeader("X-Api-Key", "secret")
@@ -88,7 +99,7 @@ class MokksyIT {
 
     @Test
     fun `PUT returns 200 with body`() =
-        runTest {
+        runIntegrationTest {
             mokksy.put { path("/put-test") } respondsWith { body = "put-ok" }
 
             val response = client.put(mokksy.baseUrl() + "/put-test")
@@ -101,7 +112,7 @@ class MokksyIT {
 
     @Test
     fun `DELETE returns 200 with body`() =
-        runTest {
+        runIntegrationTest {
             mokksy.delete { path("/delete-test") } respondsWith { body = "deleted" }
 
             val response = client.delete(mokksy.baseUrl() + "/delete-test")
@@ -114,7 +125,7 @@ class MokksyIT {
 
     @Test
     fun `PATCH returns 200 with body`() =
-        runTest {
+        runIntegrationTest {
             mokksy.patch { path("/patch-test") } respondsWith { body = "patched" }
 
             val response = client.patch(mokksy.baseUrl() + "/patch-test")
@@ -127,7 +138,7 @@ class MokksyIT {
 
     @Test
     fun `HEAD returns 200 with empty body`() =
-        runTest {
+        runIntegrationTest {
             mokksy.head { path("/head-test") } respondsWith { body = "ignored-by-protocol" }
 
             val response = client.head(mokksy.baseUrl() + "/head-test")
@@ -138,7 +149,7 @@ class MokksyIT {
 
     @Test
     fun `OPTIONS returns 200 with body`() =
-        runTest {
+        runIntegrationTest {
             mokksy.options { path("/options-test") } respondsWith { body = "OK" }
 
             val response = client.options(mokksy.baseUrl() + "/options-test")
@@ -155,7 +166,7 @@ class MokksyIT {
 
     @Test
     fun `POST returns 201 with Location header`() =
-        runTest {
+        runIntegrationTest {
             mokksy.post { path("/items") } respondsWith {
                 body = """{"id":"42"}"""
                 httpStatus = HttpStatusCode.Created
@@ -177,7 +188,7 @@ class MokksyIT {
 
     @Test
     fun `POST matches by bodyContains and returns 404 when body does not match`() =
-        runTest {
+        runIntegrationTest {
             mokksy.post {
                 path("/body-contains")
                 bodyContains("expected-token")
@@ -198,7 +209,7 @@ class MokksyIT {
 
     @Test
     fun `POST matches by body predicate`() =
-        runTest {
+        runIntegrationTest {
             mokksy.post {
                 path("/body-predicate")
                 bodyMatchesPredicate { it?.contains("match-me") == true }
@@ -223,7 +234,7 @@ class MokksyIT {
 
     @Test
     fun `respondsWithStatus returns status code and empty body`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get { path("/status-only") } respondsWithStatus HttpStatusCode.NoContent
 
             val response = client.get(mokksy.baseUrl() + "/status-only")
@@ -238,7 +249,7 @@ class MokksyIT {
 
     @Test
     fun `removeAfterMatch returns 404 on second request`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get(StubConfiguration("once-only", eventuallyRemove = true)) {
                 path("/once")
             } respondsWith { body = "First!" }
@@ -256,7 +267,7 @@ class MokksyIT {
 
     @Test
     fun `higher priority value should win`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get {
                 path("/priority")
                 priority(1)
@@ -277,7 +288,7 @@ class MokksyIT {
 
     @Test
     fun `default priority vs positive - positive should win`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get { path("/priority-default-vs-positive") } respondsWith {
                 body = "default-priority"
             }
@@ -294,7 +305,7 @@ class MokksyIT {
 
     @Test
     fun `default priority vs negative - default should win`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get {
                 path("/priority-default-vs-negative")
                 priority(-1)
@@ -315,7 +326,7 @@ class MokksyIT {
 
     @Test
     fun `catch-all fallback pattern with priority`() =
-        runTest {
+        runIntegrationTest {
             // Catch-all stub: matches any POST to /v1/chat/completions, returns 400
             mokksy.post {
                 path("/v1/chat/completions")
@@ -363,7 +374,7 @@ class MokksyIT {
 
     @Test
     fun `GET with delay should delay response`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get { path("/delayed") } respondsWith {
                 body = "ok"
                 delay = 200.milliseconds
@@ -384,7 +395,7 @@ class MokksyIT {
 
     @Test
     fun `findAllUnmatchedStubs returns unmatched stub`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get { path("/unmatched-stub") } respondsWith { body = "never-called" }
 
             mokksy.findAllUnmatchedStubs() shouldHaveSize 1
@@ -396,7 +407,7 @@ class MokksyIT {
 
     @Test
     fun `findAllUnexpectedRequests returns unexpected request`() =
-        runTest {
+        runIntegrationTest {
             mokksy.findAllUnexpectedRequests().shouldBeEmpty()
 
             client.get(mokksy.baseUrl() + "/no-stub-here")
@@ -406,7 +417,7 @@ class MokksyIT {
 
     @Test
     fun `verifyNoUnmatchedStubs throws when stub never called`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get { path("/never-called") } respondsWith { body = "unreachable" }
 
             shouldThrow<AssertionError> {
@@ -416,7 +427,7 @@ class MokksyIT {
 
     @Test
     fun `verifyNoUnexpectedRequests throws when request had no stub`() =
-        runTest {
+        runIntegrationTest {
             client.get(mokksy.baseUrl() + "/unexpected")
 
             shouldThrow<AssertionError> {
@@ -426,7 +437,7 @@ class MokksyIT {
 
     @Test
     fun `resetMatchState makes matched stubs unmatched again`() =
-        runTest {
+        runIntegrationTest {
             mokksy.get { path("/reset-test") } respondsWith { body = "ok" }
 
             client.get(mokksy.baseUrl() + "/reset-test")
