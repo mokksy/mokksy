@@ -59,6 +59,14 @@ public object SseEvent {
  * Fluent builder for [ServerSentEvent].
  *
  * Obtain via [SseEvent.builder]. All fields are optional and default to `null`.
+ *
+ * Example:
+ * ```java
+ * var event = SseEvent.builder()
+ *     .data("payload")
+ *     .event("message")
+ *     .build()
+ * ```
  */
 public class SseEventBuilder internal constructor() {
     private var data: String? = null

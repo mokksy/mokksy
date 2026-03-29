@@ -8,7 +8,8 @@ class SseEventTest {
     @Test
     fun `should build full event`() {
         val sse =
-            SseEventBuilder()
+            SseEvent
+                .builder()
                 .event("my-event")
                 .id("my-id")
                 .data("my-data")
@@ -28,10 +29,23 @@ class SseEventTest {
     @Test
     fun `should build minimal event`() {
         val sse =
-            SseEventBuilder()
+            SseEvent
+                .builder()
                 .data("my-data")
                 .build()
 
+        sse shouldNotBeNull {
+            event shouldBe null
+            id shouldBe null
+            data shouldBe "my-data"
+            retry shouldBe null
+            comments shouldBe null
+        }
+    }
+
+    @Test
+    fun `should build data shortcut event`() {
+        val sse = SseEvent.data("my-data")
         sse shouldNotBeNull {
             event shouldBe null
             id shouldBe null
