@@ -1227,8 +1227,8 @@ import dev.mokksy.MokksyJackson;
 // Default Jackson configuration
 Mokksy mokksy = MokksyJackson.create().start();
 
-  // Custom ObjectMapper — e.g. register Java time / records support
-  Mokksy mokksy = MokksyJackson.create(ObjectMapper::findAndRegisterModules).start();
+  // // Or customise the ObjectMapper — e.g. register Java time / records support
+  Mokksy mokksyWithJackson = MokksyJackson.create(ObjectMapper::findAndRegisterModules).start();
 ```
 
 Typed body matchers work the same way as in the standard API — pass the `Class` token to
