@@ -14,57 +14,80 @@ public final class dev/mokksy/Mokksy : java/lang/AutoCloseable {
 	public static final fun create (Ljava/lang/String;I)Ldev/mokksy/Mokksy;
 	public static final fun create (Ljava/lang/String;IZ)Ldev/mokksy/Mokksy;
 	public final fun delete (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun delete (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun delete (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun delete (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final synthetic fun delete (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun delete (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun delete (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun delete (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun delete (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun delete (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun findAllUnexpectedRequests ()Ljava/util/List;
 	public final fun findAllUnmatchedStubs ()Ljava/util/List;
 	public final fun get (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun get (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun get (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun get (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final synthetic fun get (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun get (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun get (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun get (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun get (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun get (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun getDelegate ()Ldev/mokksy/mokksy/MokksyServer;
 	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun head (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun head (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final synthetic fun head (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun head (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun head (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun head (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun head (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun head (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final fun method (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun method (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun method (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun method (Ljava/lang/String;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun options (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final synthetic fun options (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun options (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun options (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun options (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun options (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun options (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun patch (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun patch (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun patch (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun patch (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final synthetic fun patch (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun patch (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun patch (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun patch (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun patch (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun patch (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun port ()I
 	public final fun post (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun post (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun post (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun post (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final synthetic fun post (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun post (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun post (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun post (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun post (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun post (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun put (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun put (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun put (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun put (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final synthetic fun put (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun put (Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
+	public final fun put (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun put (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun put (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun put (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
@@ -75,6 +98,8 @@ public final class dev/mokksy/Mokksy : java/lang/AutoCloseable {
 	public final fun shutdown (JJ)V
 	public static synthetic fun shutdown$default (Ldev/mokksy/Mokksy;JJILjava/lang/Object;)V
 	public final synthetic fun shutdownSuspend (JJLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun shutdownSuspend (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun shutdownSuspend (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun shutdownSuspend$default (Ldev/mokksy/Mokksy;JJLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun start ()Ldev/mokksy/Mokksy;
 	public final synthetic fun startSuspend (ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -120,6 +145,8 @@ public abstract interface annotation class dev/mokksy/mokksy/InternalMokksyApi :
 
 public final class dev/mokksy/mokksy/JavaBuildingStep {
 	public final fun respondsWith (Ljava/lang/Class;Ljava/util/function/Consumer;)V
+	public final fun respondsWith (Ljava/lang/String;)V
+	public final fun respondsWith (Ljava/lang/String;I)V
 	public final fun respondsWith (Ljava/util/function/Consumer;)V
 	public final fun respondsWithSseStream (Ljava/lang/Class;Ljava/util/function/Consumer;)V
 	public final fun respondsWithSseStream (Ljava/util/function/Consumer;)V
@@ -301,6 +328,21 @@ public final class dev/mokksy/mokksy/ServerConfiguration {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class dev/mokksy/mokksy/SseEvent {
+	public static final field INSTANCE Ldev/mokksy/mokksy/SseEvent;
+	public static final fun builder ()Ldev/mokksy/mokksy/SseEventBuilder;
+	public static final fun data (Ljava/lang/String;)Lio/ktor/sse/ServerSentEvent;
+}
+
+public final class dev/mokksy/mokksy/SseEventBuilder {
+	public final fun build ()Lio/ktor/sse/ServerSentEvent;
+	public final fun comments (Ljava/lang/String;)Ldev/mokksy/mokksy/SseEventBuilder;
+	public final fun data (Ljava/lang/String;)Ldev/mokksy/mokksy/SseEventBuilder;
+	public final fun event (Ljava/lang/String;)Ldev/mokksy/mokksy/SseEventBuilder;
+	public final fun id (Ljava/lang/String;)Ldev/mokksy/mokksy/SseEventBuilder;
+	public final fun retry (J)Ldev/mokksy/mokksy/SseEventBuilder;
+}
+
 public final class dev/mokksy/mokksy/StubConfiguration : java/lang/Record {
 	public static final field Companion Ldev/mokksy/mokksy/StubConfiguration$Companion;
 	public fun <init> ()V
@@ -317,6 +359,8 @@ public final class dev/mokksy/mokksy/StubConfiguration : java/lang/Record {
 	public final fun eventuallyRemove ()Z
 	public fun hashCode ()I
 	public final fun name ()Ljava/lang/String;
+	public static final fun once ()Ldev/mokksy/mokksy/StubConfiguration;
+	public static final fun once (Ljava/lang/String;)Ldev/mokksy/mokksy/StubConfiguration;
 	public static final fun removeAfterMatch ()Ldev/mokksy/mokksy/StubConfiguration;
 	public final fun removeAfterMatch ()Z
 	public static final fun removeAfterMatch (Ljava/lang/String;)Ldev/mokksy/mokksy/StubConfiguration;
@@ -327,6 +371,9 @@ public final class dev/mokksy/mokksy/StubConfiguration : java/lang/Record {
 }
 
 public final class dev/mokksy/mokksy/StubConfiguration$Companion {
+	public final fun once ()Ldev/mokksy/mokksy/StubConfiguration;
+	public final fun once (Ljava/lang/String;)Ldev/mokksy/mokksy/StubConfiguration;
+	public static synthetic fun once$default (Ldev/mokksy/mokksy/StubConfiguration$Companion;Ljava/lang/String;ILjava/lang/Object;)Ldev/mokksy/mokksy/StubConfiguration;
 	public final fun removeAfterMatch ()Ldev/mokksy/mokksy/StubConfiguration;
 	public final fun removeAfterMatch (Ljava/lang/String;)Ldev/mokksy/mokksy/StubConfiguration;
 	public final fun removeAfterMatch (Ljava/lang/String;Z)Ldev/mokksy/mokksy/StubConfiguration;

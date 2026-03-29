@@ -22,7 +22,8 @@
 **Check out the [AI-Mocks][ai-mocks] project for advanced LLM and [A2A protocol][a2a] mocking capabilities.**
 
 > [!NOTE]
-> Mokksy server was a part of the [AI-Mocks][ai-mocks] project and has now moved to a separate repository. No artefact relocation is required.
+> Mokksy server was a part of the [AI-Mocks][ai-mocks] project and has now moved to a separate repository. No artefact
+> relocation is required.
 
 
 
@@ -74,15 +75,17 @@ Particularly, it might be useful for integration testing LLM clients.
 - **Delay Simulation**: Support for simulating response delays and delays between chunks
 - **Modern API**: Fluent Kotlin DSL API with [Kotest Assertions](https://kotest.io/docs/assertions/assertions.html)
 - **Error Simulation**: Ability to mock negative scenarios and error responses
-- **Specificity-Based Matching**: When multiple stubs match a request, Mokksy automatically selects the most specific one — no explicit priority configuration required for common cases
-- **Ktor Integration**: Embed Mokksy into any existing Ktor application via `Application.mokksy()` and `Route.mokksy()` extension functions — including behind authentication middleware
+- **Specificity-Based Matching**: When multiple stubs match a request, Mokksy automatically selects the most specific
+  one — no explicit priority configuration required for common cases
+- **Ktor Integration**: Embed Mokksy into any existing Ktor application via `Application.mokksy()` and `Route.mokksy()`
+  extension functions — including behind authentication middleware
 
 ## Quick start
-      
+
 1. Add dependencies:
- 
+
    Gradle _build.gradle.kts:_
-   
+
    ```kotlin
    dependencies {               
         // for multiplatform projects
@@ -91,7 +94,7 @@ Particularly, it might be useful for integration testing LLM clients.
        implementation("dev.mokksy:mokksy-jvm:$latestVersion")
    }
    ``` 
-  
+
    _pom.xml:_
    ```xml
     <dependency>
@@ -299,7 +302,8 @@ result shouldNotBeNull {
 
 ### Typed request body
 
-When the request body type is known at compile time, use the **reified** overloads to let the compiler infer the type — no explicit `::class` argument required:
+When the request body type is known at compile time, use the **reified** overloads to let the compiler infer the type —
+no explicit `::class` argument required:
 
 ```kotlin
 @Serializable
@@ -361,11 +365,11 @@ pass a `KClass` token using the named `requestType` parameter:
 
 ```kotlin
 mokksy.post(requestType = CreateItemRequest::class) {
-    path("/items")
-    bodyMatchesPredicate { it?.name == "widget" }
+  path("/items")
+  bodyMatchesPredicate { it?.name == "widget" }
 } respondsWith {
-    body = CreateItemResponse("Hello, widget!")
-    httpStatus = HttpStatusCode.Created
+  body = CreateItemResponse("Hello, widget!")
+  httpStatus = HttpStatusCode.Created
 }
 
 val result =
@@ -386,7 +390,8 @@ Java callers use `CreateItemRequest.class` via the [Java API](#java-api):
 `mokksy.post(CreateItemRequest.class, spec -> spec.path("/items").bodyMatchesPredicate(req -> "widget".equals(req.getName())))`.
 
 Deserialization uses Ktor's `ContentNegotiation` plugin. For projects that use Jackson instead of
-`kotlinx.serialization`, create the server in with `MokksyJackson.create()` (Java API) — see [Jackson support](#jackson-support).
+`kotlinx.serialization`, create the server with `MokksyJackson.create()` (Java API) —
+see [Jackson support](#jackson-support).
 
 When no stub matches and verbose mode is on (`Mokksy(verbose = true)`), Mokksy logs the closest
 partial match and its failed conditions to help diagnose the mismatch.
@@ -400,8 +405,18 @@ It's an infix function, so it reads naturally next to the stub definition:
 Java callers use the `int` overload on `JavaBuildingStep`:
 
 ```java
-mokksy.get(spec -> spec.path("/ping")).respondsWithStatus(204);
-mokksy.delete(spec -> spec.path("/item")).respondsWithStatus(410);
+mokksy.get(spec ->spec.
+
+path("/ping")).
+
+respondsWithStatus(204);
+mokksy.
+
+delete(spec ->spec.
+
+path("/item")).
+
+respondsWithStatus(410);
 ```
 
 ## Server-Side Events (SSE) response
@@ -488,17 +503,17 @@ regardless of registration order.
 ```kotlin
 // Generic: matches any POST to /users
 mokksy.post {
-    path("/users")
+  path("/users")
 } respondsWith {
-    body = "any user"
+  body = "any user"
 }
 
 // Specific: matches only requests whose body contains "admin" — two conditions
 mokksy.post {
-    path("/users")
-    bodyContains("admin")
+  path("/users")
+  bodyContains("admin")
 } respondsWith {
-    body = "admin user"
+  body = "admin user"
 }
 
 // Admin request → specific stub wins (score 2 beats score 1)
@@ -509,6 +524,7 @@ adminResult.bodyAsText() shouldBe "admin user"
 val genericResult = client.post("/users") { setBody("regular") }
 genericResult.bodyAsText() shouldBe "any user"
 ```
+
 <!--- INCLUDE
   }
 -->
@@ -631,54 +647,56 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 -->
+
 ```kotlin
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MyTest {
 
-    val mokksy = Mokksy.create()
-    lateinit var client: HttpClient
+  val mokksy = Mokksy.create()
+  lateinit var client: HttpClient
 
-    @BeforeAll
-    suspend fun setup() {
-        mokksy.startSuspend()
-        mokksy.awaitStarted() // port() and baseUrl() are safe after this point
-        client = HttpClient {
-            install(DefaultRequest) {
-                url(mokksy.baseUrl())
-            }
-        }
+  @BeforeAll
+  suspend fun setup() {
+    mokksy.startSuspend()
+    mokksy.awaitStarted() // port() and baseUrl() are safe after this point
+    client = HttpClient {
+      install(DefaultRequest) {
+        url(mokksy.baseUrl())
+      }
+    }
+  }
+
+  @Test
+  suspend fun testSomething() {
+    mokksy.get {
+      path("/hi")
+    } respondsWith {
+      delay = 100.milliseconds // wait 100ms, then reply
+      body = "Hello"
     }
 
-    @Test
-    suspend fun testSomething() {
-        mokksy.get {
-            path("/hi")
-        } respondsWith {
-            delay = 100.milliseconds // wait 100ms, then reply
-            body = "Hello"
-        }
+    // when
+    val response = client.get("/hi")
 
-        // when
-        val response = client.get("/hi")
+    // then
+    response.status shouldBe HttpStatusCode.OK
+    response.bodyAsText() shouldBe "Hello"
+  }
 
-        // then
-        response.status shouldBe HttpStatusCode.OK
-        response.bodyAsText() shouldBe "Hello"
-    }
+  @AfterEach
+  fun afterEach() {
+    mokksy.verifyNoUnexpectedRequests()
+  }
 
-    @AfterEach
-    fun afterEach() {
-        mokksy.verifyNoUnexpectedRequests()
-    }
-
-    @AfterAll
-    suspend fun afterAll() {
-        client.close()
-        mokksy.verifyNoUnmatchedStubs() // shared instance: check once, after all tests ran
-        mokksy.shutdownSuspend()
-    }
+  @AfterAll
+  suspend fun afterAll() {
+    client.close()
+    mokksy.verifyNoUnmatchedStubs() // shared instance: check once, after all tests ran
+    mokksy.shutdownSuspend()
+  }
 }
 ```
+
 <!--- KNIT example-readme-02.kt -->
 
 ### Inspecting unmatched items
@@ -700,17 +718,16 @@ val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnmatchedStubs
 Mokksy records incoming requests in a `RequestJournal`. The recording mode is controlled by `JournalMode` in
 `ServerConfiguration`:
 
-| Mode                           | Behaviour                                                                                                                                                        |
-|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `JournalMode.NONE`             | Disables request recording entirely. findAllUnexpectedRequests()`, `findAllMatchedRequests()`, and `verifyNoUnexpectedRequests()` throw `IllegalStateException`. |
-| `JournalMode.LEAN` _(default)_ | Records only requests with no matching stub. Lower overhead; sufficient for `verifyNoUnexpectedRequests()`.                                                      |
-| `JournalMode.FULL`             | Records all incoming requests — both matched and unmatched.                                                                                                      |
+- **JournalMode.NONE** - Disables request recording entirely. `findAllUnexpectedRequests()`, `findAllMatchedRequests()`, and `verifyNoUnexpectedRequests()` throw `IllegalStateException`.
+- **JournalMode.LEAN** _(default)_ – Records only requests with no matching stub. Lower overhead; sufficient for
+  `verifyNoUnexpectedRequests()`.
+- **JournalMode.FULL** - Records all incoming requests, both matched and unmatched.
 
 ```kotlin
 val mokksy = MokksyServer(
-    configuration = ServerConfiguration(
-        journalMode = JournalMode.FULL,
-    ),
+  configuration = ServerConfiguration(
+    journalMode = JournalMode.FULL,
+  ),
 )
 ```
 
@@ -719,7 +736,7 @@ Call `resetMatchState()` between scenarios to clear stub match state and the jou
 ```kotlin
 @AfterTest
 fun afterEach() {
-    mokksy.resetMatchState()
+  mokksy.resetMatchState()
 }
 ```
 
@@ -748,7 +765,7 @@ val server = MokksyServer()
 server.get { path("/ping") } respondsWith { body = "pong" }
 
 embeddedServer(Netty, port = 8080) {
-    mokksy(server)
+  mokksy(server)
 }.start(wait = true)
 ```
 
@@ -763,8 +780,8 @@ suitable when Mokksy stubs coexist with real routes:
 
 ```kotlin
 routing {
-    get("/health") { call.respondText("OK") }
-    mokksy(server)
+  get("/health") { call.respondText("OK") }
+  mokksy(server)
 }
 ```
 
@@ -776,19 +793,19 @@ install(SSE)
 install(DoubleReceive)
 install(ContentNegotiation) { json() }
 install(Authentication) {
-    basic("auth-basic") {
-        validate { credentials ->
-            if (credentials.name == "user" && credentials.password == "pass") {
-                UserIdPrincipal(credentials.name)
-            } else null
-        }
+  basic("auth-basic") {
+    validate { credentials ->
+      if (credentials.name == "user" && credentials.password == "pass") {
+        UserIdPrincipal(credentials.name)
+      } else null
     }
+  }
 }
 
 routing {
-    authenticate("auth-basic") {
-        mokksy(server)
-    }
+  authenticate("auth-basic") {
+    mokksy(server)
+  }
 }
 ```
 
@@ -809,20 +826,30 @@ Java callers use `dev.mokksy.Mokksy` — a JVM-only, `AutoCloseable` wrapper tha
 ```java
 import dev.mokksy.Mokksy;
 
-Mokksy mokksy = Mokksy.create("127.0.0.1", 0, true).start();
+Mokksy mokksy = Mokksy.create().start();
 
-mokksy.get(spec -> spec.path("/ping"))
-      .respondsWith(builder -> builder.body("Pong"));
+mokksy.
 
-mokksy.shutdown();
+get("/ping").
+
+respondsWith("Pong");
+
+mokksy.
+
+shutdown();
 ```
 
 `Mokksy` implements `AutoCloseable`, so try-with-resources works for test fixtures that need a short-lived server:
 
 ```java
-try (Mokksy mokksy = Mokksy.create().start()) {
-    mokksy.post(spec -> spec.path("/items"))
-          .respondsWith(builder -> builder.body("{\"id\":\"42\"}").status(201).header("Location", "/items/42"));
+try(Mokksy mokksy = Mokksy.create().start()){
+  mokksy
+  .
+
+post("/items")
+        .
+
+respondsWith("{\"id\":\"42\"}",201);
 }
 ```
 
@@ -830,7 +857,9 @@ try (Mokksy mokksy = Mokksy.create().start()) {
 
 ```java
 import dev.mokksy.Mokksy;
+
 import java.net.http.HttpClient;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -839,50 +868,142 @@ import org.junit.jupiter.api.TestInstance;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MyTest {
 
-    private final Mokksy mokksy = Mokksy.create();
-    private HttpClient httpClient;
+  private final Mokksy mokksy = Mokksy.create();
+  private HttpClient httpClient;
 
-    @BeforeAll
-    void setUp() {
-        mokksy.start();
-        httpClient = HttpClient.newHttpClient();
-    }
-    
-    @Test
-    void test() {
-      // call server
-    }
+  @BeforeAll
+  void setUp() {
+    mokksy.start();
+    httpClient = HttpClient.newHttpClient();
+  }
 
-    @AfterAll
-    void tearDown() {
-        mokksy.shutdown();
-    }
+  @Test
+  void test() {
+    // call server
+  }
+
+  @AfterAll
+  void tearDown() {
+    mokksy.shutdown();
+  }
 }
+```
+
+**Path shortcuts** — every HTTP verb has a `String` overload that matches the path exactly.
+Use the full `spec` lambda when you need additional matchers:
+
+```java
+// Path-only shortcut (most common case)
+mokksy.get("/ping").
+
+respondsWith("Pong");
+
+// Full spec for headers, body matchers, or priority
+mokksy.
+
+get(spec ->spec.
+
+path("/ping").
+
+containsHeader("Accept","application/json"))
+  .
+
+respondsWith(builder ->builder.
+
+body("Pong"));
+```
+
+**Response shortcuts** — `respondsWith(String)` and `respondsWith(String, int)` cover the
+common case of returning a string body with an optional status code:
+
+```java
+mokksy.get("/hello").
+
+respondsWith("Hello, World!");
+mokksy.
+
+post("/items").
+
+respondsWith("{\"id\":42}",201);
+```
+
+When you need headers, delays, or a custom content type, use the full builder:
+
+```java
+mokksy.post("/items")
+      .
+
+respondsWith(builder ->builder
+  .
+
+body("{\"id\":\"42\"}")
+          .
+
+status(201)
+          .
+
+header("Location","/items/42")
+          .
+
+delayMillis(50));
 ```
 
 **Status-only responses** — use `respondsWithStatus(int)` when no body is needed:
 
 ```java
-mokksy.get(spec -> spec.path("/health")).respondsWithStatus(200);
-mokksy.delete(spec -> spec.path("/items/1")).respondsWithStatus(204);
+mokksy.get("/health").
+
+respondsWithStatus(200);
+mokksy.
+
+delete("/items/1").
+
+respondsWithStatus(204);
+```
+
+**One-time stubs** — use `StubConfiguration.once()` to create a stub that is removed after
+its first match:
+
+```java
+import dev.mokksy.mokksy.StubConfiguration;
+
+mokksy.get(StubConfiguration.once("my-stub"), "/once")
+  .
+
+respondsWith("First!");
+// second request to /once returns 404
 ```
 
 **Request matchers** — the `spec` block mirrors the Kotlin DSL:
 
 ```java
-mokksy.post(spec -> {
-    spec.path("/secured");
-    spec.containsHeader("X-Api-Key", "secret");
-    spec.bodyContains("\"role\":\"admin\"");
-}).respondsWith(builder -> builder.body("authorized").status(200));
+mokksy.post(spec ->{
+  spec.
+
+path("/secured");
+    spec.
+
+containsHeader("X-Api-Key","secret");
+    spec.
+
+bodyContains("\"role\":\"admin\"");
+}).
+
+respondsWith(builder ->builder.
+
+body("authorized").
+
+status(200));
 ```
 
 **All HTTP verbs** are available as named methods (`get`, `post`, `put`, `delete`, `patch`,
-`head`, `options`). Use `method(String, spec)` for dynamic method names in parameterised tests:
+`head`, `options`) — each with both `String` path and `Consumer` spec overloads.
+Use `method(String, String)` or `method(String, spec)` for dynamic method names in parameterised tests:
 
 ```java
-mokksy.method("PATCH", spec -> spec.path("/resource"))
-      .respondsWith(builder -> builder.body("patched"));
+mokksy.method("PATCH","/resource").
+
+respondsWith("patched");
 ```
 
 ### Streaming responses
@@ -894,9 +1015,15 @@ which matches what most streaming AI APIs and SSE endpoints produce.
 **Chunks from a list** — the simplest case:
 
 ```java
-mokksy.get(spec -> spec.path("/stream"))
-      .respondsWithStream(builder -> builder
-          .chunks(List.of("Hello", " ", "World")));
+mokksy.get(spec ->spec.
+
+path("/stream"))
+  .
+
+respondsWithStream(builder ->builder
+  .
+
+chunks(List.of("Hello", " ","World")));
 ```
 
 **Chunks from a `Stream<T>`** — the stream is consumed lazily when the first matching request
@@ -904,39 +1031,71 @@ arrives, not when the stub is registered. This is useful for live generators or 
 that should reflect their state at request time:
 
 ```java
-mokksy.get(spec -> spec.path("/events"))
-      .respondsWithStream(builder -> builder
-          .chunks(Stream.of("data1", "data2")));
+mokksy.get(spec ->spec.
+
+path("/events"))
+  .
+
+respondsWithStream(builder ->builder
+  .
+
+chunks(Stream.of("data1", "data2")));
 ```
 
 **Delays** — simulate network and processing latency at two granularities:
 
 ```java
-mokksy.get(spec -> spec.path("/slow-stream"))
-      .respondsWithStream(builder -> builder
-          .chunks(List.of("A", "B", "C"))
-          .delayMillis(200L)               // pause before the first chunk
-          .delayBetweenChunksMillis(100L)); // pause between each subsequent chunk
+mokksy.get(spec ->spec.
+
+path("/slow-stream"))
+  .
+
+respondsWithStream(builder ->builder
+  .
+
+chunks(List.of("A", "B","C"))
+  .
+
+delayMillis(200L)               // pause before the first chunk
+          .
+
+delayBetweenChunksMillis(100L)); // pause between each subsequent chunk
 ```
 
 **Custom `Content-Type`** — override the default when the stream carries a different format, such
 as NDJSON:
 
 ```java
-mokksy.get(spec -> spec.path("/ndjson"))
-      .respondsWithStream(builder -> builder
-          .chunks(List.of("{\"value\":1}", "{\"value\":2}"))
-          .contentType("application/x-ndjson"));
+mokksy.get(spec ->spec.
+
+path("/ndjson"))
+  .
+
+respondsWithStream(builder ->builder
+  .
+
+chunks(List.of("{\"value\":1}", "{\"value\":2}"))
+  .
+
+contentType("application/x-ndjson"));
 ```
 
 For typed chunks, pass the class token as the first argument. Chunks are serialized to the
 response body using each object's `toString()`:
 
 ```java
-mokksy.get(spec -> spec.path("/typed"))
-      .respondsWithStream(MyEvent.class, builder -> builder
-          .chunk(new MyEvent("start"))
-          .chunk(new MyEvent("end")));
+mokksy.get(spec ->spec.
+
+path("/typed"))
+  .
+
+respondsWithStream(MyEvent .class, builder ->builder
+  .
+
+chunk(new MyEvent("start"))
+  .
+
+chunk(new MyEvent("end")));
 ```
 
 ### SSE streaming responses
@@ -945,45 +1104,106 @@ Use `respondsWithSseStream` to stub a true [Server-Sent Events (SSE)][sse] respo
 Each chunk is a `ServerSentEvent` that Mokksy sends using the standard SSE wire format
 (`data: ...\r\n`), including proper `Cache-Control` and `Connection` headers.
 
-**Basic SSE** — chunks are `ServerSentEvent` instances from `io.ktor.sse`:
+**Basic SSE** — use `SseEvent.data()` to create data-only events (the most common case):
 
 ```java
-import io.ktor.sse.ServerSentEvent;
+import dev.mokksy.mokksy.SseEvent;
 
-mokksy.get(spec -> spec.path("/sse"))
-      .respondsWithSseStream(builder -> builder
-          .chunk(new ServerSentEvent("Hello", null, null, null, null))
-          .chunk(new ServerSentEvent("World", null, null, null, null)));
+mokksy.get("/sse")
+      .
+
+respondsWithSseStream(builder ->builder
+  .
+
+chunk(SseEvent.data("Hello"))
+  .
+
+chunk(SseEvent.data("World")));
+```
+
+**SSE with event type, id, retry, and comments** — use `SseEvent.builder()` for multi-field events:
+
+```java
+mokksy.get("/sse-full")
+      .
+
+respondsWithSseStream(builder ->builder
+  .
+
+chunk(SseEvent.builder()
+              .
+
+data("payload")
+              .
+
+event("message")
+              .
+
+id("42")
+              .
+
+retry(5000L)
+              .
+
+comments("keep-alive")
+              .
+
+build()));
 ```
 
 **From a list:**
 
 ```java
-mokksy.get(spec -> spec.path("/sse-list"))
-      .respondsWithSseStream(builder -> builder
-          .chunks(List.of(
-              new ServerSentEvent("event-1", null, null, null, null),
-              new ServerSentEvent("event-2", null, null, null, null))));
+mokksy.get("/sse-list")
+      .
+
+respondsWithSseStream(builder ->builder
+  .
+
+chunks(List.of(
+  SseEvent.data("event-1"),
+              SseEvent.
+
+data("event-2"))));
 ```
 
 **With delays:**
 
 ```java
-mokksy.get(spec -> spec.path("/sse-slow"))
-      .respondsWithSseStream(builder -> builder
-          .chunk(new ServerSentEvent("first", null, null, null, null))
-          .chunk(new ServerSentEvent("second", null, null, null, null))
-          .delayMillis(200L)
-          .delayBetweenChunksMillis(100L));
+mokksy.get("/sse-slow")
+      .
+
+respondsWithSseStream(builder ->builder
+  .
+
+chunk(SseEvent.data("first"))
+  .
+
+chunk(SseEvent.data("second"))
+  .
+
+delayMillis(200L)
+          .
+
+delayBetweenChunksMillis(100L));
 ```
 
 **Typed SSE** — pass the data-type class token for the event's `data` field type:
 
 ```java
-mokksy.get(spec -> spec.path("/typed-sse"))
-      .respondsWithSseStream(String.class, builder -> builder
-          .chunk(new ServerSentEvent("typed-event", null, null, null, null)));
+mokksy.get("/typed-sse")
+      .
+
+respondsWithSseStream(String .class, builder ->builder
+  .
+
+chunk(SseEvent.data("typed-event")));
 ```
+
+> **Tip:** `SseEvent.data(String)` and `SseEvent.builder()` are Java-friendly factories for
+> Ktor's `ServerSentEvent`. Ktor's constructor requires all five parameters in Java
+> (`new ServerSentEvent("data", null, null, null, null)`); these factories eliminate the
+> trailing nulls.
 
 ### Jackson support
 
@@ -1007,23 +1227,40 @@ import dev.mokksy.MokksyJackson;
 // Default Jackson configuration
 Mokksy mokksy = MokksyJackson.create().start();
 
-// Custom ObjectMapper — e.g. register Java time / records support
-Mokksy mokksy = MokksyJackson.create(ObjectMapper::findAndRegisterModules).start();
+  // Custom ObjectMapper — e.g. register Java time / records support
+  Mokksy mokksy = MokksyJackson.create(ObjectMapper::findAndRegisterModules).start();
 ```
 
 Typed body matchers work the same way as in the standard API — pass the `Class` token to
 the stub-registration method and use `bodyMatchesPredicate` to assert on the deserialized object:
 
 ```java
-record CreateItemRequest(String name, int quantity) {}
+record CreateItemRequest(String name, int quantity) {
+}
 
-mokksy.post(
-    CreateItemRequest.class,
-    spec -> spec.path("/items")
-                .bodyMatchesPredicate(req -> "widget".equals(req.name()))
-).respondsWith(builder -> builder.body("{\"id\":\"1\"}").status(201));
+mokksy.
+
+post(
+  CreateItemRequest .class,
+  spec ->spec.
+
+path("/items")
+                .
+
+bodyMatchesPredicate(req ->"widget".
+
+equals(req.name()))
+  ).
+
+respondsWith(builder ->builder.
+
+body("{\"id\":\"1\"}").
+
+status(201));
 ```
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification"
+
 [ai-mocks]: https://github.com/mokksy/ai-mocks/ "AI-Mock: Mokksy extensions for AI integrations"
+
 [a2a]: https://a2a-protocol.org/ "Agent2Agent (A2A) Protocol, an open standard designed to enable seamless communication and collaboration between AI agents."

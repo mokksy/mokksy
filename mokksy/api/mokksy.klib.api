@@ -475,6 +475,7 @@ final class dev.mokksy.mokksy/StubConfiguration { // dev.mokksy.mokksy/StubConfi
     final fun toString(): kotlin/String // dev.mokksy.mokksy/StubConfiguration.toString|toString(){}[0]
 
     final object Companion { // dev.mokksy.mokksy/StubConfiguration.Companion|null[0]
+        final fun once(kotlin/String? = ...): dev.mokksy.mokksy/StubConfiguration // dev.mokksy.mokksy/StubConfiguration.Companion.once|once(kotlin.String?){}[0]
         final fun removeAfterMatch(kotlin/String? = ..., kotlin/Boolean = ..., kotlin/Boolean = ...): dev.mokksy.mokksy/StubConfiguration // dev.mokksy.mokksy/StubConfiguration.Companion.removeAfterMatch|removeAfterMatch(kotlin.String?;kotlin.Boolean;kotlin.Boolean){}[0]
     }
 }

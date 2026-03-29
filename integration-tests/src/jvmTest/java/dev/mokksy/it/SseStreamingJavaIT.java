@@ -1,6 +1,7 @@
 package dev.mokksy.it;
 
 import dev.mokksy.Mokksy;
+import dev.mokksy.mokksy.SseEvent;
 import io.ktor.sse.ServerSentEvent;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -94,6 +95,114 @@ class SseStreamingJavaIT {
 
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).isEqualTo("data: A\r\ndata: B\r\ndata: C\r\n");
+    }
+
+    // endregion
+
+    // region SseEvent factory
+
+    @Test
+    void sseEventData_shouldReturnSseWireFormat() throws IOException, InterruptedException {
+        mokksy.get(spec -> spec.path("/sse-factory-data"))
+            .respondsWithSseStream(builder -> builder
+                .chunk(SseEvent.data("Hello"))
+                .chunk(SseEvent.data("World")));
+
+        var response = get("/sse-factory-data");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("data: Hello\r\ndata: World\r\n");
+    }
+
+    @Test
+    void sseEventBuilder_shouldReturnSseWireFormatWithEventType() throws IOException, InterruptedException {
+        mokksy.get(spec -> spec.path("/sse-factory-builder"))
+            .respondsWithSseStream(builder -> builder
+                .chunk(SseEvent.builder().data("payload").event("chat").id("1").build()));
+
+        var response = get("/sse-factory-builder");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("event: chat\r\ndata: payload\r\nid: 1\r\n");
+    }
+
+    @Test
+    void sseEventData_withPathShortcut_shouldWork() throws IOException, InterruptedException {
+        mokksy.get("/sse-shortcut")
+            .respondsWithSseStream(builder -> builder
+                .chunk(SseEvent.data("shortcut-event")));
+
+        var response = get("/sse-shortcut");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("data: shortcut-event\r\n");
+    }
+
+    @Test
+    void sseEventBuilder_withEventField_shouldSerializeEventType() throws IOException, InterruptedException {
+        mokksy.get("/sse-builder-event")
+            .respondsWithSseStream(builder -> builder
+                .chunk(SseEvent.builder().data("msg").event("chat.completion").build()));
+
+        var response = get("/sse-builder-event");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("event: chat.completion\r\ndata: msg\r\n");
+    }
+
+    @Test
+    void sseEventBuilder_withIdField_shouldSerializeId() throws IOException, InterruptedException {
+        mokksy.get("/sse-builder-id")
+            .respondsWithSseStream(builder -> builder
+                .chunk(SseEvent.builder().data("msg").id("42").build()));
+
+        var response = get("/sse-builder-id");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("data: msg\r\nid: 42\r\n");
+    }
+
+    @Test
+    void sseEventBuilder_withRetryField_shouldSerializeRetry() throws IOException, InterruptedException {
+        mokksy.get("/sse-builder-retry")
+            .respondsWithSseStream(builder -> builder
+                .chunk(SseEvent.builder().data("msg").retry(5000L).build()));
+
+        var response = get("/sse-builder-retry");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("data: msg\r\nretry: 5000\r\n");
+    }
+
+    @Test
+    void sseEventBuilder_withCommentsField_shouldSerializeComments() throws IOException, InterruptedException {
+        mokksy.get("/sse-builder-comments")
+            .respondsWithSseStream(builder -> builder
+                .chunk(SseEvent.builder().data("msg").comments("keep-alive").build()));
+
+        var response = get("/sse-builder-comments");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("data: msg\r\n: keep-alive\r\n");
+    }
+
+    @Test
+    void sseEventBuilder_withAllFields_shouldSerializeAll() throws IOException, InterruptedException {
+        mokksy.get("/sse-builder-all")
+            .respondsWithSseStream(builder -> builder
+                .chunk(SseEvent.builder()
+                    .data("payload")
+                    .event("message")
+                    .id("99")
+                    .retry(3000L)
+                    .comments("debug")
+                    .build()));
+
+        var response = get("/sse-builder-all");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo(
+            "event: message\r\ndata: payload\r\nid: 99\r\nretry: 3000\r\n: debug\r\n");
     }
 
     // endregion
