@@ -50,12 +50,14 @@ jobs:
       - name: 🐘Setup Gradle
         uses: gradle/actions/setup-gradle@263d8fe18eb54ae581bcdc2e263c5a49173958a3
         with:
+          cache-disabled: true
           add-job-summary-as-pr-comment: on-failure # Valid values are 'never' (default), 'always', and 'on-failure'
 
       - name: Build with Gradle
         run: |
           ./gradlew \
-            clean checkLegacyAbi knit build koverXmlReport koverLog
+            checkLegacyAbi build knit \
+            koverXmlReport koverLog
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6
