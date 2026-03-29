@@ -14,16 +14,16 @@ internal class StubPriorityIT : AbstractIT() {
         val path = "/stub-priority-$seed"
         mokksy
             .get {
-                path(beEqual(path))
-                priority(1) // higher priority
+                path(path)
+                priority(2) // higher priority
             }.respondsWith(String::class) {
                 body = "Expected response"
             }
 
         mokksy
             .get {
-                path(beEqual(path))
-                priority(2) // lower priority
+                path(path)
+                priority(1) // lower priority
             }.respondsWith(String::class) {
                 body = "Unexpected response"
             }
@@ -42,7 +42,7 @@ internal class StubPriorityIT : AbstractIT() {
         mokksy
             .get {
                 path(beEqual(path))
-                priority(2) // lower priority
+                priority(1) // lower priority
             }.respondsWith(String::class) {
                 body = "Unexpected response"
             }
@@ -50,7 +50,7 @@ internal class StubPriorityIT : AbstractIT() {
         mokksy
             .get {
                 path(beEqual(path))
-                priority(1) // higher priority
+                priority(2) // higher priority
             }.respondsWith(String::class) {
                 body = "Expected response"
             }

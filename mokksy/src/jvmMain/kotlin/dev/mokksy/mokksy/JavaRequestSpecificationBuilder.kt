@@ -89,9 +89,10 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
     ): JavaRequestSpecificationBuilder<P> = apply { delegate.containsHeader(name, value) }
 
     /**
-     * Sets the priority for this stub. Lower values win over higher values.
+     * Sets the priority for this stub. Higher values win over lower values.
      *
-     * @param value Priority value; lower means higher precedence.
+     * @param value Priority value; higher means higher precedence. Default is `0`.
+     *              Use negative values (e.g. `-1`) for catch-all / fallback stubs.
      * @return This builder instance.
      */
     public fun priority(value: Int): JavaRequestSpecificationBuilder<P> =

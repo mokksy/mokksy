@@ -161,7 +161,7 @@ internal class StubRegistry {
             return fullMatches
                 .sortedWith(
                     compareByDescending<Pair<Stub<*, *>, MatchResult>> { (_, r) -> r.score }
-                        .thenBy { (s, _) -> s.requestSpecification.priority }
+                        .thenByDescending { (s, _) -> s.requestSpecification.priority }
                         .thenBy { (s, _) -> s.creationOrder },
                 ).first()
                 .first

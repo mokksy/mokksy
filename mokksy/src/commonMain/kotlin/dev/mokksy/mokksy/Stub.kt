@@ -90,12 +90,11 @@ internal data class Stub<P : Any, T : Any>(
     /**
      * Compares this [Stub] instance to another [Stub] instance for order.
      *
-     * The comparison is based primarily on the priority of the [requestSpecification].
-     * If the priorities are equal, the [creationOrder] of the stubs is used as a tiebreaker.
+     * Stubs are ordered by priority descending (higher priority first), then by
+     * [creationOrder] ascending (earlier registration wins on ties).
      *
      * @param other The [Stub] instance to compare with this one.
-     * @return A negative integer, zero, or a positive integer if this [Stub] is less than,
-     * equal to, or greater than the specified [Stub], respectively.
+     * @return A negative integer, zero, or a positive integer as defined by [Comparable].
      */
     override fun compareTo(other: Stub<*, *>): Int = StubComparator.compare(this, other)
 
@@ -121,11 +120,8 @@ internal data class Stub<P : Any, T : Any>(
 /**
  * Comparator implementation for [Stub] objects.
  *
- * This comparator is used to compare [Stub] instances based on the priority
- * defined in their [RequestSpecification].
- * Higher priority values are considered greater.
- *
- * If priorities are equal, then [Stub]s are compared by [Stub.creationOrder].
+ * Orders stubs by priority descending (higher numeric values first), then by
+ * [Stub.creationOrder] ascending (earlier registration wins on ties).
  *
  * Used internally for sorting or ordering [Stub] objects when multiple mappings need
  * to be evaluated or prioritized.
@@ -136,8 +132,8 @@ internal object StubComparator : Comparator<Stub<*, *>> {
         b: Stub<*, *>,
     ): Int {
         val result =
-            a.requestSpecification.priority.compareTo(
-                b.requestSpecification.priority,
+            b.requestSpecification.priority.compareTo(
+                a.requestSpecification.priority,
             )
         return if (result != 0) {
             result

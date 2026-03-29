@@ -61,8 +61,8 @@ class StubRegistryTest {
 
                 val all = registry.getAll().toList()
 
-                // Expect ordering by priority asc, then creation order
-                all shouldBe listOf(s2, s1, s3)
+                // Expect ordering by priority desc, then creation order
+                all shouldBe listOf(s1, s3, s2)
             }
 
         @Test
@@ -93,13 +93,13 @@ class StubRegistryTest {
                 val lowPrio =
                     createStub<String, String>(
                         name = "low",
-                        priority = 100,
+                        priority = 1,
                         requestType = String::class,
                     )
                 val highPrio =
                     createStub<String, String>(
                         name = "high",
-                        priority = 1,
+                        priority = 100,
                         requestType = String::class,
                     )
 

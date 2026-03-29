@@ -12,13 +12,13 @@ import kotlin.reflect.KClass
  * The default priority value assigned to a stub when no explicit priority is specified.
  *
  * This constant is used in the context of mapping and comparing inbound [RequestSpecification]s
- * (such as stubs or routes) to determine their evaluation order. Lower numerical values generally indicate
+ * (such as stubs or routes) to determine their evaluation order. Higher numerical values indicate
  * higher priority.
  *
- * By default, a stub with [DEFAULT_STUB_PRIORITY] has the lowest possible priority,
- * as it is equal to the maximum value of an `Int`.
+ * The default value is `0`. Stubs with positive priorities take precedence over the default,
+ * while negative values (e.g. `priority(-1)`) can be used for catch-all / fallback stubs.
  */
-public const val DEFAULT_STUB_PRIORITY: Int = Int.MAX_VALUE
+public const val DEFAULT_STUB_PRIORITY: Int = 0
 
 /**
  * Result of evaluating a [RequestSpecification] against an incoming request.
@@ -53,7 +53,11 @@ internal data class MatchResult(
  *                      correctly; without it the second `receive()` call will fail silently and all matchers in
  *                      the later group will be treated as not matched.
  * @property priority The priority value used for comparing different specifications.
- * Lower values indicate higher priority. Default value is [DEFAULT_STUB_PRIORITY]
+ * Higher values indicate higher priority. Default value is [DEFAULT_STUB_PRIORITY] (`0`).
+ * Negative values can be used for catch-all / fallback stubs.
+ *
+ * Matching order: (1) highest score wins, (2) highest priority breaks ties,
+ * (3) earliest registration order breaks remaining ties.
  */
 @Suppress("LongParameterList")
 public open class RequestSpecification<P : Any>(
@@ -88,25 +92,25 @@ public open class RequestSpecificationBuilder<P : Any>(
     public val bodyString: MutableList<Matcher<String?>> = mutableListOf()
     public var priority: Int = DEFAULT_STUB_PRIORITY
 
-    public fun method(matcher: Matcher<HttpMethod>): RequestSpecificationBuilder<P> {
-        this.method = matcher
-        return this
-    }
+    public fun method(matcher: Matcher<HttpMethod>): RequestSpecificationBuilder<P> =
+        apply {
+            this.method = matcher
+        }
 
-    public fun path(matcher: Matcher<String>): RequestSpecificationBuilder<P> {
-        this.path = matcher
-        return this
-    }
+    public fun path(matcher: Matcher<String>): RequestSpecificationBuilder<P> =
+        apply {
+            this.path = matcher
+        }
 
-    public fun path(pathString: String): RequestSpecificationBuilder<P> {
-        this.path = pathEqual(pathString)
-        return this
-    }
+    public fun path(pathString: String): RequestSpecificationBuilder<P> =
+        apply {
+            this.path = pathEqual(pathString)
+        }
 
-    public fun bodyContains(vararg strings: String): RequestSpecificationBuilder<P> {
-        strings.forEach { this.bodyString += contain(it) }
-        return this
-    }
+    public fun bodyContains(vararg strings: String): RequestSpecificationBuilder<P> =
+        apply {
+            strings.forEach { this.bodyString += contain(it) }
+        }
 
     /**
      * Adds a predicate to match against the request body.
@@ -123,14 +127,14 @@ public open class RequestSpecificationBuilder<P : Any>(
     public fun bodyMatchesPredicate(
         description: String? = null,
         predicate: (P?) -> Boolean,
-    ): RequestSpecificationBuilder<P> {
-        this.body +=
-            predicateMatcher(
-                description = description,
-                predicate = predicate,
-            )
-        return this
-    }
+    ): RequestSpecificationBuilder<P> =
+        apply {
+            this.body +=
+                predicateMatcher(
+                    description = description,
+                    predicate = predicate,
+                )
+        }
 
     /**
      * Adds multiple predicates to match against the request body.
@@ -143,30 +147,46 @@ public open class RequestSpecificationBuilder<P : Any>(
      */
     public fun bodyMatchesPredicates(
         vararg predicate: (P?) -> Boolean,
-    ): RequestSpecificationBuilder<P> {
-        predicate.forEach { bodyMatchesPredicate(predicate = it) }
-        return this
-    }
+    ): RequestSpecificationBuilder<P> =
+        apply {
+            predicate.forEach { bodyMatchesPredicate(predicate = it) }
+        }
 
     public fun containsHeader(
         headerName: String,
         headerValue: String,
-    ): RequestSpecificationBuilder<P> {
-        headers +=
-            dev.mokksy.mokksy.request
-                .containsHeader(headerName, headerValue)
-        return this
-    }
+    ): RequestSpecificationBuilder<P> =
+        apply {
+            headers +=
+                dev.mokksy.mokksy.request
+                    .containsHeader(headerName, headerValue)
+        }
 
-    public fun bodyString(matcher: Matcher<String?>): RequestSpecificationBuilder<P> {
-        this.bodyString += matcher
-        return this
-    }
+    public fun bodyString(matcher: Matcher<String?>): RequestSpecificationBuilder<P> =
+        apply {
+            this.bodyString += matcher
+        }
 
-    public fun priority(value: Int): RequestSpecificationBuilder<P> {
-        this.priority = value
-        return this
-    }
+    /**
+     * Sets the priority for this stub. Higher values indicate higher priority.
+     *
+     * Priority is a tiebreaker: it only applies when two stubs match with equal specificity scores.
+     *
+     * Example:
+     * ```kotlin
+     * // Higher-priority stub — wins over default-priority stubs when scores tie
+     * mokksy.post { path("/api"); priority(1) }
+     *
+     * // Lower-priority fallback — selected only when no higher-priority stub with the same score matches
+     * mokksy.post { path("/api"); priority(-1) }
+     * ```
+     *
+     * @see [RequestSpecification.priority]
+     */
+    public fun priority(value: Int): RequestSpecificationBuilder<P> =
+        apply {
+            this.priority = value
+        }
 
     internal fun build(): RequestSpecification<P> =
         RequestSpecification(
