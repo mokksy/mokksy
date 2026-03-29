@@ -46,7 +46,7 @@ internal class StubComparatorTest {
     }
 
     @Test
-    fun `compare should return a negative value when the first priority is less`() {
+    fun `compare should return a positive value when the first priority is less`() {
         request1 = RequestSpecification(priority = 1, requestType = Int::class)
         request2 = RequestSpecification(priority = 2, requestType = Int::class)
 
@@ -65,11 +65,11 @@ internal class StubComparatorTest {
 
         val result = StubComparator.compare(stub1, stub2)
 
-        assertThat(result).isNegative()
+        assertThat(result).isPositive()
     }
 
     @Test
-    fun `compare should return a positive value when the first priority is greater`() {
+    fun `compare should return a negative value when the first priority is greater`() {
         request1 = RequestSpecification(priority = 2, requestType = Int::class)
         request2 = RequestSpecification(priority = 1, requestType = Int::class)
 
@@ -88,7 +88,7 @@ internal class StubComparatorTest {
 
         val result = StubComparator.compare(stub1, stub2)
 
-        assertThat(result).isPositive()
+        assertThat(result).isNegative()
     }
 
     @Test

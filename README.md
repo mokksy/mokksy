@@ -469,7 +469,8 @@ Mokksy provides various matcher types to specify conditions for matching incomin
   deserialized request body — see [Typed request body](#typed-request-body) for the full API
 - **Call matchers** — `successCallMatcher` matches if a function called with the body does not throw
 - **Priority** — `priority = 10` on `RequestSpecificationBuilder` sets the `RequestSpecification.priority`
-  of the stub; lower values indicate higher priority. Default is `Int.MAX_VALUE`.
+  of the stub; higher values indicate higher priority. Default is `0`.
+  Use negative values (e.g. `priority = -1`) for catch-all / fallback stubs.
   Priority is a tiebreaker: it applies only when two stubs match with an equal number of conditions satisfied.
   For most cases, specificity-based matching (see below) selects the right stub automatically.
 
@@ -534,7 +535,7 @@ response.status shouldBe HttpStatusCode.NoContent
 
 ### Priority Example
 
-If multiple stubs match with the same specificity score, the one with the lower `priority` value wins:
+If multiple stubs match with the same specificity score, the one with the higher `priority` value wins:
 
 <!--- INCLUDE
   @Test
@@ -542,15 +543,15 @@ If multiple stubs match with the same specificity score, the one with the lower 
 -->
 
 ```kotlin
-// Catch-all stub with low priority (high value)
+// Catch-all stub with low priority (negative value)
 mokksy.get {
   path = contain("/things")
-  priority = 99
+  priority = -1
 } respondsWith {
   body = "Generic Thing"
 }
 
-// Specific stub with high priority (low value)
+// Specific stub with high priority (positive value)
 mokksy.get {
   path = beEqual("/things/special")
   priority = 1

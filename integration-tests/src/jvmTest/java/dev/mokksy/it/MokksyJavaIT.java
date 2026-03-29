@@ -227,18 +227,85 @@ class MokksyJavaIT {
     void stub_higherPriorityShouldWin() throws IOException, InterruptedException {
         mokksy.get(spec -> {
             spec.path("/priority");
-            spec.priority(10);
+            spec.priority(1);
         }).respondsWith(builder -> builder.body("low-priority"));
 
         mokksy.get(spec -> {
             spec.path("/priority");
-            spec.priority(1);
+            spec.priority(10);
         }).respondsWith(builder -> builder.body("high-priority"));
 
         var response = get("/priority");
 
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).isEqualTo("high-priority");
+    }
+
+    @Test
+    void stub_defaultPriorityVsPositive_positiveShouldWin() throws IOException, InterruptedException {
+        mokksy.get(spec -> spec.path("/priority-default-vs-positive"))
+            .respondsWith(builder -> builder.body("default-priority"));
+
+        mokksy.get(spec -> {
+            spec.path("/priority-default-vs-positive");
+            spec.priority(1);
+        }).respondsWith(builder -> builder.body("positive-priority"));
+
+        var response = get("/priority-default-vs-positive");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("positive-priority");
+    }
+
+    @Test
+    void stub_defaultPriorityVsNegative_defaultShouldWin() throws IOException, InterruptedException {
+        mokksy.get(spec -> {
+            spec.path("/priority-default-vs-negative");
+            spec.priority(-1);
+        }).respondsWith(builder -> builder.body("negative-priority"));
+
+        mokksy.get(spec -> spec.path("/priority-default-vs-negative"))
+            .respondsWith(builder -> builder.body("default-priority"));
+
+        var response = get("/priority-default-vs-negative");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("default-priority");
+    }
+
+    // endregion
+
+    // region Catch-all fallback pattern
+
+    @Test
+    void catchAll_fallbackPatternWithPriority() throws IOException, InterruptedException {
+        // Catch-all stub: matches any POST to /v1/chat/completions, returns 400
+        mokksy.post(spec -> {
+            spec.path("/v1/chat/completions");
+            spec.bodyMatchesPredicate(body -> true);
+            spec.priority(-1);
+        }).respondsWith(builder -> builder
+            .body("{\"error\":\"unsupported request\"}")
+            .status(400));
+
+        // Specific stub: matches only when body contains "gpt-4", returns 200
+        mokksy.post(spec -> {
+            spec.path("/v1/chat/completions");
+            spec.bodyContains("gpt-4");
+            spec.priority(1);
+        }).respondsWith(builder -> builder
+            .body("{\"model\":\"gpt-4\"}")
+            .status(200));
+
+        // Specific request → both stubs match with the same score, so priority decides
+        var specificResponse = post("/v1/chat/completions", "{\"model\":\"gpt-4\"}");
+        assertThat(specificResponse.statusCode()).isEqualTo(200);
+        assertThat(specificResponse.body()).isEqualTo("{\"model\":\"gpt-4\"}");
+
+        // Unmatched request → catch-all fallback kicks in
+        var fallbackResponse = post("/v1/chat/completions", "{\"model\":\"other\"}");
+        assertThat(fallbackResponse.statusCode()).isEqualTo(400);
+        assertThat(fallbackResponse.body()).isEqualTo("{\"error\":\"unsupported request\"}");
     }
 
     // endregion
