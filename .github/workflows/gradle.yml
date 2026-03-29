@@ -41,6 +41,7 @@ jobs:
       - name: Set up JDK ${{ env.JVM_VERSION }}
         uses: actions/setup-java@v5
         with:
+          cache: gradle
           java-version: ${{ env.JVM_VERSION }}
           distribution: ${{ env.JVM_DISTRIBUTION }}
 
@@ -50,18 +51,6 @@ jobs:
         uses: gradle/actions/setup-gradle@263d8fe18eb54ae581bcdc2e263c5a49173958a3
         with:
           add-job-summary-as-pr-comment: on-failure # Valid values are 'never' (default), 'always', and 'on-failure'
-          cache-disabled: false
-          cache-cleanup: 'always'
-          cache-overwrite-existing: true
-          # Cache downloaded JDKs in addition to the default directories.
-          gradle-home-cache-includes: |
-            caches
-            notifications
-            jdks
-          # Exclude the local build-cache and keyrings from the directories cached.
-          gradle-home-cache-excludes: |
-            caches/build-cache-1
-            caches/keyrings
 
       - name: Build with Gradle
         run: |
