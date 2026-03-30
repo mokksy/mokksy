@@ -40,7 +40,7 @@ public class SseStreamResponseDefinition<T> @OptIn(InternalMokksyApi::class) int
     formatter: HttpFormatter,
 ) : StreamResponseDefinition<ServerSentEventMetadata<T>>(
     chunkFlow = chunkFlow,
-    chunkContentType = chunkContentType,
+    chunkContentType = chunkContentType ?: contentType,
     delayBetweenChunks = delayBetweenChunks,
     delay = delay,
     httpStatus = httpStatus,
