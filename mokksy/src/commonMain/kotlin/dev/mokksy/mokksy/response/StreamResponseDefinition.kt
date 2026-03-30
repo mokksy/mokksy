@@ -18,7 +18,7 @@ import io.ktor.util.logging.Logger
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.CancellationException
 import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.writeStringUtf8
+import io.ktor.utils.io.writeFully
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -55,14 +55,59 @@ public open class StreamResponseDefinition<T>(
     httpStatus: HttpStatusCode = HttpStatusCode.OK,
     headers: (ResponseHeaders.() -> Unit)? = null,
     delay: Duration,
-    private val formatter: HttpFormatter,
+    protected val formatter: HttpFormatter,
 ) : AbstractResponseDefinition<T>(
         contentType = contentType,
         httpStatus = httpStatus,
         headers = headers,
         delay = delay,
     ) {
-    internal suspend fun writeChunksFromFlow(
+
+    /**
+     * Configures response headers before streaming begins.
+     * Subclasses override to add transport-specific headers (e.g. SSE headers).
+     */
+    protected open fun configureHeaders(call: ApplicationCall) {
+        call.response.cacheControl(CacheControl.NoCache(null))
+    }
+
+    /**
+     * Serializes a chunk value to its wire representation as bytes.
+     * Subclasses override to customize formatting (e.g. appending SSE blank-line terminators)
+     * or to produce binary content directly.
+     */
+    protected open fun serialize(value: T): ByteArray = "$value".encodeToByteArray()
+
+    override suspend fun writeResponse(
+        call: ApplicationCall,
+        verbose: Boolean,
+    ) {
+        headers?.invoke(call.response.headers)
+        configureHeaders(call)
+        call.respondBytesWriter(
+            status = this.httpStatus,
+            contentType = this.contentType,
+        ) {
+            if (verbose) {
+                call.application.log.debug(
+                    "Sending:\n---\n${
+                        formatter.formatResponseHeader(
+                            httpVersion = call.request.httpVersion,
+                            headers = call.response.headers,
+                            status = httpStatus,
+                        )
+                    }",
+                )
+            }
+            writeChunksFromFlow(
+                writer = this,
+                verbose = verbose,
+                logger = call.application.log,
+            )
+        }
+    }
+
+    private suspend fun writeChunksFromFlow(
         logger: Logger,
         writer: ByteWriteChannel,
         verbose: Boolean,
@@ -87,7 +132,6 @@ public open class StreamResponseDefinition<T>(
                     value = it,
                     verbose = verbose,
                     logger = logger,
-                    chunkContentTypeOverride = chunkContentType,
                 )
             }
     }
@@ -97,14 +141,11 @@ public open class StreamResponseDefinition<T>(
         value: T,
         verbose: Boolean,
         logger: Logger,
-        chunkContentTypeOverride: ContentType? = null,
-        serialize: (T) -> String = { "$it" },
     ) {
         val serializedValue = serialize(value)
         if (verbose) {
             val type =
-                chunkContentTypeOverride
-                    ?: chunkContentType
+                chunkContentType
                     ?: when (value) {
                         is CharSequence -> ContentType.Text.Plain
                         else -> ContentType.Application.Json
@@ -112,46 +153,18 @@ public open class StreamResponseDefinition<T>(
             logger.debug(
                 "Writing chunk:\n ${
                     formatter.formatResponseChunk(
-                        chunk = serializedValue,
+                        chunk = serializedValue.decodeToString(),
                         contentType = type,
                     )
                 }",
             )
         }
-        writer.writeStringUtf8(serializedValue)
+        writer.writeFully(serializedValue)
         writer.flush()
         if (delayBetweenChunks.isPositive()) {
             delay(delayBetweenChunks)
         } else {
             yield()
-        }
-    }
-
-    override suspend fun writeResponse(
-        call: ApplicationCall,
-        verbose: Boolean,
-    ) {
-        call.response.cacheControl(CacheControl.NoCache(null))
-        call.respondBytesWriter(
-            status = this.httpStatus,
-            contentType = this.contentType,
-        ) {
-            if (verbose) {
-                call.application.log.debug(
-                    "Sending:\n---\n${
-                        formatter.formatResponseHeader(
-                            httpVersion = call.request.httpVersion,
-                            headers = call.response.headers,
-                            status = httpStatus,
-                        )
-                    }",
-                )
-            }
-            writeChunksFromFlow(
-                writer = this,
-                verbose = verbose,
-                logger = call.application.log,
-            )
         }
     }
 }

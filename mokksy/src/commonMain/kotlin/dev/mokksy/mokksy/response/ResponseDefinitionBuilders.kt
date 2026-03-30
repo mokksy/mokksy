@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.flow as buildFlow
 public abstract class AbstractResponseDefinitionBuilder<P, T>(
     public var delay: Duration = Duration.ZERO,
 ) {
-    public var httpStatus: HttpStatusCode = HttpStatusCode.OK
+    public open var httpStatus: HttpStatusCode = HttpStatusCode.OK
 
     private val headerPairs: MutableList<Pair<String, String>> = mutableListOf()
     private var headersLambda: (ResponseHeaders.() -> Unit)? = null
@@ -126,7 +126,6 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
  * @property contentType Optional MIME type of the response. Defaults to `null` if not specified.
  * @property body The body of the response. Can be null.
  * @property httpStatus The HTTP status code of the response, defaulting to HttpStatusCode.OK.
- * @param headers A mutable list of additional custom headers for the response.
  *
  * Inherits functionality from [AbstractResponseDefinitionBuilder] to allow additional header manipulations
  * and provides a concrete implementation of the response building process.
@@ -137,12 +136,9 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any> internal construct
     public val request: CapturedRequest<P>,
     public var contentType: ContentType? = null,
     public var body: T? = null,
-    httpStatus: HttpStatusCode = HttpStatusCode.OK,
+    public override var httpStatus: HttpStatusCode = HttpStatusCode.OK,
     private val formatter: HttpFormatter,
 ) : AbstractResponseDefinitionBuilder<P, T>() {
-    init {
-        this.httpStatus = httpStatus
-    }
 
     /**
      * Sets the response body and returns this builder for chaining.
@@ -236,7 +232,7 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constr
     public var delayBetweenChunks: Duration = Duration.ZERO,
     httpStatus: HttpStatusCode = HttpStatusCode.OK,
     public val chunkContentType: ContentType? = null,
-    private val formatter: HttpFormatter,
+    protected val formatter: HttpFormatter,
 ) : AbstractResponseDefinitionBuilder<P, T>() {
     /**
      * The `Content-Type` of the HTTP response. Defaults to `text/event-stream; charset=UTF-8`.
@@ -259,7 +255,15 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constr
                     emit(it)
                 }
             }
-        return StreamResponseDefinition(
+        return createDefinition(resolvedFlow)
+    }
+
+    /**
+     * Creates the concrete [StreamResponseDefinition] for the resolved flow.
+     * Subclasses override this to produce specialized definitions (e.g. [SseStreamResponseDefinition]).
+     */
+    protected open fun createDefinition(resolvedFlow: Flow<T>): StreamResponseDefinition<T> =
+        StreamResponseDefinition(
             chunkFlow = resolvedFlow,
             httpStatus = httpStatus,
             headers = buildCombinedHeaders(),
@@ -269,5 +273,4 @@ public open class StreamingResponseDefinitionBuilder<P : Any, T> internal constr
             chunkContentType = chunkContentType,
             contentType = contentType,
         )
-    }
 }

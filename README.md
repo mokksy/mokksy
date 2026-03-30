@@ -42,6 +42,7 @@
   * [Typed request body](#typed-request-body)
   * [Status-only responses](#status-only-responses)
 * [Server-Side Events (SSE) response](#server-side-events-sse-response)
+  * [Long-lived SSE streams](#long-lived-sse-streams)
 * [Request Specification Matchers](#request-specification-matchers)
   * [Stub Specificity](#stub-specificity)
   * [Priority Example](#priority-example)
@@ -464,13 +465,26 @@ val result = client.post("/sse")
 result shouldNotBeNull {
   status shouldBe HttpStatusCode.OK
   contentType() shouldBe ContentType.Text.EventStream.withCharsetIfNeeded(Charsets.UTF_8)
-  bodyAsText() shouldBe "data: One\r\ndata: Two\r\n"
+  bodyAsText() shouldBe "data: One\r\n\r\ndata: Two\r\n\r\n"
 }
 ```
 
 <!--- INCLUDE
   }
 -->
+
+### Long-lived SSE streams
+
+By default, the SSE stream closes when the flow completes. 
+
+To keep it open (e.g. for clients that reconnect on close), end the flow with `awaitCancellation()`:
+
+```
+flow = flow {
+    emit(ServerSentEvent(data = "hello"))
+    awaitCancellation() // stream stays open until client disconnects
+}
+```
 
 ## Request Specification Matchers
 

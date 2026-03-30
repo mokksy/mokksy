@@ -1,33 +1,26 @@
-@file:OptIn(InternalMokksyApi::class)
-
 package dev.mokksy.mokksy.response
 
 import dev.mokksy.mokksy.InternalMokksyApi
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.withCharset
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.log
+import io.ktor.server.response.ResponseHeaders
 import io.ktor.server.response.header
-import io.ktor.server.response.respond
-import io.ktor.server.sse.SSEServerContent
-import io.ktor.sse.ServerSentEvent
-import io.ktor.utils.io.CancellationException
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
+import io.ktor.sse.ServerSentEventMetadata
+import io.ktor.utils.io.charsets.Charsets
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emptyFlow
 import kotlin.time.Duration
 
 /**
- * Represents a response definition for server-sent events (SSE) streaming.
+ * A [StreamResponseDefinition] specialization for server-sent events.
  *
- * This class extends [StreamResponseDefinition] and is used to configure and handle an SSE response.
- * It provides functionality for sending a stream of SSE events to the client, utilizing a specified
- * [chunkFlow] and configuring response metadata.
+ * Overrides [configureHeaders] to add SSE-specific headers and [serialize] to append
+ * a blank-line event terminator (`\r\n`) after each event per the
+ * [SSE specification](https://html.spec.whatwg.org/multipage/server-sent-events.html).
  *
  * @param chunkFlow A Flow of ServerSentEvent representing the stream of SSE events. Defaults to [emptyFlow].
  * @param chunkContentType The ContentType for the chunks in the SSE stream. Defaults to `null`.
@@ -35,64 +28,32 @@ import kotlin.time.Duration
  * @param formatter An [HttpFormatter] responsible for formatting the HTTP response or payloads.
  * @author Konstantin Pavlov
  */
-public open class SseStreamResponseDefinition(
-    override val chunkFlow: Flow<ServerSentEvent> = emptyFlow(),
+@Suppress("LongParameterList")
+public class SseStreamResponseDefinition<T> @OptIn(InternalMokksyApi::class) internal constructor(
+    override val chunkFlow: Flow<ServerSentEventMetadata<T>> = emptyFlow(),
     chunkContentType: ContentType? = null,
+    delayBetweenChunks: Duration = Duration.ZERO,
     delay: Duration = Duration.ZERO,
+    httpStatus: HttpStatusCode = HttpStatusCode.OK,
+    headers: (ResponseHeaders.() -> Unit)? = null,
+    contentType: ContentType = ContentType.Text.EventStream.withCharset(Charsets.UTF_8),
     formatter: HttpFormatter,
-) : StreamResponseDefinition<ServerSentEvent>(
-        chunkFlow = chunkFlow,
-        chunkContentType = chunkContentType,
-        delay = delay,
-        formatter = formatter,
-    ) {
-    override suspend fun writeResponse(
-        call: ApplicationCall,
-        verbose: Boolean,
-    ) {
-        val sseContent =
-            SSEServerContent(call) {
-                if (this@SseStreamResponseDefinition.delay.isPositive()) {
-                    delay(this@SseStreamResponseDefinition.delay)
-                }
-                chunkFlow
-                    .cancellable()
-                    .buffer(
-                        capacity = SEND_BUFFER_CAPACITY,
-                        onBufferOverflow = BufferOverflow.SUSPEND,
-                    ).catch { e ->
-                        if (e !is CancellationException) {
-                            call.application.log.warn("Error while sending SSE events", e)
-                        }
-                        throw e
-                    }.collect {
-                        if (verbose) {
-                            call.application.log.debug("Sending $httpStatus: $it")
-                        }
-                        send(it)
-                        if (delayBetweenChunks.isPositive()) {
-                            delay(delayBetweenChunks)
-                        }
-                    }
-            }
-        processSSE(call, sseContent)
-    }
-
-    /**
-     * Handles a server-sent events (SSE) response by configuring the appropriate HTTP headers
-     * and sending the specified content to the client.
-     *
-     * @param call The ApplicationCall representing the current client-server interaction.
-     * @param content The SSEServerContent that represents the server-sent events to be delivered.
-     */
-    private suspend fun processSSE(
-        call: ApplicationCall,
-        content: SSEServerContent,
-    ) {
+) : StreamResponseDefinition<ServerSentEventMetadata<T>>(
+    chunkFlow = chunkFlow,
+    chunkContentType = chunkContentType ?: contentType,
+    delayBetweenChunks = delayBetweenChunks,
+    delay = delay,
+    httpStatus = httpStatus,
+    headers = headers,
+    contentType = contentType,
+    formatter = formatter,
+) {
+    override fun configureHeaders(call: ApplicationCall) {
         call.response.header(HttpHeaders.CacheControl, "no-store")
         call.response.header(HttpHeaders.Connection, "keep-alive")
         call.response.header("X-Accel-Buffering", "no")
-        call.response.status(httpStatus)
-        call.respond(content)
     }
+
+    override fun serialize(value: ServerSentEventMetadata<T>): ByteArray =
+        (value.toString() + "\r\n").encodeToByteArray()
 }

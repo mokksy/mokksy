@@ -115,9 +115,9 @@ abstract class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.response/Abs
     final var delay // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delay|{}delay[0]
         final fun <get-delay>(): kotlin.time/Duration // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delay.<get-delay>|<get-delay>(){}[0]
         final fun <set-delay>(kotlin.time/Duration) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delay.<set-delay>|<set-delay>(kotlin.time.Duration){}[0]
-    final var httpStatus // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus|{}httpStatus[0]
-        final fun <get-httpStatus>(): io.ktor.http/HttpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<get-httpStatus>|<get-httpStatus>(){}[0]
-        final fun <set-httpStatus>(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<set-httpStatus>|<set-httpStatus>(io.ktor.http.HttpStatusCode){}[0]
+    open var httpStatus // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus|{}httpStatus[0]
+        open fun <get-httpStatus>(): io.ktor.http/HttpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<get-httpStatus>|<get-httpStatus>(){}[0]
+        open fun <set-httpStatus>(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<set-httpStatus>|<set-httpStatus>(io.ktor.http.HttpStatusCode){}[0]
 
     final fun addHeader(kotlin/String, kotlin/String) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.addHeader|addHeader(kotlin.String;kotlin.String){}[0]
 
@@ -208,6 +208,11 @@ final class <#A: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer
 
     final fun deserialize(kotlinx.serialization.encoding/Decoder): dev.mokksy.mokksy.jsonrpc/JSONRPCMessage<#A> // dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
     final fun serialize(kotlinx.serialization.encoding/Encoder, dev.mokksy.mokksy.jsonrpc/JSONRPCMessage<#A>) // dev.mokksy.mokksy.jsonrpc/JSONRPCMessageSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;dev.mokksy.mokksy.jsonrpc.JSONRPCMessage<1:0>){}[0]
+}
+
+final class <#A: kotlin/Any?> dev.mokksy.mokksy.response/SseStreamResponseDefinition : dev.mokksy.mokksy.response/StreamResponseDefinition<io.ktor.sse/ServerSentEventMetadata<#A>> { // dev.mokksy.mokksy.response/SseStreamResponseDefinition|null[0]
+    final val chunkFlow // dev.mokksy.mokksy.response/SseStreamResponseDefinition.chunkFlow|{}chunkFlow[0]
+        final fun <get-chunkFlow>(): kotlinx.coroutines.flow/Flow<io.ktor.sse/ServerSentEventMetadata<#A>> // dev.mokksy.mokksy.response/SseStreamResponseDefinition.chunkFlow.<get-chunkFlow>|<get-chunkFlow>(){}[0]
 }
 
 final class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCError { // dev.mokksy.mokksy.jsonrpc/JSONRPCError|null[0]
@@ -490,6 +495,9 @@ open class <#A: kotlin/Any, #B: kotlin/Any> dev.mokksy.mokksy.response/ResponseD
     final var contentType // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType|{}contentType[0]
         final fun <get-contentType>(): io.ktor.http/ContentType? // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<get-contentType>|<get-contentType>(){}[0]
         final fun <set-contentType>(io.ktor.http/ContentType?) // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<set-contentType>|<set-contentType>(io.ktor.http.ContentType?){}[0]
+    open var httpStatus // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatus|{}httpStatus[0]
+        open fun <get-httpStatus>(): io.ktor.http/HttpStatusCode // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatus.<get-httpStatus>|<get-httpStatus>(){}[0]
+        open fun <set-httpStatus>(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatus.<set-httpStatus>|<set-httpStatus>(io.ktor.http.HttpStatusCode){}[0]
 
     final fun body(#B): dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.body|body(1:1){}[0]
     final fun header(kotlin/String, kotlin/String): dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.header|header(kotlin.String;kotlin.String){}[0]
@@ -501,6 +509,8 @@ open class <#A: kotlin/Any, #B: kotlin/Any?> dev.mokksy.mokksy.response/Streamin
         final fun <get-chunkContentType>(): io.ktor.http/ContentType? // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.chunkContentType.<get-chunkContentType>|<get-chunkContentType>(){}[0]
     final val chunks // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.chunks|{}chunks[0]
         final fun <get-chunks>(): kotlin.collections/MutableList<#B> // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.chunks.<get-chunks>|<get-chunks>(){}[0]
+    final val formatter // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.formatter|{}formatter[0]
+        final fun <get-formatter>(): dev.mokksy.mokksy.utils.logger/HttpFormatter // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.formatter.<get-formatter>|<get-formatter>(){}[0]
     final val request // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.request|{}request[0]
         final fun <get-request>(): dev.mokksy.mokksy.request/CapturedRequest<#A> // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.request.<get-request>|<get-request>(){}[0]
 
@@ -513,6 +523,8 @@ open class <#A: kotlin/Any, #B: kotlin/Any?> dev.mokksy.mokksy.response/Streamin
     final var flow // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow|{}flow[0]
         final fun <get-flow>(): kotlinx.coroutines.flow/Flow<#B>? // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow.<get-flow>|<get-flow>(){}[0]
         final fun <set-flow>(kotlinx.coroutines.flow/Flow<#B>?) // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.flow.<set-flow>|<set-flow>(kotlinx.coroutines.flow.Flow<1:1>?){}[0]
+
+    open fun createDefinition(kotlinx.coroutines.flow/Flow<#B>): dev.mokksy.mokksy.response/StreamResponseDefinition<#B> // dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder.createDefinition|createDefinition(kotlinx.coroutines.flow.Flow<1:1>){}[0]
 }
 
 open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecification { // dev.mokksy.mokksy.request/RequestSpecification|null[0]
@@ -577,15 +589,13 @@ open class <#A: kotlin/Any?> dev.mokksy.mokksy.response/StreamResponseDefinition
 
     final val delayBetweenChunks // dev.mokksy.mokksy.response/StreamResponseDefinition.delayBetweenChunks|{}delayBetweenChunks[0]
         final fun <get-delayBetweenChunks>(): kotlin.time/Duration // dev.mokksy.mokksy.response/StreamResponseDefinition.delayBetweenChunks.<get-delayBetweenChunks>|<get-delayBetweenChunks>(){}[0]
+    final val formatter // dev.mokksy.mokksy.response/StreamResponseDefinition.formatter|{}formatter[0]
+        final fun <get-formatter>(): dev.mokksy.mokksy.utils.logger/HttpFormatter // dev.mokksy.mokksy.response/StreamResponseDefinition.formatter.<get-formatter>|<get-formatter>(){}[0]
     open val chunkFlow // dev.mokksy.mokksy.response/StreamResponseDefinition.chunkFlow|{}chunkFlow[0]
         open fun <get-chunkFlow>(): kotlinx.coroutines.flow/Flow<#A> // dev.mokksy.mokksy.response/StreamResponseDefinition.chunkFlow.<get-chunkFlow>|<get-chunkFlow>(){}[0]
-}
 
-open class dev.mokksy.mokksy.response/SseStreamResponseDefinition : dev.mokksy.mokksy.response/StreamResponseDefinition<io.ktor.sse/ServerSentEvent> { // dev.mokksy.mokksy.response/SseStreamResponseDefinition|null[0]
-    constructor <init>(kotlinx.coroutines.flow/Flow<io.ktor.sse/ServerSentEvent> = ..., io.ktor.http/ContentType? = ..., kotlin.time/Duration = ..., dev.mokksy.mokksy.utils.logger/HttpFormatter) // dev.mokksy.mokksy.response/SseStreamResponseDefinition.<init>|<init>(kotlinx.coroutines.flow.Flow<io.ktor.sse.ServerSentEvent>;io.ktor.http.ContentType?;kotlin.time.Duration;dev.mokksy.mokksy.utils.logger.HttpFormatter){}[0]
-
-    open val chunkFlow // dev.mokksy.mokksy.response/SseStreamResponseDefinition.chunkFlow|{}chunkFlow[0]
-        open fun <get-chunkFlow>(): kotlinx.coroutines.flow/Flow<io.ktor.sse/ServerSentEvent> // dev.mokksy.mokksy.response/SseStreamResponseDefinition.chunkFlow.<get-chunkFlow>|<get-chunkFlow>(){}[0]
+    open fun configureHeaders(io.ktor.server.application/ApplicationCall) // dev.mokksy.mokksy.response/StreamResponseDefinition.configureHeaders|configureHeaders(io.ktor.server.application.ApplicationCall){}[0]
+    open fun serialize(#A): kotlin/ByteArray // dev.mokksy.mokksy.response/StreamResponseDefinition.serialize|serialize(1:0){}[0]
 }
 
 open class dev.mokksy.mokksy.utils.logger/HttpFormatter { // dev.mokksy.mokksy.utils.logger/HttpFormatter|null[0]
