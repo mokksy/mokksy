@@ -5,6 +5,7 @@ package dev.mokksy.mokksy
 import dev.mokksy.mokksy.request.CapturedRequest
 import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.response.ResponseDefinitionBuilder
+import dev.mokksy.mokksy.response.SseStreamingResponseDefinitionBuilder
 import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.HttpStatusCode
@@ -35,10 +36,9 @@ public class BuildingStep<P : Any> internal constructor(
     private val formatter: HttpFormatter,
 ) {
     /**
-     * @param P The type of the request payload.
      * @param name An optional name assigned to the [Stub] for identification or debugging purposes.
-     * @property registerStub Callback function to be called to register new [Stub] to [MokksyServer]
-     * @property requestSpecification The [RequestSpecification] currently being processed.
+     * @param registerStub Callback function to be called to register new [Stub] to [MokksyServer]
+     * @param requestSpecification The [RequestSpecification] currently being processed.
      */
     internal constructor(
         requestType: KClass<P>,
@@ -61,7 +61,6 @@ public class BuildingStep<P : Any> internal constructor(
      * The [block] lambda is a suspend function, so it may call suspend APIs such as
      * [dev.mokksy.mokksy.request.CapturedRequest.body] without blocking.
      *
-     * @param P The type of the request payload.
      * @param T The type of the response body.
      * @param block A suspend lambda applied to a [ResponseDefinitionBuilder],
      * used to configure the response definition.
@@ -140,7 +139,6 @@ public class BuildingStep<P : Any> internal constructor(
      * The [block] lambda is a suspend function, so it may call suspend APIs such as
      * [dev.mokksy.mokksy.request.CapturedRequest.body] without blocking.
      *
-     * @param P The type of the request payload.
      * @param T The type of the elements in the streaming response data.
      * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder],
      * used to configure the streaming response definition.
@@ -148,37 +146,15 @@ public class BuildingStep<P : Any> internal constructor(
     @Suppress("ThrowsCount")
     public infix fun <T : Any> respondsWithStream(
         block: suspend StreamingResponseDefinitionBuilder<P, T>.() -> Unit,
-    ) {
-        val stub =
-            Stub(
-                configuration = configuration,
-                requestSpecification = requestSpecification,
-            ) { call ->
-                val req = CapturedRequest(call.request, requestType)
-                @Suppress("TooGenericExceptionCaught")
-                try {
-                    val builder =
-                        StreamingResponseDefinitionBuilder<P, T>(
-                            request = req,
-                            formatter = formatter,
-                        )
-                    builder.block()
-                    builder.build()
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: IOException) {
-                    throw e
-                } catch (e: Exception) {
-                    call.application.log.error(
-                        "Failed to build streaming response for request: $req",
-                        e,
-                    )
-                    throw e
-                }
-            }
-
-        registerStub(stub)
-    }
+    ): Unit = registerStreamingStub(
+        builderFactory = { req ->
+            StreamingResponseDefinitionBuilder(
+                request = req,
+                formatter = formatter
+            )
+        },
+        block = block,
+    )
 
     /**
      * Associates the current [RequestSpecification] with a streaming response definition.
@@ -203,17 +179,18 @@ public class BuildingStep<P : Any> internal constructor(
      * Associates the current [RequestSpecification] with a server-sent events (SSE) streaming response definition.
      * This method is part of a fluent API for defining mappings between requests and SSE streaming responses.
      *
-     * @param P The type of the request payload.
      * @param T The type of `data` field in the ServerSentEventMetadata.
      * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder] specifically for
      * configuring the response as a stream of server-sent events.
      */
     public infix fun <T : Any> respondsWithSseStream(
         block: suspend StreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<T>>.() -> Unit,
-    ): Unit =
-        respondsWithStream<ServerSentEventMetadata<T>>(
-            block,
-        )
+    ): Unit = registerStreamingStub(
+        builderFactory = { req ->
+            SseStreamingResponseDefinitionBuilder<P, T>(request = req, formatter = formatter)
+        },
+        block = block,
+    )
 
     /**
      * Associates the current [RequestSpecification] with an SSE streaming response definition.
@@ -230,4 +207,36 @@ public class BuildingStep<P : Any> internal constructor(
         @Suppress("unused") responseType: KClass<T>,
         block: suspend StreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<T>>.() -> Unit,
     ): Unit = respondsWithSseStream(block)
+
+    @Suppress("ThrowsCount")
+    private fun <T : Any> registerStreamingStub(
+        builderFactory: (CapturedRequest<P>) -> StreamingResponseDefinitionBuilder<P, T>,
+        block: suspend StreamingResponseDefinitionBuilder<P, T>.() -> Unit,
+    ) {
+        val stub =
+            Stub(
+                configuration = configuration,
+                requestSpecification = requestSpecification,
+            ) { call ->
+                val req = CapturedRequest(call.request, requestType)
+                @Suppress("TooGenericExceptionCaught")
+                try {
+                    val builder = builderFactory(req)
+                    builder.block()
+                    builder.build()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: IOException) {
+                    throw e
+                } catch (e: Exception) {
+                    call.application.log.error(
+                        "Failed to build streaming response for request: $req",
+                        e,
+                    )
+                    throw e
+                }
+            }
+
+        registerStub(stub)
+    }
 }

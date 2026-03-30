@@ -42,6 +42,7 @@
   * [Typed request body](#typed-request-body)
   * [Status-only responses](#status-only-responses)
 * [Server-Side Events (SSE) response](#server-side-events-sse-response)
+  * [Long-lived SSE streams](#long-lived-sse-streams)
 * [Request Specification Matchers](#request-specification-matchers)
   * [Stub Specificity](#stub-specificity)
   * [Priority Example](#priority-example)
@@ -471,6 +472,19 @@ result shouldNotBeNull {
 <!--- INCLUDE
   }
 -->
+
+### Long-lived SSE streams
+
+By default, the SSE stream closes when the flow completes. 
+
+To keep it open (e.g. for clients that reconnect on close), end the flow with `awaitCancellation()`:
+
+```
+flow = flow {
+    emit(ServerSentEvent(data = "hello"))
+    awaitCancellation() // stream stays open until client disconnects
+}
+```
 
 ## Request Specification Matchers
 
