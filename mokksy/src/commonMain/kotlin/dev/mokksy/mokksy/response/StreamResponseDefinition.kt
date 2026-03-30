@@ -16,6 +16,7 @@ import io.ktor.server.response.cacheControl
 import io.ktor.server.response.respondBytesWriter
 import io.ktor.util.logging.Logger
 import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.sse.ServerSentEvent
 import io.ktor.utils.io.CancellationException
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.writeStringUtf8
@@ -55,7 +56,7 @@ public open class StreamResponseDefinition<T>(
     httpStatus: HttpStatusCode = HttpStatusCode.OK,
     headers: (ResponseHeaders.() -> Unit)? = null,
     delay: Duration,
-    private val formatter: HttpFormatter,
+    protected val formatter: HttpFormatter,
 ) : AbstractResponseDefinition<T>(
         contentType = contentType,
         httpStatus = httpStatus,
@@ -100,7 +101,12 @@ public open class StreamResponseDefinition<T>(
         chunkContentTypeOverride: ContentType? = null,
         serialize: (T) -> String = { "$it" },
     ) {
-        val serializedValue = serialize(value)
+        // SSE spec requires a blank line (\r\n) after each event to terminate it
+        val serializedValue = if (value is ServerSentEvent) {
+            serialize(value) + "\r\n"
+        } else {
+            serialize(value)
+        }
         if (verbose) {
             val type =
                 chunkContentTypeOverride

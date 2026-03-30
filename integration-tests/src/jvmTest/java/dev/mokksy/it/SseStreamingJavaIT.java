@@ -43,7 +43,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-chunks");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: Hello\r\ndata: World\r\n");
+        assertThat(response.body()).isEqualTo("data: Hello\r\n\r\ndata: World\r\n\r\n");
         assertThat(response.headers().firstValue("Content-Type"))
             .hasValue("text/event-stream; charset=UTF-8");
     }
@@ -59,7 +59,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-list");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: event-1\r\ndata: event-2\r\n");
+        assertThat(response.body()).isEqualTo("data: event-1\r\n\r\ndata: event-2\r\n\r\n");
         assertThat(response.headers().firstValue("Content-Type"))
             .hasValue("text/event-stream; charset=UTF-8");
     }
@@ -94,7 +94,7 @@ class SseStreamingJavaIT {
             () -> get("/sse-between-delay"));
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: A\r\ndata: B\r\ndata: C\r\n");
+        assertThat(response.body()).isEqualTo("data: A\r\n\r\ndata: B\r\n\r\ndata: C\r\n\r\n");
     }
 
     // endregion
@@ -111,7 +111,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-factory-data");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: Hello\r\ndata: World\r\n");
+        assertThat(response.body()).isEqualTo("data: Hello\r\n\r\ndata: World\r\n\r\n");
     }
 
     @Test
@@ -123,7 +123,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-factory-builder");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("event: chat\r\ndata: payload\r\nid: 1\r\n");
+        assertThat(response.body()).isEqualTo("event: chat\r\ndata: payload\r\nid: 1\r\n\r\n");
     }
 
     @Test
@@ -135,7 +135,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-shortcut");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: shortcut-event\r\n");
+        assertThat(response.body()).isEqualTo("data: shortcut-event\r\n\r\n");
     }
 
     @Test
@@ -147,7 +147,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-builder-event");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("event: chat.completion\r\ndata: msg\r\n");
+        assertThat(response.body()).isEqualTo("event: chat.completion\r\ndata: msg\r\n\r\n");
     }
 
     @Test
@@ -159,7 +159,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-builder-id");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: msg\r\nid: 42\r\n");
+        assertThat(response.body()).isEqualTo("data: msg\r\nid: 42\r\n\r\n");
     }
 
     @Test
@@ -171,7 +171,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-builder-retry");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: msg\r\nretry: 5000\r\n");
+        assertThat(response.body()).isEqualTo("data: msg\r\nretry: 5000\r\n\r\n");
     }
 
     @Test
@@ -183,7 +183,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-builder-comments");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: msg\r\n: keep-alive\r\n");
+        assertThat(response.body()).isEqualTo("data: msg\r\n: keep-alive\r\n\r\n");
     }
 
     @Test
@@ -202,7 +202,7 @@ class SseStreamingJavaIT {
 
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).isEqualTo(
-            "event: message\r\ndata: payload\r\nid: 99\r\nretry: 3000\r\n: debug\r\n");
+            "event: message\r\ndata: payload\r\nid: 99\r\nretry: 3000\r\n: debug\r\n\r\n");
     }
 
     // endregion
@@ -218,7 +218,7 @@ class SseStreamingJavaIT {
         var response = get("/sse-typed");
 
         assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("data: typed-event\r\n");
+        assertThat(response.body()).isEqualTo("data: typed-event\r\n\r\n");
     }
 
     // endregion

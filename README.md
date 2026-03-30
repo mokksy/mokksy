@@ -464,7 +464,7 @@ val result = client.post("/sse")
 result shouldNotBeNull {
   status shouldBe HttpStatusCode.OK
   contentType() shouldBe ContentType.Text.EventStream.withCharsetIfNeeded(Charsets.UTF_8)
-  bodyAsText() shouldBe "data: One\r\ndata: Two\r\n"
+  bodyAsText() shouldBe "data: One\r\n\r\ndata: Two\r\n\r\n"
 }
 ```
 

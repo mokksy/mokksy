@@ -773,6 +773,7 @@ public class dev/mokksy/mokksy/response/StreamResponseDefinition : dev/mokksy/mo
 	public synthetic fun <init> (Lkotlinx/coroutines/flow/Flow;JLio/ktor/http/ContentType;Lio/ktor/http/ContentType;Lio/ktor/http/HttpStatusCode;Lkotlin/jvm/functions/Function1;JLdev/mokksy/mokksy/utils/logger/HttpFormatter;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun getChunkFlow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getDelayBetweenChunks-UwyO8pc ()J
+	protected final fun getFormatter ()Ldev/mokksy/mokksy/utils/logger/HttpFormatter;
 }
 
 public class dev/mokksy/mokksy/response/StreamingResponseDefinitionBuilder : dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder {

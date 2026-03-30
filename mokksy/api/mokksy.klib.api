@@ -577,6 +577,8 @@ open class <#A: kotlin/Any?> dev.mokksy.mokksy.response/StreamResponseDefinition
 
     final val delayBetweenChunks // dev.mokksy.mokksy.response/StreamResponseDefinition.delayBetweenChunks|{}delayBetweenChunks[0]
         final fun <get-delayBetweenChunks>(): kotlin.time/Duration // dev.mokksy.mokksy.response/StreamResponseDefinition.delayBetweenChunks.<get-delayBetweenChunks>|<get-delayBetweenChunks>(){}[0]
+    final val formatter // dev.mokksy.mokksy.response/StreamResponseDefinition.formatter|{}formatter[0]
+        final fun <get-formatter>(): dev.mokksy.mokksy.utils.logger/HttpFormatter // dev.mokksy.mokksy.response/StreamResponseDefinition.formatter.<get-formatter>|<get-formatter>(){}[0]
     open val chunkFlow // dev.mokksy.mokksy.response/StreamResponseDefinition.chunkFlow|{}chunkFlow[0]
         open fun <get-chunkFlow>(): kotlinx.coroutines.flow/Flow<#A> // dev.mokksy.mokksy.response/StreamResponseDefinition.chunkFlow.<get-chunkFlow>|<get-chunkFlow>(){}[0]
 }
