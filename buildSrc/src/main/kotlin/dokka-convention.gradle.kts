@@ -24,6 +24,10 @@ dokka {
 
         externalDocumentationLinks {
 
+            register("mokksy") {
+                url("https://mokksy.github.io/mokksy/")
+            }
+
             register("ktor") {
                 url("https://api.ktor.io/")
             }
