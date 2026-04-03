@@ -21,10 +21,15 @@
 
 **Check out the [AI-Mocks][ai-mocks] project for advanced LLM and [A2A protocol][a2a] mocking capabilities.**
 
+Full documentation: https://mokksy.dev/docs/mokksy/
+
 > [!NOTE]
 > Mokksy server was a part of the [AI-Mocks][ai-mocks] project and has now moved to a separate repository. No artefact
 > relocation is required.
 
+Additional resources:
+- API reference: https://mokksy.github.io/mokksy/
+- AI-Mocks project: https://github.com/mokksy/ai-mocks/
 
 
 [![Buy me a Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://buymeacoffee.com/mailsk)
