@@ -32,6 +32,7 @@ public data class StubConfiguration
          * Note: the named constructor argument `StubConfiguration(removeAfterMatch = …)` cannot be
          * preserved — use `StubConfiguration(eventuallyRemove = …)` or the companion factory
          * [StubConfiguration.removeAfterMatch] for a deprecated named-argument form.
+         * @deprecated Deprecated since 0.9.2
          */
         @Deprecated(
             "Renamed to eventuallyRemove",
@@ -46,6 +47,7 @@ public data class StubConfiguration
              * Creates a [StubConfiguration] that is removed after its first match.
              *
              * Java-friendly alternative to `StubConfiguration(eventuallyRemove = true)`:
+             *
              * ```java
              * mokksy.get(StubConfiguration.once("my-stub"), "/path")
              *     .respondsWith("one-time response");
@@ -84,6 +86,25 @@ public data class StubConfiguration
                     verbose = verbose,
                 )
         }
+
+        /**
+         * Secondary constructor for creating a [StubConfiguration] instance.
+         *
+         * This constructor is deprecated and should be replaced
+         * with the `StubConfiguration(eventuallyRemove)` constructor.
+         *
+         * @param removeAfterMatch Indicates whether the stub should be eventually removed after it has been matched.
+         * @deprecated Use `StubConfiguration(eventuallyRemove)` instead.
+         */
+        @Deprecated(
+            message = "Use StubConfiguration(eventuallyRemove = removeAfterMatch) instead",
+            replaceWith = ReplaceWith("StubConfiguration(eventuallyRemove = removeAfterMatch)"),
+        )
+        public constructor(
+            removeAfterMatch: Boolean,
+        ) : this(
+            eventuallyRemove = removeAfterMatch,
+        )
 
         override fun toString(): String =
             buildString {
