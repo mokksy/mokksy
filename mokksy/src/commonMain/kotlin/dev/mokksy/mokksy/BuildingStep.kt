@@ -146,15 +146,16 @@ public class BuildingStep<P : Any> internal constructor(
     @Suppress("ThrowsCount")
     public infix fun <T : Any> respondsWithStream(
         block: suspend StreamingResponseDefinitionBuilder<P, T>.() -> Unit,
-    ): Unit = registerStreamingStub(
-        builderFactory = { req ->
-            StreamingResponseDefinitionBuilder(
-                request = req,
-                formatter = formatter
-            )
-        },
-        block = block,
-    )
+    ): Unit =
+        registerStreamingStub(
+            builderFactory = { req ->
+                StreamingResponseDefinitionBuilder(
+                    request = req,
+                    formatter = formatter,
+                )
+            },
+            block = block,
+        )
 
     /**
      * Associates the current [RequestSpecification] with a streaming response definition.
@@ -185,12 +186,13 @@ public class BuildingStep<P : Any> internal constructor(
      */
     public infix fun <T : Any> respondsWithSseStream(
         block: suspend StreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<T>>.() -> Unit,
-    ): Unit = registerStreamingStub(
-        builderFactory = { req ->
-            SseStreamingResponseDefinitionBuilder<P, T>(request = req, formatter = formatter)
-        },
-        block = block,
-    )
+    ): Unit =
+        registerStreamingStub(
+            builderFactory = { req ->
+                SseStreamingResponseDefinitionBuilder(request = req, formatter = formatter)
+            },
+            block = block,
+        )
 
     /**
      * Associates the current [RequestSpecification] with an SSE streaming response definition.

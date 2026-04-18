@@ -24,7 +24,10 @@ class AbstractResponseDefinitionBuilderTest {
         val result = mutableListOf<String>()
         headersBlock?.invoke(
             object : ResponseHeaders() {
-                override fun engineAppendHeader(name: String, value: String) {
+                override fun engineAppendHeader(
+                    name: String,
+                    value: String,
+                ) {
                     result.add("$name=$value")
                 }
 
@@ -238,7 +241,11 @@ class AbstractResponseDefinitionBuilderTest {
                         )
                     val returned = builder.header("X-Result", "ok")
                     val definition = builder.build()
-                    call.respondText("${returned === builder}|${collectHeaders(definition.headers).joinToString()}")
+                    call.respondText(
+                        "${returned === builder}|${collectHeaders(
+                            definition.headers,
+                        ).joinToString()}",
+                    )
                 }
             }
 
@@ -294,6 +301,26 @@ class AbstractResponseDefinitionBuilderTest {
 
             val response = client.post("/test") { setBody("") }
             response.bodyAsText() shouldBe "404"
+        }
+
+    @Test
+    fun `httpStatusCode setter updates httpStatus`() =
+        testApplication {
+            routing {
+                post("/test") {
+                    val builder =
+                        ResponseDefinitionBuilder<String, String>(
+                            request = CapturedRequest(call.request, String::class),
+                            formatter = formatter,
+                        )
+                    builder.httpStatusCode = HttpStatusCode.ExpectationFailed.value
+
+                    call.respondText("${builder.httpStatus.value}")
+                }
+            }
+
+            val response = client.post("/test") { setBody("") }
+            response.bodyAsText() shouldBe "417"
         }
 
     // endregion
