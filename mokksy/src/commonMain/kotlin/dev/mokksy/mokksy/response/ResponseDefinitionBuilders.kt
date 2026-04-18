@@ -22,17 +22,25 @@ import kotlinx.coroutines.flow.flow as buildFlow
  *
  * @param P The type of the request body, used to type the [CapturedRequest] available during building.
  * @param T The type of the response data, which is returned to the client.
- * @property httpStatus The HTTP status code to be associated with the response.
+ * @property httpStatusCode The HTTP status code to be associated with the response.
  * @author Konstantin Pavlov
  */
 @MokksyDsl
 public abstract class AbstractResponseDefinitionBuilder<P, T>(
     public var delay: Duration = Duration.ZERO,
 ) {
-    public open var httpStatus: HttpStatusCode = HttpStatusCode.OK
-
+    public open var httpStatusCode: Int = HttpStatusCode.OK.value
     private val headerPairs: MutableList<Pair<String, String>> = mutableListOf()
     private var headersLambda: (ResponseHeaders.() -> Unit)? = null
+
+    /**
+     * The HTTP status code of the response.
+     */
+    public var httpStatus: HttpStatusCode
+        get() = HttpStatusCode.fromValue(httpStatusCode)
+        set(value) {
+            httpStatusCode = value.value
+        }
 
     /**
      * Adds a single response header.
@@ -125,7 +133,8 @@ public abstract class AbstractResponseDefinitionBuilder<P, T>(
  * @property request The [CapturedRequest] being processed.
  * @property contentType Optional MIME type of the response. Defaults to `null` if not specified.
  * @property body The body of the response. Can be null.
- * @property httpStatus The HTTP status code of the response, defaulting to HttpStatusCode.OK.
+ * @property httpStatusCode The HTTP status code of the response as an [Int],
+ *  defaulting to [HttpStatusCode.OK]`.value` (200).
  *
  * Inherits functionality from [AbstractResponseDefinitionBuilder] to allow additional header manipulations
  * and provides a concrete implementation of the response building process.
@@ -136,10 +145,9 @@ public open class ResponseDefinitionBuilder<P : Any, T : Any> internal construct
     public val request: CapturedRequest<P>,
     public var contentType: ContentType? = null,
     public var body: T? = null,
-    public override var httpStatus: HttpStatusCode = HttpStatusCode.OK,
+    public override var httpStatusCode: Int = HttpStatusCode.OK.value,
     private val formatter: HttpFormatter,
 ) : AbstractResponseDefinitionBuilder<P, T>() {
-
     /**
      * Sets the response body and returns this builder for chaining.
      *

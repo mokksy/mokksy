@@ -115,9 +115,12 @@ abstract class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.response/Abs
     final var delay // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delay|{}delay[0]
         final fun <get-delay>(): kotlin.time/Duration // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delay.<get-delay>|<get-delay>(){}[0]
         final fun <set-delay>(kotlin.time/Duration) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.delay.<set-delay>|<set-delay>(kotlin.time.Duration){}[0]
-    open var httpStatus // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus|{}httpStatus[0]
-        open fun <get-httpStatus>(): io.ktor.http/HttpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<get-httpStatus>|<get-httpStatus>(){}[0]
-        open fun <set-httpStatus>(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<set-httpStatus>|<set-httpStatus>(io.ktor.http.HttpStatusCode){}[0]
+    final var httpStatus // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus|{}httpStatus[0]
+        final fun <get-httpStatus>(): io.ktor.http/HttpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<get-httpStatus>|<get-httpStatus>(){}[0]
+        final fun <set-httpStatus>(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatus.<set-httpStatus>|<set-httpStatus>(io.ktor.http.HttpStatusCode){}[0]
+    open var httpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode|{}httpStatusCode[0]
+        open fun <get-httpStatusCode>(): kotlin/Int // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode.<get-httpStatusCode>|<get-httpStatusCode>(){}[0]
+        open fun <set-httpStatusCode>(kotlin/Int) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.httpStatusCode.<set-httpStatusCode>|<set-httpStatusCode>(kotlin.Int){}[0]
 
     final fun addHeader(kotlin/String, kotlin/String) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.addHeader|addHeader(kotlin.String;kotlin.String){}[0]
 
@@ -460,6 +463,7 @@ final class dev.mokksy.mokksy/ServerConfiguration { // dev.mokksy.mokksy/ServerC
 }
 
 final class dev.mokksy.mokksy/StubConfiguration { // dev.mokksy.mokksy/StubConfiguration|null[0]
+    constructor <init>(kotlin/Boolean) // dev.mokksy.mokksy/StubConfiguration.<init>|<init>(kotlin.Boolean){}[0]
     constructor <init>(kotlin/String? = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // dev.mokksy.mokksy/StubConfiguration.<init>|<init>(kotlin.String?;kotlin.Boolean;kotlin.Boolean){}[0]
 
     final val eventuallyRemove // dev.mokksy.mokksy/StubConfiguration.eventuallyRemove|{}eventuallyRemove[0]
@@ -495,9 +499,9 @@ open class <#A: kotlin/Any, #B: kotlin/Any> dev.mokksy.mokksy.response/ResponseD
     final var contentType // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType|{}contentType[0]
         final fun <get-contentType>(): io.ktor.http/ContentType? // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<get-contentType>|<get-contentType>(){}[0]
         final fun <set-contentType>(io.ktor.http/ContentType?) // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.contentType.<set-contentType>|<set-contentType>(io.ktor.http.ContentType?){}[0]
-    open var httpStatus // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatus|{}httpStatus[0]
-        open fun <get-httpStatus>(): io.ktor.http/HttpStatusCode // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatus.<get-httpStatus>|<get-httpStatus>(){}[0]
-        open fun <set-httpStatus>(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatus.<set-httpStatus>|<set-httpStatus>(io.ktor.http.HttpStatusCode){}[0]
+    open var httpStatusCode // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatusCode|{}httpStatusCode[0]
+        open fun <get-httpStatusCode>(): kotlin/Int // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatusCode.<get-httpStatusCode>|<get-httpStatusCode>(){}[0]
+        open fun <set-httpStatusCode>(kotlin/Int) // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.httpStatusCode.<set-httpStatusCode>|<set-httpStatusCode>(kotlin.Int){}[0]
 
     final fun body(#B): dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.body|body(1:1){}[0]
     final fun header(kotlin/String, kotlin/String): dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #B> // dev.mokksy.mokksy.response/ResponseDefinitionBuilder.header|header(kotlin.String;kotlin.String){}[0]

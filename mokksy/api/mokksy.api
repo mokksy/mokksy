@@ -350,6 +350,7 @@ public final class dev/mokksy/mokksy/StubConfiguration : java/lang/Record {
 	public fun <init> (Ljava/lang/String;Z)V
 	public fun <init> (Ljava/lang/String;ZZ)V
 	public synthetic fun <init> (Ljava/lang/String;ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Z)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Z
 	public final fun component3 ()Z
@@ -734,9 +735,11 @@ public abstract class dev/mokksy/mokksy/response/AbstractResponseDefinitionBuild
 	public final fun addHeader (Ljava/lang/String;Ljava/lang/String;)V
 	public final fun getDelay-UwyO8pc ()J
 	public final fun getHeaders ()Ldev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder$HeadersConfigurer;
-	public fun getHttpStatus ()Lio/ktor/http/HttpStatusCode;
+	public final fun getHttpStatus ()Lio/ktor/http/HttpStatusCode;
+	public fun getHttpStatusCode ()I
 	public final fun setDelay-LRDsOJo (J)V
-	public fun setHttpStatus (Lio/ktor/http/HttpStatusCode;)V
+	public final fun setHttpStatus (Lio/ktor/http/HttpStatusCode;)V
+	public fun setHttpStatusCode (I)V
 }
 
 public final class dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder$HeadersConfigurer {
@@ -755,12 +758,12 @@ public class dev/mokksy/mokksy/response/ResponseDefinitionBuilder : dev/mokksy/m
 	public synthetic fun build$mokksy ()Ldev/mokksy/mokksy/response/AbstractResponseDefinition;
 	public final fun getBody ()Ljava/lang/Object;
 	public final fun getContentType ()Lio/ktor/http/ContentType;
-	public fun getHttpStatus ()Lio/ktor/http/HttpStatusCode;
+	public fun getHttpStatusCode ()I
 	public final fun getRequest ()Ldev/mokksy/mokksy/request/CapturedRequest;
 	public final fun header (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/response/ResponseDefinitionBuilder;
 	public final fun setBody (Ljava/lang/Object;)V
 	public final fun setContentType (Lio/ktor/http/ContentType;)V
-	public fun setHttpStatus (Lio/ktor/http/HttpStatusCode;)V
+	public fun setHttpStatusCode (I)V
 	public final fun status (I)Ldev/mokksy/mokksy/response/ResponseDefinitionBuilder;
 }
 
