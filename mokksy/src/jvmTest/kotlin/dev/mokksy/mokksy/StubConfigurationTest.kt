@@ -36,7 +36,9 @@ class StubConfigurationTest {
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
     fun `removeAfterMatch property delegates to eventuallyRemove`(value: Boolean) {
+        StubConfiguration(eventuallyRemove = value).eventuallyRemove shouldBe value
         StubConfiguration(eventuallyRemove = value).removeAfterMatch shouldBe value
+        StubConfiguration(removeAfterMatch = value).eventuallyRemove shouldBe value
     }
 
     // endregion
