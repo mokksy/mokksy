@@ -24,6 +24,7 @@ nexusPublish = "2.0.0"
 openrewrite = "7.30.0"
 slf4j = "2.0.17"
 jansi = "2.4.3"
+kaml = "0.104.0"
 knit = "0.5.1"
 vanniktechMavenPublish = "0.36.0"
 
@@ -40,6 +41,7 @@ awaitility-kotlin = { group = "org.awaitility", name = "awaitility-kotlin", vers
 datafaker = { module = "net.datafaker:datafaker", version.ref = "datafaker" }
 finchly = { module = "me.kpavlov.finchly:finchly", version.ref = "finchly" }
 jansi = { module = "org.fusesource.jansi:jansi", version.ref = "jansi" }
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junit" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-assertions-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest" }

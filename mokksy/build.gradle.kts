@@ -67,6 +67,7 @@ kotlin {
             dependencies {
                 implementation(project.dependencies.platform(libs.netty.bom))
                 implementation(libs.jansi)
+                implementation(libs.kaml)
                 compileOnly(libs.ktor.serialization.jackson)
                 implementation(libs.ktor.server.call.logging)
                 implementation(libs.ktor.server.netty)

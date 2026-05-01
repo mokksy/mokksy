@@ -1,6 +1,7 @@
 .PHONY: build
 build:
 	@echo "🏗️ Building..."
+	@rm -rf kotlin-js-store
 	@./gradlew checkLegacyAbi build koverVerify koverXmlReport koverHtmlReport koverLog
 
 .PHONY: apidump

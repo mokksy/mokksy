@@ -46,6 +46,9 @@ public final class dev/mokksy/Mokksy : java/lang/AutoCloseable {
 	public final fun head (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final synthetic fun head (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final synthetic fun head (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
+	public final fun loadStubsFromEnv ()Ldev/mokksy/Mokksy;
+	public final fun loadStubsFromFile (Ljava/io/File;)Ldev/mokksy/Mokksy;
+	public final fun loadStubsFromFile (Ljava/lang/String;)Ldev/mokksy/Mokksy;
 	public final fun method (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun method (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun method (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
@@ -203,6 +206,14 @@ public final class dev/mokksy/mokksy/KtorExtensions {
 }
 
 public abstract interface annotation class dev/mokksy/mokksy/MokksyDsl : java/lang/annotation/Annotation {
+}
+
+public final class dev/mokksy/mokksy/MokksyFileConfigExtensionsKt {
+	public static final field ENV_MOKKSY_CONFIG Ljava/lang/String;
+	public static final field PROP_MOKKSY_CONFIG Ljava/lang/String;
+	public static final fun loadStubsFromEnv (Ldev/mokksy/mokksy/MokksyServer;)Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun loadStubsFromFile (Ldev/mokksy/mokksy/MokksyServer;Ljava/io/File;)Ldev/mokksy/mokksy/MokksyServer;
+	public static final fun loadStubsFromFile (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;)Ldev/mokksy/mokksy/MokksyServer;
 }
 
 public abstract interface class dev/mokksy/mokksy/MokksyHandler {

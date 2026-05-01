@@ -7,6 +7,8 @@ import dev.mokksy.mokksy.JavaBuildingStep
 import dev.mokksy.mokksy.JavaRequestSpecificationBuilder
 import dev.mokksy.mokksy.MokksyServer
 import dev.mokksy.mokksy.StubConfiguration
+import dev.mokksy.mokksy.loadStubsFromEnv
+import dev.mokksy.mokksy.loadStubsFromFile
 import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
@@ -19,6 +21,7 @@ import io.ktor.http.HttpMethod.Companion.Patch
 import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
 import kotlinx.coroutines.runBlocking
+import java.io.File
 import java.util.function.Consumer
 import kotlin.reflect.KClass
 
@@ -128,6 +131,47 @@ public class Mokksy(
      * Returns the port the server is bound to. Available after [start] has returned.
      */
     public fun port(): Int = delegate.port()
+
+    // endregion
+
+    // region File config
+
+    /**
+     * Loads stub definitions from the YAML [file] and registers them with this server.
+     *
+     * @param file YAML config file.
+     * @return This instance for chaining.
+     * @throws IllegalArgumentException if the file is missing, invalid, or fails validation.
+     */
+    public fun loadStubsFromFile(file: File): Mokksy {
+        delegate.loadStubsFromFile(file)
+        return this
+    }
+
+    /**
+     * Loads stub definitions from the YAML file at [path] and registers them with this server.
+     *
+     * @param path Absolute or relative path to the YAML config file.
+     * @return This instance for chaining.
+     * @throws IllegalArgumentException if the file is missing, invalid, or fails validation.
+     */
+    public fun loadStubsFromFile(path: String): Mokksy {
+        delegate.loadStubsFromFile(path)
+        return this
+    }
+
+    /**
+     * Loads stub definitions from the file specified by the `MOKKSY_CONFIG` environment variable
+     * or the `-Dmokksy.config` system property, in that order.
+     *
+     * @return This instance for chaining.
+     * @throws IllegalStateException if neither the environment variable nor the system property is set.
+     * @throws IllegalArgumentException if the resolved file is missing or invalid.
+     */
+    public fun loadStubsFromEnv(): Mokksy {
+        delegate.loadStubsFromEnv()
+        return this
+    }
 
     // endregion
 

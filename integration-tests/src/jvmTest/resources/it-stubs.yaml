@@ -1,0 +1,49 @@
+stubs:
+  - name: ping
+    method: GET
+    path: /ping
+    response:
+      body: '{"response":"Pong"}'
+      status: 200
+
+  - name: create-thing
+    method: POST
+    path: /things
+    match:
+      bodyContains:
+        - '"42"'
+      headers:
+        Content-Type: application/json
+    response:
+      body: '{"id":"42","name":"thing-42"}'
+      status: 201
+      headers:
+        Location: /things/42
+        Foo: bar
+
+  - name: delayed-response
+    method: GET
+    path: /delayed
+    response:
+      body: ok
+      status: 200
+      delayMs: 100
+
+  - name: sse-events
+    method: POST
+    path: /sse
+    response:
+      type: sse
+      chunks:
+        - "One"
+        - "Two"
+
+  - name: text-stream
+    method: GET
+    path: /stream
+    response:
+      type: stream
+      chunks:
+        - "Hello"
+        - " World"
+      contentType: text/plain; charset=UTF-8
