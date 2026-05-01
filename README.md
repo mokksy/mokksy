@@ -586,9 +586,9 @@ mokksy.get {
   body = "Generic Thing"
 }
 
-// Specific stub with high priority (positive value)
+// Specific stub with high priority (higher number = higher priority)
 mokksy.get {
-  path = beEqual("/things/special")
+  path("/things/special")
   priority = 1
 } respondsWith {
   body = "Special Thing"
