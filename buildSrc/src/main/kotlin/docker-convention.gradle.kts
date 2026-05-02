@@ -1,5 +1,6 @@
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerRemoveImage
+import com.github.dockerjava.api.exception.NotFoundException
 
 plugins {
     id("com.bmuschko.docker-remote-api")
@@ -70,8 +71,11 @@ afterEvaluate {
         group = "docker"
         targetImageId(dockerImageName)
         onError {
-            // Image not present locally — nothing to remove, not an error.
-            if (!message.orEmpty().contains("image not known")) throw this
+            if (this is NotFoundException) {
+                // Image not present locally — nothing to remove, not an error.
+            } else {
+                throw this
+            }
         }
     }
 
