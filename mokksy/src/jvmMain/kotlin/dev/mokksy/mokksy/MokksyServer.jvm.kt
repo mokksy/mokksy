@@ -23,6 +23,11 @@ import java.util.function.Consumer
  * [MokksyServer.startSuspend] combined with [MokksyServer.awaitStarted].
  */
 public fun MokksyServer.start(): MokksyServer {
+    try {
+        loadStubsFromEnv()
+    } catch (_: IllegalStateException) {
+        // no MOKKSY_CONFIG set — start with empty stub registry
+    }
     runBlocking {
         this@start.startSuspend()
         this@start.awaitStarted()
@@ -41,6 +46,11 @@ public fun MokksyServer.start(): MokksyServer {
  */
 @JvmSynthetic
 public fun MokksyServer.start(dispatcher: CoroutineDispatcher): MokksyServer {
+    try {
+        loadStubsFromEnv()
+    } catch (_: IllegalStateException) {
+        // no MOKKSY_CONFIG set — start with empty stub registry
+    }
     runBlocking(dispatcher) {
         this@start.startSuspend()
         this@start.awaitStarted()
