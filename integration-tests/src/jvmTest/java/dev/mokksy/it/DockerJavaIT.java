@@ -2,55 +2,120 @@ package dev.mokksy.it;
 
 import dev.mokksy.Mokksy;
 import org.junit.jupiter.api.*;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.OutputFrame;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class MokksyJavaFileConfigIT extends AbstractFileConfigIT {
+class DockerJavaIT extends AbstractFileConfigIT {
 
-    private final Mokksy mokksy = Mokksy.create();
+    private final String dockerImageName =
+        System.getProperty("dockerImageName", "mokksy/server-jvm") + ":" +
+        System.getProperty("dockerImageTag", "snapshot");
 
-    @Override
-    String getBaseUrl() {
-        return mokksy.baseUrl();
-    }
+    private final GenericContainer container = new GenericContainer(dockerImageName)
+        .withImagePullPolicy(imageName -> false)// never pull remote image
+        .withEnv("MOKKSY_CONFIG", "/config/it-stubs.yaml")
+        .withCopyFileToContainer(
+            MountableFile.forClasspathResource("/it-stubs.yaml"),
+            "/config/it-stubs.yaml"
+        )
+        .withExposedPorts(8080)
+        .waitingFor(Wait.forLogMessage(".*Responding at.*", 1))
+        .withLogConsumer((Consumer<OutputFrame>) frame -> System.out.println("🐳 " + frame.getUtf8StringWithoutLineEnding()))
+        .withStartupTimeout(Duration.ofSeconds(10));
 
     @BeforeAll
-    void setUp() throws URISyntaxException {
-        var file = new File(getClass().getResource("/it-stubs.yaml").toURI());
-        mokksy.start();
-        mokksy.loadStubsFromFile(file);
+    void beforeAll() {
+        container.start();
     }
 
     @AfterAll
-    void tearDown() {
-        mokksy.shutdown();
+    void afterAll() {
+        container.stop();
+    }
+
+    // region plain responses
+
+    @Override
+    String getBaseUrl() {
+        return "http://" + container.getHost() + ":" + container.getFirstMappedPort();
+    }
+
+    void get_returnsPlainResponseFromFileConfig() throws Exception {
+        var response = get("/ping");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("{\"response\":\"Pong\"}");
+    }
+
+    @Test
+    void post_withBodyMatch_returnsConfiguredStatusAndHeaders() throws Exception {
+        var response = post("/things", "{\"id\":\"42\"}");
+
+        assertThat(response.statusCode()).isEqualTo(201);
+        assertThat(response.body()).isEqualTo("{\"id\":\"42\",\"name\":\"thing-42\"}");
+        assertThat(response.headers().firstValue("Location")).hasValue("/things/42");
+        assertThat(response.headers().firstValue("Foo")).hasValue("bar");
+    }
+
+    @Test
+    void post_withoutBodyMatch_returns404() throws Exception {
+        var response = post("/things", "{\"id\":\"99\"}");
+
+        assertThat(response.statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void get_delayedStub_returnsResponse() throws Exception {
+        var response = get("/delayed");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("ok");
+    }
+
+    // endregion
+
+    // region SSE stream
+
+    @Test
+    void post_returnsSseStreamFromFileConfig() throws Exception {
+        var response = post("/sse", "");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.headers().firstValue("Content-Type")).hasValue("text/event-stream; charset=UTF-8");
+        assertThat(response.body()).isEqualTo("data: One\r\n\r\ndata: Two\r\n\r\n");
+    }
+
+    // endregion
+
+    // region plain text stream
+
+    @Test
+    void get_returnsPlainTextStreamFromFileConfig() throws Exception {
+        var response = get("/stream");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.headers().firstValue("Content-Type")).hasValue("text/plain; charset=UTF-8");
+        assertThat(response.body()).isEqualTo("Hello World");
     }
 
     // endregion
 
     // region error cases
-
-    @Test
-    void loadStubsFromFile_failsWithClearMessageWhenFileMissing() {
-        try (var server = Mokksy.create()) {
-            var missing = new File("/nonexistent/path/stubs.yaml");
-
-            assertThatThrownBy(() -> server.loadStubsFromFile(missing))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("not found")
-                .hasMessageContaining(missing.getAbsolutePath());
-        }
-    }
 
     @Test
     void loadStubsFromFile_failsWithClearMessageForInvalidYaml() throws IOException {

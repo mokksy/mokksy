@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     `kotlin-multiplatform-convention`
     `dokka-convention`
+    `docker-convention`
     `publish-convention`
     `netty-convention`
     `shadow-convention`
@@ -65,12 +66,13 @@ kotlin {
 
         jvmMain {
             dependencies {
-                implementation(project.dependencies.platform(libs.netty.bom))
                 implementation(libs.jansi)
                 implementation(libs.kaml)
-                compileOnly(libs.ktor.serialization.jackson)
                 implementation(libs.ktor.server.call.logging)
                 implementation(libs.ktor.server.netty)
+                implementation(project.dependencies.platform(libs.netty.bom))
+                compileOnly(libs.ktor.serialization.jackson)
+                runtimeOnly(libs.slf4j.simple)
             }
         }
 
@@ -84,7 +86,6 @@ kotlin {
                 implementation(libs.lincheck)
                 implementation(libs.mockk)
                 implementation(libs.mockk.dsl)
-                runtimeOnly(libs.slf4j.simple)
             }
         }
 

@@ -1,3 +1,8 @@
+public final class dev/mokksy/MainKt {
+	public static final fun main ()V
+	public static synthetic fun main ([Ljava/lang/String;)V
+}
+
 public final class dev/mokksy/Mokksy : java/lang/AutoCloseable {
 	public static final field Companion Ldev/mokksy/Mokksy$Companion;
 	public fun <init> ()V
