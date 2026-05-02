@@ -12,6 +12,7 @@ import dev.mokksy.mokksy.loadStubsFromFile
 import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
+import dev.mokksy.mokksy.start
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
@@ -94,10 +95,7 @@ public class Mokksy(
      * @return This instance, for chaining.
      */
     public fun start(): Mokksy {
-        runBlocking {
-            delegate.startSuspend()
-            delegate.awaitStarted()
-        }
+        delegate.start()
         return this
     }
 
@@ -496,14 +494,14 @@ public class Mokksy(
     public fun method(
         httpMethod: String,
         path: String,
-    ): JavaBuildingStep<String> = method(httpMethod, Consumer { it.path(path) })
+    ): JavaBuildingStep<String> = method(httpMethod) { it.path(path) }
 
     /** Registers a stub for an arbitrary HTTP method matching the given [path] exactly, with [StubConfiguration]. */
     public fun method(
         configuration: StubConfiguration,
         httpMethod: String,
         path: String,
-    ): JavaBuildingStep<String> = method(configuration, httpMethod, Consumer { it.path(path) })
+    ): JavaBuildingStep<String> = method(configuration, httpMethod) { it.path(path) }
 
     // endregion
 

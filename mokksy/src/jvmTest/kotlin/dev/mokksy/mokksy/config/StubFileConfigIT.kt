@@ -12,6 +12,7 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -231,17 +232,15 @@ internal class StubFileConfigIT {
     }
 
     @Test
-    fun `loadStubsFromEnv throws when neither env var nor property is set`() {
-        Assumptions.assumeTrue(
+    fun `loadStubsFromEnv should ignore nor property set`() {
+        assumeTrue(
             System.getenv(ENV_MOKKSY_CONFIG) == null,
             "MOKKSY_CONFIG env var is set — skipping",
         )
         System.clearProperty(PROP_MOKKSY_CONFIG)
         val server = MokksyServer()
 
-        val ex = shouldThrow<IllegalStateException> { server.loadStubsFromEnv() }
-        ex.message shouldContain ENV_MOKKSY_CONFIG
-        ex.message shouldContain PROP_MOKKSY_CONFIG
+        server.loadStubsFromEnv() shouldBeSameInstanceAs server
     }
 
     // endregion

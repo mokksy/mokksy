@@ -16,11 +16,20 @@ kotlin {
             javaParameters = true
         }
         testRuns["test"].executionTask.configure {
+            dependsOn(":mokksy:dockerBuildImage")
             useJUnitPlatform()
             testLogging {
                 showStandardStreams = true
                 events("failed")
             }
+            systemProperty(
+                "dockerImageName",
+                providers.gradleProperty("dockerImageName").getOrElse("mokksy/server-jvm"),
+            )
+            systemProperty(
+                "dockerImageTag",
+                providers.gradleProperty("dockerImageTag").getOrElse("snapshot"),
+            )
         }
     }
 
@@ -71,6 +80,7 @@ kotlin {
                 implementation(libs.ktor.serialization.jackson)
                 implementation(libs.ktor.server.test.host)
                 implementation(libs.okhttp)
+                implementation(libs.testcontainers)
                 runtimeOnly(libs.slf4j.simple)
                 runtimeOnly(libs.ktor.client.apache5)
             }

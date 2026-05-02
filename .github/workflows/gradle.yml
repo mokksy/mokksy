@@ -57,7 +57,8 @@ jobs:
         run: |
           ./gradlew \
             checkLegacyAbi build knit \
-            koverXmlReport koverLog
+            koverXmlReport koverLog \
+            -PdockerImageTag=${{ github.ref == 'refs/heads/main' && 'edge' || 'snapshot' }}
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v6

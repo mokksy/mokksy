@@ -1,11 +1,12 @@
-@file:OptIn(ExperimentalWasmDsl::class)
 
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.get
 
 plugins {
     alias(libs.plugins.kotlin.serialization)
     `kotlin-multiplatform-convention`
     `dokka-convention`
+    `docker-convention`
     `publish-convention`
     `netty-convention`
     `shadow-convention`
@@ -64,13 +65,22 @@ kotlin {
         }
 
         jvmMain {
+//            val dockerRuntime: Configuration by configurations.creating {
+//                isTransitive = true
+//            }
+
+//            dependencies {
+//                dockerRuntime("org.slf4j:slf4j-simple:2.0.17")
+//            }
+
             dependencies {
-                implementation(project.dependencies.platform(libs.netty.bom))
                 implementation(libs.jansi)
                 implementation(libs.kaml)
-                compileOnly(libs.ktor.serialization.jackson)
                 implementation(libs.ktor.server.call.logging)
                 implementation(libs.ktor.server.netty)
+                implementation(project.dependencies.platform(libs.netty.bom))
+                compileOnly(libs.ktor.serialization.jackson)
+//                 dockerRuntime(libs.slf4j.simple)
             }
         }
 
