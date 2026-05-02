@@ -16,17 +16,32 @@ val dockerImageName = "$dockerImageRepository:$dockerImageTag"
 docker {
 }
 
+val dockerRuntime: Configuration by configurations.creating {
+    isTransitive = true
+}
+
+val libs =
+    extensions
+        .getByType<VersionCatalogsExtension>()
+        .named("libs")
+
+dependencies {
+    dockerRuntime(libs.findLibrary("slf4j-simple").get())
+}
+
 afterEvaluate {
     val dockerStagingDir = project.layout.buildDirectory.dir("docker/context")
 
     val prepareDockerContext by tasks.registering(Sync::class) {
         description = "Prepare files for building docker image"
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         dependsOn(tasks.named("jvmJar"))
 
         // JAR
         from(tasks.named<Jar>("jvmJar").flatMap { it.archiveFile })
         // Runtime dependencies
         from(configurations.named("jvmRuntimeClasspath")) { into("lib") }
+        from(configurations.named("dockerRuntime")) { into("lib") }
         // Dockerfile
         from(project.projectDir) { include("Dockerfile") }
 
@@ -37,6 +52,7 @@ afterEvaluate {
 
     tasks.register<DockerBuildImage>("dockerBuildImage") {
         description = "Builds the docker image"
+        group = "docker"
         dependsOn(prepareDockerContext)
 
         inputDir.set(dockerStagingDir)

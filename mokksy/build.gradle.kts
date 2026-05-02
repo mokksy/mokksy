@@ -1,6 +1,6 @@
-@file:OptIn(ExperimentalWasmDsl::class)
 
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.get
 
 plugins {
     alias(libs.plugins.kotlin.serialization)
@@ -65,6 +65,14 @@ kotlin {
         }
 
         jvmMain {
+//            val dockerRuntime: Configuration by configurations.creating {
+//                isTransitive = true
+//            }
+
+//            dependencies {
+//                dockerRuntime("org.slf4j:slf4j-simple:2.0.17")
+//            }
+
             dependencies {
                 implementation(libs.jansi)
                 implementation(libs.kaml)
@@ -72,7 +80,7 @@ kotlin {
                 implementation(libs.ktor.server.netty)
                 implementation(project.dependencies.platform(libs.netty.bom))
                 compileOnly(libs.ktor.serialization.jackson)
-                runtimeOnly(libs.slf4j.simple)
+//                 dockerRuntime(libs.slf4j.simple)
             }
         }
 
@@ -86,6 +94,7 @@ kotlin {
                 implementation(libs.lincheck)
                 implementation(libs.mockk)
                 implementation(libs.mockk.dsl)
+                runtimeOnly(libs.slf4j.simple)
             }
         }
 

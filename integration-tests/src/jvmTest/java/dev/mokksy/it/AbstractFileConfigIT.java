@@ -19,7 +19,7 @@ public abstract class AbstractFileConfigIT {
 
     protected final HttpClient httpClient = HttpClient.newHttpClient();
 
-    abstract String getBaseUrl();
+    protected abstract String getBaseUrl();
 
     // region plain responses
 

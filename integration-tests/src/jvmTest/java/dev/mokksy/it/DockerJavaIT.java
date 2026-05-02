@@ -51,7 +51,7 @@ class DockerJavaIT extends AbstractFileConfigIT {
     // region plain responses
 
     @Override
-    String getBaseUrl() {
+    protected String getBaseUrl() {
         return "http://" + container.getHost() + ":" + container.getFirstMappedPort();
     }
 
@@ -160,25 +160,26 @@ class DockerJavaIT extends AbstractFileConfigIT {
 
     @Test
     void loadStubsFromFile_failsWithClearMessageForSseWithNoChunks() throws IOException {
-        var server = Mokksy.create();
-        // language=yaml
-        var yaml = """
-                stubs:
-                  - name: empty-sse
-                    path: /sse
-                    response:
-                      type: sse
-                """;
-        Path file = Files.createTempFile("stubs", ".yaml");
-        Files.writeString(file, yaml);
+        try (var server = Mokksy.create()) {
+            // language=yaml
+            var yaml = """
+                    stubs:
+                      - name: empty-sse
+                        path: /sse
+                        response:
+                          type: sse
+                    """;
+            Path file = Files.createTempFile("stubs", ".yaml");
+            Files.writeString(file, yaml);
 
-        try {
-            assertThatThrownBy(() -> server.loadStubsFromFile(file.toFile()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("empty-sse")
-                .hasMessageContaining("chunk");
-        } finally {
-            Files.deleteIfExists(file);
+            try {
+                assertThatThrownBy(() -> server.loadStubsFromFile(file.toFile()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("empty-sse")
+                    .hasMessageContaining("chunk");
+            } finally {
+                Files.deleteIfExists(file);
+            }
         }
     }
 
@@ -208,11 +209,7 @@ class DockerJavaIT extends AbstractFileConfigIT {
         Assumptions.assumeTrue(System.getenv("MOKKSY_CONFIG") == null, "MOKKSY_CONFIG env var is set — skipping");
         System.clearProperty("mokksy.config");
         try (var server = Mokksy.create()) {
-
-            assertThatThrownBy(server::loadStubsFromEnv)
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("MOKKSY_CONFIG")
-                .hasMessageContaining("mokksy.config");
+            assertThat(server.loadStubsFromEnv()).isSameAs(server);
         }
     }
 

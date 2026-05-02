@@ -108,9 +108,13 @@ public fun MokksyServer.loadStubsFromEnv(): MokksyServer {
     val path =
         System.getenv(ENV_MOKKSY_CONFIG)?.trim()?.takeIf { it.isNotEmpty() }
             ?: System.getProperty(PROP_MOKKSY_CONFIG)?.trim()?.takeIf { it.isNotEmpty() }
-            ?: error(
-                "No config path found. Set the '$ENV_MOKKSY_CONFIG' environment variable " +
-                    "or the '-D$PROP_MOKKSY_CONFIG' system property.",
-            )
-    return loadStubsFromFile(path)
+
+    path?.let {
+        val file = File(path)
+        if (file.exists()) {
+            return loadStubsFromFile(path)
+        }
+    }
+
+    return this
 }

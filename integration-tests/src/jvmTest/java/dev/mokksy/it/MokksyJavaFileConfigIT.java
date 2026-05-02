@@ -6,7 +6,6 @@ import org.junit.jupiter.api.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -20,13 +19,13 @@ class MokksyJavaFileConfigIT extends AbstractFileConfigIT {
     private final Mokksy mokksy = Mokksy.create();
 
     @Override
-    String getBaseUrl() {
+    protected String getBaseUrl() {
         return mokksy.baseUrl();
     }
 
     @BeforeAll
     void setUp() throws URISyntaxException {
-        var file = new File(getClass().getResource("/it-stubs.yaml").toURI());
+        var file = new File(requireNonNull(getClass().getResource("/it-stubs.yaml")).toURI());
         mokksy.start();
         mokksy.loadStubsFromFile(file);
     }
@@ -95,25 +94,26 @@ class MokksyJavaFileConfigIT extends AbstractFileConfigIT {
 
     @Test
     void loadStubsFromFile_failsWithClearMessageForSseWithNoChunks() throws IOException {
-        var server = Mokksy.create();
-        // language=yaml
-        var yaml = """
+        try (var server = Mokksy.create()) {
+            // language=yaml
+            var yaml = """
                 stubs:
                   - name: empty-sse
                     path: /sse
                     response:
                       type: sse
                 """;
-        Path file = Files.createTempFile("stubs", ".yaml");
-        Files.writeString(file, yaml);
+            Path file = Files.createTempFile("stubs", ".yaml");
+            Files.writeString(file, yaml);
 
-        try {
-            assertThatThrownBy(() -> server.loadStubsFromFile(file.toFile()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("empty-sse")
-                .hasMessageContaining("chunk");
-        } finally {
-            Files.deleteIfExists(file);
+            try {
+                assertThatThrownBy(() -> server.loadStubsFromFile(file.toFile()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("empty-sse")
+                    .hasMessageContaining("chunk");
+            } finally {
+                Files.deleteIfExists(file);
+            }
         }
     }
 
@@ -139,15 +139,11 @@ class MokksyJavaFileConfigIT extends AbstractFileConfigIT {
     }
 
     @Test
-    void loadStubsFromEnv_throwsWhenNeitherEnvVarNorPropertyIsSet() {
+    void loadStubsFromEnv_continueIfNeitherEnvVarNorPropertyIsSet() {
         Assumptions.assumeTrue(System.getenv("MOKKSY_CONFIG") == null, "MOKKSY_CONFIG env var is set — skipping");
         System.clearProperty("mokksy.config");
         try (var server = Mokksy.create()) {
-
-            assertThatThrownBy(server::loadStubsFromEnv)
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("MOKKSY_CONFIG")
-                .hasMessageContaining("mokksy.config");
+            assertThat(server.loadStubsFromEnv()).isSameAs(server);
         }
     }
 
