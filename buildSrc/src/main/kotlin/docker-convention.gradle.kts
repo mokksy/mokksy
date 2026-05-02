@@ -20,6 +20,7 @@ afterEvaluate {
     val dockerStagingDir = project.layout.buildDirectory.dir("docker/context")
 
     val prepareDockerContext by tasks.registering(Sync::class) {
+        description = "Prepare files for building docker image"
         dependsOn(tasks.named("jvmJar"))
 
         // JAR
@@ -35,6 +36,7 @@ afterEvaluate {
     }
 
     tasks.register<DockerBuildImage>("dockerBuildImage") {
+        description = "Builds the docker image"
         dependsOn(prepareDockerContext)
 
         inputDir.set(dockerStagingDir)
@@ -47,6 +49,9 @@ afterEvaluate {
     }
 
     tasks.register<DockerRemoveImage>("dockerRemoveImage") {
+        description =
+            "Removes the locally built Docker image. Run explicitly; not wired into 'clean'."
+        group = "docker"
         targetImageId(dockerImageName)
         onError {
             // Image not present locally — nothing to remove, not an error.
