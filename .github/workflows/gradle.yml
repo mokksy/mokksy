@@ -41,7 +41,6 @@ jobs:
       - name: Set up JDK ${{ env.JVM_VERSION }}
         uses: actions/setup-java@v5
         with:
-          cache: gradle
           java-version: ${{ env.JVM_VERSION }}
           distribution: ${{ env.JVM_DISTRIBUTION }}
 
@@ -50,7 +49,7 @@ jobs:
       - name: 🐘Setup Gradle
         uses: gradle/actions/setup-gradle@11d4d83c63a6ce61b32d8a9c4faddbdb04fe9917
         with:
-          cache-disabled: true
+          cache-provider: basic
           add-job-summary-as-pr-comment: on-failure # Valid values are 'never' (default), 'always', and 'on-failure'
 
       - name: Build with Gradle
@@ -93,8 +92,8 @@ jobs:
           report_type: test_results
 
   dependency-submission:
-
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: write
 
@@ -110,3 +109,5 @@ jobs:
       # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@11d4d83c63a6ce61b32d8a9c4faddbdb04fe9917
+        with:
+          cache-provider: basic
