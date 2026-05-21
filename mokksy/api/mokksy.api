@@ -151,6 +151,11 @@ public abstract interface annotation class dev/mokksy/mokksy/ExperimentalMokksyA
 public abstract interface annotation class dev/mokksy/mokksy/InternalMokksyApi : java/lang/annotation/Annotation {
 }
 
+public final class dev/mokksy/mokksy/JavaBodySpecBuilder {
+	public final fun formData (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBodySpecBuilder;
+	public final fun predicate (Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaBodySpecBuilder;
+}
+
 public final class dev/mokksy/mokksy/JavaBuildingStep {
 	public final fun respondsWith (Ljava/lang/Class;Ljava/util/function/Consumer;)V
 	public final fun respondsWith (Ljava/lang/String;)V
@@ -163,7 +168,21 @@ public final class dev/mokksy/mokksy/JavaBuildingStep {
 	public final fun respondsWithStream (Ljava/util/function/Consumer;)V
 }
 
+public final class dev/mokksy/mokksy/JavaFormDataFileSpecBuilder {
+	public final fun body (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaFormDataFileSpecBuilder;
+	public final fun bodyMatches (Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaFormDataFileSpecBuilder;
+	public final fun contentType (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaFormDataFileSpecBuilder;
+	public final fun filename (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaFormDataFileSpecBuilder;
+}
+
+public final class dev/mokksy/mokksy/JavaFormDataSpecBuilder {
+	public final fun field (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaFormDataSpecBuilder;
+	public final fun fieldMatches (Ljava/lang/String;Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaFormDataSpecBuilder;
+	public final fun file (Ljava/lang/String;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaFormDataSpecBuilder;
+}
+
 public final class dev/mokksy/mokksy/JavaRequestSpecificationBuilder {
+	public final fun body (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun bodyContains ([Ljava/lang/String;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun bodyMatchesPredicate (Ljava/lang/String;Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun bodyMatchesPredicate (Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
@@ -669,10 +688,32 @@ public final class dev/mokksy/mokksy/kotest/Matchers {
 	public static final fun objectEquals (Ljava/lang/Object;Ljava/lang/String;)Lio/kotest/matchers/Matcher;
 }
 
+public final class dev/mokksy/mokksy/request/BodySpecBuilder {
+	public final fun formData (Lkotlin/jvm/functions/Function1;)V
+	public final fun predicate (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun predicate$default (Ldev/mokksy/mokksy/request/BodySpecBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+}
+
 public final class dev/mokksy/mokksy/request/CapturedRequest {
 	public fun <init> (Lio/ktor/server/request/ApplicationRequest;Lkotlin/reflect/KClass;)V
 	public final fun body (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun bodyAsString (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class dev/mokksy/mokksy/request/FormDataFieldSpecBuilder {
+	public final fun body (Lio/kotest/matchers/Matcher;)V
+}
+
+public final class dev/mokksy/mokksy/request/FormDataFileSpecBuilder {
+	public final fun body (Lio/kotest/matchers/Matcher;)V
+	public final fun contentType (Lio/kotest/matchers/Matcher;)V
+	public final fun filename (Lio/kotest/matchers/Matcher;)V
+}
+
+public final class dev/mokksy/mokksy/request/FormDataSpecBuilder {
+	public final fun field (Ljava/lang/String;Lio/kotest/matchers/Matcher;)V
+	public final fun field (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public final fun file (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 }
 
 public final class dev/mokksy/mokksy/request/RecordedRequest {
@@ -697,8 +738,6 @@ public final class dev/mokksy/mokksy/request/RequestMatchers {
 }
 
 public class dev/mokksy/mokksy/request/RequestSpecification {
-	public fun <init> (Lio/kotest/matchers/Matcher;Lio/kotest/matchers/Matcher;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/reflect/KClass;)V
-	public synthetic fun <init> (Lio/kotest/matchers/Matcher;Lio/kotest/matchers/Matcher;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/reflect/KClass;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getBody ()Ljava/util/List;
 	public final fun getBodyString ()Ljava/util/List;
 	public final fun getHeaders ()Ljava/util/List;
@@ -709,6 +748,7 @@ public class dev/mokksy/mokksy/request/RequestSpecification {
 
 public class dev/mokksy/mokksy/request/RequestSpecificationBuilder {
 	public fun <init> (Lkotlin/reflect/KClass;)V
+	public final fun body (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun bodyContains ([Ljava/lang/String;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun bodyMatchesPredicate (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun bodyMatchesPredicate (Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;

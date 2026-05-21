@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalMokksyApi::class)
+
 package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import io.kotest.matchers.Matcher
+import java.util.function.Consumer
 import java.util.function.Predicate
 
 /**
@@ -77,12 +80,18 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
         apply { delegate.bodyMatchesPredicate(description) { it != null && predicate.test(it) } }
 
     /**
-     * Requires the request to contain a header with [name] equal to [value].
+     * Configures body matching through a [JavaBodySpecBuilder] scope.
      *
-     * @param name The header name.
-     * @param value The expected header value.
+     * Groups all body-matching criteria — [formData], [predicate], and future matchers —
+     * under a single block.
+     *
+     * @param configurer A [Consumer] that configures a [JavaBodySpecBuilder].
      * @return This builder instance.
      */
+    @ExperimentalMokksyApi
+    public fun body(configurer: Consumer<JavaBodySpecBuilder<P>>): JavaRequestSpecificationBuilder<P> =
+        apply { configurer.accept(JavaBodySpecBuilder(delegate)) }
+
     public fun containsHeader(
         name: String,
         value: String,

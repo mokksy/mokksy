@@ -143,6 +143,11 @@ abstract class <#A: kotlin/Any?> dev.mokksy.mokksy.response/AbstractResponseDefi
         open fun <get-delay>(): kotlin.time/Duration // dev.mokksy.mokksy.response/AbstractResponseDefinition.delay.<get-delay>|<get-delay>(){}[0]
 }
 
+final class <#A: kotlin/Any> dev.mokksy.mokksy.request/BodySpecBuilder { // dev.mokksy.mokksy.request/BodySpecBuilder|null[0]
+    final fun formData(kotlin/Function1<dev.mokksy.mokksy.request/FormDataSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/BodySpecBuilder.formData|formData(kotlin.Function1<dev.mokksy.mokksy.request.FormDataSpecBuilder,kotlin.Unit>){}[0]
+    final fun predicate(kotlin/String? = ..., kotlin/Function1<#A?, kotlin/Boolean>) // dev.mokksy.mokksy.request/BodySpecBuilder.predicate|predicate(kotlin.String?;kotlin.Function1<1:0?,kotlin.Boolean>){}[0]
+}
+
 final class <#A: kotlin/Any> dev.mokksy.mokksy.request/CapturedRequest { // dev.mokksy.mokksy.request/CapturedRequest|null[0]
     constructor <init>(io.ktor.server.request/ApplicationRequest, kotlin.reflect/KClass<#A>) // dev.mokksy.mokksy.request/CapturedRequest.<init>|<init>(io.ktor.server.request.ApplicationRequest;kotlin.reflect.KClass<1:0>){}[0]
 
@@ -355,6 +360,22 @@ final class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCRequest : dev
     }
 }
 
+final class dev.mokksy.mokksy.request/FormDataFieldSpecBuilder { // dev.mokksy.mokksy.request/FormDataFieldSpecBuilder|null[0]
+    final fun body(io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/FormDataFieldSpecBuilder.body|body(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+}
+
+final class dev.mokksy.mokksy.request/FormDataFileSpecBuilder { // dev.mokksy.mokksy.request/FormDataFileSpecBuilder|null[0]
+    final fun body(io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/FormDataFileSpecBuilder.body|body(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+    final fun contentType(io.kotest.matchers/Matcher<io.ktor.http/ContentType?>) // dev.mokksy.mokksy.request/FormDataFileSpecBuilder.contentType|contentType(io.kotest.matchers.Matcher<io.ktor.http.ContentType?>){}[0]
+    final fun filename(io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/FormDataFileSpecBuilder.filename|filename(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+}
+
+final class dev.mokksy.mokksy.request/FormDataSpecBuilder { // dev.mokksy.mokksy.request/FormDataSpecBuilder|null[0]
+    final fun field(kotlin/String, io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/FormDataSpecBuilder.field|field(kotlin.String;io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+    final fun field(kotlin/String, kotlin/Function1<dev.mokksy.mokksy.request/FormDataFieldSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/FormDataSpecBuilder.field|field(kotlin.String;kotlin.Function1<dev.mokksy.mokksy.request.FormDataFieldSpecBuilder,kotlin.Unit>){}[0]
+    final fun file(kotlin/String, kotlin/Function1<dev.mokksy.mokksy.request/FormDataFileSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/FormDataSpecBuilder.file|file(kotlin.String;kotlin.Function1<dev.mokksy.mokksy.request.FormDataFileSpecBuilder,kotlin.Unit>){}[0]
+}
+
 final class dev.mokksy.mokksy.request/RecordedRequest { // dev.mokksy.mokksy.request/RecordedRequest|null[0]
     final val bodyAsText // dev.mokksy.mokksy.request/RecordedRequest.bodyAsText|{}bodyAsText[0]
         final fun <get-bodyAsText>(): kotlin/String? // dev.mokksy.mokksy.request/RecordedRequest.bodyAsText.<get-bodyAsText>|<get-bodyAsText>(){}[0]
@@ -532,8 +553,6 @@ open class <#A: kotlin/Any, #B: kotlin/Any?> dev.mokksy.mokksy.response/Streamin
 }
 
 open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecification { // dev.mokksy.mokksy.request/RequestSpecification|null[0]
-    constructor <init>(io.kotest.matchers/Matcher<io.ktor.http/HttpMethod>? = ..., io.kotest.matchers/Matcher<kotlin/String>? = ..., kotlin.collections/List<io.kotest.matchers/Matcher<io.ktor.http/Headers>> = ..., kotlin.collections/List<io.kotest.matchers/Matcher<#A?>> = ..., kotlin.collections/List<io.kotest.matchers/Matcher<kotlin/String?>> = ..., kotlin/Int = ..., kotlin.reflect/KClass<#A>) // dev.mokksy.mokksy.request/RequestSpecification.<init>|<init>(io.kotest.matchers.Matcher<io.ktor.http.HttpMethod>?;io.kotest.matchers.Matcher<kotlin.String>?;kotlin.collections.List<io.kotest.matchers.Matcher<io.ktor.http.Headers>>;kotlin.collections.List<io.kotest.matchers.Matcher<1:0?>>;kotlin.collections.List<io.kotest.matchers.Matcher<kotlin.String?>>;kotlin.Int;kotlin.reflect.KClass<1:0>){}[0]
-
     final val body // dev.mokksy.mokksy.request/RequestSpecification.body|{}body[0]
         final fun <get-body>(): kotlin.collections/List<io.kotest.matchers/Matcher<#A?>> // dev.mokksy.mokksy.request/RequestSpecification.body.<get-body>|<get-body>(){}[0]
     final val bodyString // dev.mokksy.mokksy.request/RequestSpecification.bodyString|{}bodyString[0]
@@ -570,6 +589,7 @@ open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecificationBuilde
         final fun <get-priority>(): kotlin/Int // dev.mokksy.mokksy.request/RequestSpecificationBuilder.priority.<get-priority>|<get-priority>(){}[0]
         final fun <set-priority>(kotlin/Int) // dev.mokksy.mokksy.request/RequestSpecificationBuilder.priority.<set-priority>|<set-priority>(kotlin.Int){}[0]
 
+    final fun body(kotlin/Function1<dev.mokksy.mokksy.request/BodySpecBuilder<#A>, kotlin/Unit>): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.body|body(kotlin.Function1<dev.mokksy.mokksy.request.BodySpecBuilder<1:0>,kotlin.Unit>){}[0]
     final fun bodyContains(kotlin/Array<out kotlin/String>...): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.bodyContains|bodyContains(kotlin.Array<out|kotlin.String>...){}[0]
     final fun bodyMatchesPredicate(kotlin/String? = ..., kotlin/Function1<#A?, kotlin/Boolean>): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.bodyMatchesPredicate|bodyMatchesPredicate(kotlin.String?;kotlin.Function1<1:0?,kotlin.Boolean>){}[0]
     final fun bodyMatchesPredicates(kotlin/Array<out kotlin/Function1<#A?, kotlin/Boolean>>...): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.bodyMatchesPredicates|bodyMatchesPredicates(kotlin.Array<out|kotlin.Function1<1:0?,kotlin.Boolean>>...){}[0]
