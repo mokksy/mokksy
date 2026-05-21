@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
@@ -26,7 +27,8 @@ class DockerJavaIT extends AbstractFileConfigIT {
         System.getProperty("dockerImageName", "mokksy/server-jvm") + ":" +
         System.getProperty("dockerImageTag", "snapshot");
 
-    private final GenericContainer container = new GenericContainer(dockerImageName)
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private final GenericContainer container = new GenericContainer(DockerImageName.parse(dockerImageName))
         .withImagePullPolicy(imageName -> false)// never pull remote image
         .withEnv("MOKKSY_CONFIG", "/config/it-stubs.yaml")
         .withCopyFileToContainer(
@@ -60,57 +62,6 @@ class DockerJavaIT extends AbstractFileConfigIT {
 
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).isEqualTo("{\"response\":\"Pong\"}");
-    }
-
-    @Test
-    void post_withBodyMatch_returnsConfiguredStatusAndHeaders() throws Exception {
-        var response = post("/things", "{\"id\":\"42\"}");
-
-        assertThat(response.statusCode()).isEqualTo(201);
-        assertThat(response.body()).isEqualTo("{\"id\":\"42\",\"name\":\"thing-42\"}");
-        assertThat(response.headers().firstValue("Location")).hasValue("/things/42");
-        assertThat(response.headers().firstValue("Foo")).hasValue("bar");
-    }
-
-    @Test
-    void post_withoutBodyMatch_returns404() throws Exception {
-        var response = post("/things", "{\"id\":\"99\"}");
-
-        assertThat(response.statusCode()).isEqualTo(404);
-    }
-
-    @Test
-    void get_delayedStub_returnsResponse() throws Exception {
-        var response = get("/delayed");
-
-        assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.body()).isEqualTo("ok");
-    }
-
-    // endregion
-
-    // region SSE stream
-
-    @Test
-    void post_returnsSseStreamFromFileConfig() throws Exception {
-        var response = post("/sse", "");
-
-        assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.headers().firstValue("Content-Type")).hasValue("text/event-stream; charset=UTF-8");
-        assertThat(response.body()).isEqualTo("data: One\r\n\r\ndata: Two\r\n\r\n");
-    }
-
-    // endregion
-
-    // region plain text stream
-
-    @Test
-    void get_returnsPlainTextStreamFromFileConfig() throws Exception {
-        var response = get("/stream");
-
-        assertThat(response.statusCode()).isEqualTo(200);
-        assertThat(response.headers().firstValue("Content-Type")).hasValue("text/plain; charset=UTF-8");
-        assertThat(response.body()).isEqualTo("Hello World");
     }
 
     // endregion

@@ -15,6 +15,7 @@ import kotlin.test.AfterTest
 
 internal class BodyMatchingIT : AbstractIT() {
     private lateinit var name: String
+    private var age: Int = -1
     private lateinit var id: String
     private lateinit var expectedResponse: Output
     private lateinit var input: Input
@@ -22,8 +23,9 @@ internal class BodyMatchingIT : AbstractIT() {
     @BeforeEach
     fun setup() {
         name = Random.nextInt().toHexString()
+        age = Random.nextInt(10, 99)
         id = Random.nextInt().toString()
-        input = Input(name)
+        input = Input(name = name, age = age)
         expectedResponse = Output(id)
     }
 
@@ -39,9 +41,14 @@ internal class BodyMatchingIT : AbstractIT() {
                     it?.name == name
                 }
 
-                bodyMatchesPredicates({
-                    it?.name == name
-                })
+                bodyMatchesPredicates(
+                    {
+                        it?.age == age
+                    },
+                    {
+                        it?.age != null && it.age > 1
+                    },
+                )
             }.respondsWith(Output::class) {
                 body = expectedResponse
                 httpStatus = HttpStatusCode.Created

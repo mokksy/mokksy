@@ -7,6 +7,7 @@ import kotlin.jvm.JvmRecord
 @JvmRecord
 data class Input(
     val name: String,
+    val age: Int? = null,
 )
 
 @Serializable
