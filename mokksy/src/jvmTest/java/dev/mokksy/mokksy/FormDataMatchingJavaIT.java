@@ -12,6 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +38,7 @@ public class FormDataMatchingJavaIT {
 
         mokksy.post(spec -> spec
             .path(path)
-            .body(body -> body.formData(
+            .body((Consumer<JavaBodySpecBuilder<String>>) body -> body.formData(
                     fd -> fd.field("locale", "test")
                 )
             )
@@ -69,7 +70,7 @@ public class FormDataMatchingJavaIT {
 
         mokksy.post(spec -> spec
             .path(path)
-            .body(body -> body.formData(
+            .body((Consumer<JavaBodySpecBuilder<String>>) body -> body.formData(
                 fd -> fd.field("locale", "expected")
             ))
         ).respondsWith(rb -> rb.body("OK"));
@@ -99,7 +100,7 @@ public class FormDataMatchingJavaIT {
 
         mokksy.post(spec -> spec
             .path(path)
-            .body(body -> body.formData(fd -> {
+            .body((Consumer<JavaBodySpecBuilder<String>>) body -> body.formData(fd -> {
                 fd.field("locale", "test");
                 fd.field("code", "123");
             }))
@@ -134,7 +135,7 @@ public class FormDataMatchingJavaIT {
 
         mokksy.post(spec -> spec
             .path(path)
-            .body(body -> body.formData(fd -> fd
+            .body((Consumer<JavaBodySpecBuilder<String>>) body -> body.formData(fd -> fd
                 .file("avatar", f -> f.filename("photo.jpg")))
             )
         ).respondsWith(rb -> rb.body("OK"));
@@ -165,7 +166,7 @@ public class FormDataMatchingJavaIT {
 
         mokksy.post(spec -> spec
             .path(path)
-            .body(body -> body.formData(fd -> fd
+            .body((Consumer<JavaBodySpecBuilder<String>>) body -> body.formData(fd -> fd
                 .file("avatar", f -> f.filename("expected.jpg")))
             )
         ).respondsWith(rb -> rb.body("OK"));
@@ -196,7 +197,7 @@ public class FormDataMatchingJavaIT {
 
         mokksy.post(spec -> spec
             .path(path)
-            .body(body -> body.formData(fd -> fd.field("locale", "test")))
+            .body((Consumer<JavaBodySpecBuilder<String>>) body -> body.formData(fd -> fd.field("locale", "test")))
         ).respondsWith(rb -> rb.body("OK"));
 
         var response = httpClient.send(
@@ -216,7 +217,7 @@ public class FormDataMatchingJavaIT {
 
         mokksy.post(spec -> spec
             .path(path)
-            .body(body -> body.formData(
+            .body((Consumer<JavaBodySpecBuilder<String>>) body -> body.formData(
                     fd -> fd.fieldMatches("locale", v -> v != null && v.startsWith("te"))
                 )
             )
@@ -248,7 +249,7 @@ public class FormDataMatchingJavaIT {
 
         mokksy.post(spec -> spec
             .path(path)
-            .body(body -> body.formData(
+            .body((Consumer<JavaBodySpecBuilder<String>>) body -> body.formData(
                 fd -> fd.fieldMatches("locale", v -> v != null && v.startsWith("no"))
             ))
         ).respondsWith(rb -> rb.body("OK"));

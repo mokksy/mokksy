@@ -182,7 +182,10 @@ public final class dev/mokksy/mokksy/JavaFormDataSpecBuilder {
 }
 
 public final class dev/mokksy/mokksy/JavaRequestSpecificationBuilder {
+	public final fun body (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
+	public final fun body (Ljava/lang/String;Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun body (Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
+	public final fun body (Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun bodyContains ([Ljava/lang/String;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun bodyMatchesPredicate (Ljava/lang/String;Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun bodyMatchesPredicate (Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;

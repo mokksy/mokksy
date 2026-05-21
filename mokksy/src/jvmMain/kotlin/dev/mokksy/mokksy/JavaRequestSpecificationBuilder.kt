@@ -3,7 +3,9 @@
 package dev.mokksy.mokksy
 
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
+import dev.mokksy.mokksy.request.predicateMatcher
 import io.kotest.matchers.Matcher
+import io.kotest.matchers.MatcherResult
 import java.util.function.Consumer
 import java.util.function.Predicate
 
@@ -24,6 +26,7 @@ import java.util.function.Predicate
  *
  * @param P The type of the request payload.
  */
+@Suppress("TooManyFunctions")
 public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
     private val delegate: RequestSpecificationBuilder<P>,
 ) {
@@ -80,16 +83,62 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
         apply { delegate.bodyMatchesPredicate(description) { it != null && predicate.test(it) } }
 
     /**
+     * Matches the request body string against a [Predicate].
+     *
+     * @param predicate A [Predicate] applied to the request body string.
+     * @return This builder instance.
+     */
+    @ExperimentalMokksyApi
+    public fun body(predicate: Predicate<String?>): JavaRequestSpecificationBuilder<P> =
+        apply {
+            delegate.bodyString(
+                predicateMatcher(description = null, predicate = { predicate.test(it) }),
+            )
+        }
+
+    /**
+     * Matches the request body string against a [Predicate], with a description.
+     *
+     * @param description Human-readable label shown in mismatch reports.
+     * @param predicate A [Predicate] applied to the request body string.
+     * @return This builder instance.
+     */
+    @ExperimentalMokksyApi
+    public fun body(
+        description: String?,
+        predicate: Predicate<String?>,
+    ): JavaRequestSpecificationBuilder<P> =
+        apply {
+            delegate.bodyString(
+                predicateMatcher(description = description, predicate = {
+                    predicate.test(it)
+                }),
+            )
+        }
+
+    /**
+     * Matches the request body string exactly against [expectedValue].
+     *
+     * @param expectedValue The exact expected body content.
+     * @return This builder instance.
+     */
+    @ExperimentalMokksyApi
+    public fun body(expectedValue: String): JavaRequestSpecificationBuilder<P> =
+        apply { delegate.bodyString(exactStringMatcher(expectedValue)) }
+
+    /**
      * Configures body matching through a [JavaBodySpecBuilder] scope.
      *
-     * Groups all body-matching criteria — [formData], [predicate], and future matchers —
+     * Groups all body-matching criteria — `formData`, `predicate`, and future matchers —
      * under a single block.
      *
      * @param configurer A [Consumer] that configures a [JavaBodySpecBuilder].
      * @return This builder instance.
      */
     @ExperimentalMokksyApi
-    public fun body(configurer: Consumer<JavaBodySpecBuilder<P>>): JavaRequestSpecificationBuilder<P> =
+    public fun body(
+        configurer: Consumer<JavaBodySpecBuilder<P>>,
+    ): JavaRequestSpecificationBuilder<P> =
         apply { configurer.accept(JavaBodySpecBuilder(delegate)) }
 
     public fun containsHeader(
@@ -107,3 +156,15 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
     public fun priority(value: Int): JavaRequestSpecificationBuilder<P> =
         apply { delegate.priority(value) }
 }
+
+private fun exactStringMatcher(expected: String): Matcher<String?> =
+    object : Matcher<String?> {
+        override fun test(value: String?): MatcherResult =
+            MatcherResult(
+                value == expected,
+                { "expected \"$expected\" but got \"$value\"" },
+                { "expected not \"$expected\"" },
+            )
+
+        override fun toString(): String = "equalTo(\"$expected\")"
+    }

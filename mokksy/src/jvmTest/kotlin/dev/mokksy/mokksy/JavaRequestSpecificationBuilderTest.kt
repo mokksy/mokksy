@@ -7,8 +7,11 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.contain
 import io.kotest.matchers.types.shouldBeSameInstanceAs
+import java.util.function.Consumer
+import java.util.function.Predicate
 import kotlin.test.Test
 
+@OptIn(ExperimentalMokksyApi::class)
 class JavaRequestSpecificationBuilderTest {
     private val delegate = RequestSpecificationBuilder(String::class)
     private val sut = JavaRequestSpecificationBuilder(delegate)
@@ -49,6 +52,41 @@ class JavaRequestSpecificationBuilderTest {
 
     // endregion
 
+    // region body
+
+    @Test
+    fun `body with Consumer configures formData and returns this`() {
+        val result = sut.body(Consumer { b -> b.formData { fd -> fd.field("key", "value") } })
+        assertSoftly {
+            result shouldBe sut
+            delegate.build().formDataPartSpecs shouldHaveSize 1
+        }
+    }
+
+    @Test
+    fun `body with Consumer configures predicate and returns this`() {
+        val result = sut.body(Consumer { b -> b.predicate { it.isNotEmpty() } })
+        assertSoftly {
+            result shouldBe sut
+            delegate.build().body shouldHaveSize 1
+        }
+    }
+
+    @Test
+    fun `body with Consumer configures both formData and predicate`() {
+        sut.body(Consumer { b ->
+            b.formData { fd -> fd.field("key", "value") }
+            b.predicate { it.isNotEmpty() }
+        })
+        val built = delegate.build()
+        assertSoftly {
+            built.formDataPartSpecs shouldHaveSize 1
+            built.body shouldHaveSize 1
+        }
+    }
+
+    // endregion
+
     // region bodyMatchesPredicate
 
     @Test
@@ -74,6 +112,61 @@ class JavaRequestSpecificationBuilderTest {
             result shouldBe sut
             delegate.build().body shouldHaveSize 1
         }
+    }
+
+    // endregion
+
+    // region body (String/Predicate overloads)
+
+    @Test
+    fun `body with Predicate adds body string matcher and returns this`() {
+        val result = sut.body(Predicate<String?> { it != null && it.contains("token") })
+        assertSoftly {
+            result shouldBe sut
+            delegate.build().bodyString shouldHaveSize 1
+        }
+    }
+
+    @Test
+    fun `body with description adds body string matcher and returns this`() {
+        val result = sut.body("contains token", Predicate<String?> { it != null && it.contains("token") })
+        assertSoftly {
+            result shouldBe sut
+            delegate.build().bodyString shouldHaveSize 1
+        }
+    }
+
+    @Test
+    fun `body with exact value matches exact string`() {
+        sut.body("hello world")
+        val built = delegate.build()
+        assertSoftly {
+            built.bodyString shouldHaveSize 1
+            built.bodyString[0].test("hello world").passed() shouldBe true
+            built.bodyString[0].test("hello").passed() shouldBe false
+            built.bodyString[0].test(null).passed() shouldBe false
+        }
+    }
+
+    @Test
+    fun `multiple body calls add multiple matchers`() {
+        sut.body(Predicate<String?> { it != null && it.contains("foo") })
+        sut.body(Predicate<String?> { it != null && it.contains("bar") })
+        val built = delegate.build()
+        assertSoftly {
+            built.bodyString shouldHaveSize 2
+            built.bodyString[0].test("foo bar").passed() shouldBe true
+            built.bodyString[1].test("foo bar").passed() shouldBe true
+            built.bodyString[0].test("only foo").passed() shouldBe true
+            built.bodyString[1].test("only foo").passed() shouldBe false
+        }
+    }
+
+    @Test
+    fun `body Predicate null body does not match`() {
+        sut.body(Predicate<String?> { it != null && it.isNotEmpty() })
+        val built = delegate.build()
+        built.bodyString.single().test(null).passed() shouldBe false
     }
 
     // endregion
