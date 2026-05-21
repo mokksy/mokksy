@@ -175,7 +175,7 @@ public open class RequestSpecificationBuilder<P : Any>(
     /**
      * Configures body matching through a dedicated [BodySpecBuilder] scope.
      *
-     * Groups all body-matching criteria — [formData], [predicate], and future matchers —
+     * Groups all body-matching criteria — `formData`, `predicate`, and future matchers —
      * under a single block for better discoverability.
      *
      * Example:
