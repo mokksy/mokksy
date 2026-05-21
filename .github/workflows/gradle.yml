@@ -17,10 +17,17 @@ on:
     paths-ignore:
       - AGENTS.md
   workflow_dispatch:
+    inputs:
+      publish-image:
+        description: 'Build and publish Docker image to GHCR'
+        type: boolean
+        default: false
+        required: false
 
 env:
   JVM_VERSION: 25
   JVM_DISTRIBUTION: temurin
+  GHCR_IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
   build:
@@ -28,6 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
     timeout-minutes: 7
 
     steps:
@@ -90,6 +98,21 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           report_type: test_results
+
+      - name: Log in to GHCR
+        if: github.event_name == 'workflow_dispatch' && inputs.publish-image
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image to GHCR
+        if: github.event_name == 'workflow_dispatch' && inputs.publish-image
+        run: |
+          TAG=${{ github.ref == 'refs/heads/main' && 'edge' || 'snapshot' }}
+          docker tag mokksy/server-jvm:$TAG ${{ env.GHCR_IMAGE }}:$TAG
+          docker push ${{ env.GHCR_IMAGE }}:$TAG
 
   dependency-submission:
     runs-on: ubuntu-latest
