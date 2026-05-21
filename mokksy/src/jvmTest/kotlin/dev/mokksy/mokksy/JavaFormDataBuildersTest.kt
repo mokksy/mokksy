@@ -5,6 +5,7 @@ package dev.mokksy.mokksy
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
@@ -58,8 +59,13 @@ class JavaFormDataBuildersTest {
         assertSoftly {
             result shouldBeSameInstanceAs sut
             specs shouldHaveSize 1
-            specs[0].name shouldBe "locale"
-            specs[0].bodyMatchers shouldHaveSize 1
+            assertSoftly(specs[0]) {
+                name shouldBe "locale"
+                bodyMatchers shouldHaveSize 1
+                bodyMatchers[0].test("en").passed() shouldBe true
+                bodyMatchers[0].test("en-US").passed() shouldBe false
+                bodyMatchers[0].test(null).passed() shouldBe false
+            }
         }
     }
 
@@ -71,10 +77,12 @@ class JavaFormDataBuildersTest {
         assertSoftly {
             result shouldBeSameInstanceAs sut
             specs shouldHaveSize 1
-            specs[0].name shouldBe "locale"
-            specs[0].bodyMatchers shouldHaveSize 1
-            specs[0].bodyMatchers[0].test("en-US").passed() shouldBe true
-            specs[0].bodyMatchers[0].test("fr").passed() shouldBe false
+            assertSoftly(specs[0]) {
+                name shouldBe "locale"
+                bodyMatchers shouldHaveSize 1
+                bodyMatchers[0].test("en-US").passed() shouldBe true
+                bodyMatchers[0].test("fr").passed() shouldBe false
+            }
         }
     }
 
@@ -89,8 +97,10 @@ class JavaFormDataBuildersTest {
         assertSoftly {
             result shouldBeSameInstanceAs sut
             specs shouldHaveSize 1
-            specs[0].name shouldBe "avatar"
-            specs[0].filenameMatcher shouldNotBe null
+            assertSoftly(specs[0]) {
+                name shouldBe "avatar"
+                filenameMatcher shouldNotBe null
+            }
         }
     }
 
@@ -105,7 +115,11 @@ class JavaFormDataBuildersTest {
         val spec = sut.build()
         assertSoftly {
             result shouldBeSameInstanceAs sut
-            spec.filenameMatcher shouldNotBe null
+            spec.filenameMatcher shouldNotBeNull {
+                test("data.txt").passed() shouldBe true
+                test("other.txt").passed() shouldBe false
+                test(null).passed() shouldBe false
+            }
         }
     }
 
@@ -128,6 +142,11 @@ class JavaFormDataBuildersTest {
         assertSoftly {
             result shouldBeSameInstanceAs sut
             spec.bodyMatchers shouldHaveSize 1
+            assertSoftly(spec.bodyMatchers[0]) {
+                test("hello world").passed() shouldBe true
+                test("hello").passed() shouldBe false
+                test(null).passed() shouldBe false
+            }
         }
     }
 
@@ -139,8 +158,10 @@ class JavaFormDataBuildersTest {
         assertSoftly {
             result shouldBeSameInstanceAs sut
             spec.bodyMatchers shouldHaveSize 1
-            spec.bodyMatchers[0].test("hello world").passed() shouldBe true
-            spec.bodyMatchers[0].test("goodbye").passed() shouldBe false
+            assertSoftly(spec.bodyMatchers[0]) {
+                test("hello world").passed() shouldBe true
+                test("goodbye").passed() shouldBe false
+            }
         }
     }
 

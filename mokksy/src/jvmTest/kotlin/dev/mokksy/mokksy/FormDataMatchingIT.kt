@@ -13,7 +13,10 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import kotlinx.io.writeString
 import org.junit.jupiter.api.Test
 
 internal class FormDataMatchingIT : AbstractIT() {
@@ -368,7 +371,7 @@ internal class FormDataMatchingIT : AbstractIT() {
                     field("key", beEqual("value"))
                 }
                 predicate("body is non-empty") {
-                    it != null && it.isNotEmpty()
+                    !it.isNullOrEmpty()
                 }
             }
         } respondsWith {
@@ -388,5 +391,217 @@ internal class FormDataMatchingIT : AbstractIT() {
 
         result.status shouldBe HttpStatusCode.OK
         result.bodyAsText() shouldBe "OK"
+    }
+
+    @Test
+    suspend fun `should match binary part by content type`() {
+        val path = "/binary-content-type-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                formData {
+                    file("data") {
+                        contentType(beEqual(ContentType.Application.OctetStream))
+                    }
+                }
+            }
+        } respondsWith {
+            body = "OK"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "data",
+                                Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"data\"",
+                                    )
+                                    append(HttpHeaders.ContentType, "application/octet-stream")
+                                },
+                            ) {
+                                writeString("binary-data")
+                            }
+                        },
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.OK
+        result.bodyAsText() shouldBe "OK"
+    }
+
+    @Test
+    suspend fun `should fail when binary part content type does not match`() {
+        val path = "/binary-content-type-mismatch-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                formData {
+                    file("data") {
+                        contentType(beEqual(ContentType.Application.Json))
+                    }
+                }
+            }
+        } respondsWith {
+            body = "OK"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "data",
+                                Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"data\"",
+                                    )
+                                    append(HttpHeaders.ContentType, "application/octet-stream")
+                                },
+                            ) {
+                                writeString("binary-data")
+                            }
+                        },
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `should match binary part body content`() {
+        val path = "/binary-body-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                formData {
+                    file("payload") {
+                        body(beEqual("hello"))
+                    }
+                }
+            }
+        } respondsWith {
+            body = "OK"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "payload",
+                                Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"payload\"",
+                                    )
+                                    append(HttpHeaders.ContentType, "text/plain")
+                                },
+                            ) {
+                                writeString("hello")
+                            }
+                        },
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.OK
+        result.bodyAsText() shouldBe "OK"
+    }
+
+    @Test
+    suspend fun `should fail when binary part body does not match`() {
+        val path = "/binary-body-mismatch-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                formData {
+                    file("payload") {
+                        body(beEqual("expected"))
+                    }
+                }
+            }
+        } respondsWith {
+            body = "OK"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "payload",
+                                Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"payload\"",
+                                    )
+                                    append(HttpHeaders.ContentType, "text/plain")
+                                },
+                            ) {
+                                writeString("actual")
+                            }
+                        },
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `should fail when binary part has filename spec`() {
+        val path = "/binary-filename-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                formData {
+                    file("data") {
+                        filename(beEqual("ignored"))
+                    }
+                }
+            }
+        } respondsWith {
+            body = "OK"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "data",
+                                Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"data\"",
+                                    )
+                                    append(HttpHeaders.ContentType, "application/octet-stream")
+                                },
+                            ) {
+                                writeString("binary-data")
+                            }
+                        },
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
     }
 }
