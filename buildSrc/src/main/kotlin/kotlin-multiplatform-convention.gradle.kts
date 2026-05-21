@@ -45,6 +45,7 @@ kotlin {
             javaParameters = true
             jvmDefault.set(JvmDefaultMode.ENABLE)
             jvmTarget = JvmTarget.JVM_17
+            allWarningsAsErrors = true
             extraWarnings = true
             // Enable debug symbols and line number information
             freeCompilerArgs.addAll(
@@ -54,6 +55,10 @@ kotlin {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
+    }
+
+    tasks.named<Test>("jvmTest").configure {
+        classpath += files(layout.buildDirectory.dir("classes/java/jvmTest"))
     }
 
     wasmJs {

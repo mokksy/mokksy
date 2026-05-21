@@ -73,6 +73,12 @@ private suspend fun <P : Any> RequestSpecification<P>.matchesTyped(
         score += bodyStringScore
         failed += bodyStringFailed
 
+        if (formDataPartSpecs.isNotEmpty()) {
+            val (fdScore, fdFailed) = scoreFormDataMatchers(request, formDataPartSpecs)
+            score += fdScore
+            failed += fdFailed
+        }
+
         MatchResult(matched = failed.isEmpty(), score = score, failedMatchers = failed)
     }.onFailure {
         if (it is CancellationException || it is Error) throw it

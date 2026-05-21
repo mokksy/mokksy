@@ -16,6 +16,8 @@
 ### Java Style
 
 - Prefer fluent DSL style over bean getters/setters
+- Avoid using Kotlin/Ktor/Kotest classes in java API
+
 
 ### Testing
 
@@ -23,6 +25,9 @@
 - Use unit tests only for edge cases where integration tests are hard to write
 - Never mock Ktor request/response types — use `testApplication` instead
 - Test new and modified code
+- Use AssertJ for testing in Java code.
+- Use Kotest assertions
+- Use JUnit6 `@Test` annotations with suspend functions in JVM tests.
 
 ### Documentation
 

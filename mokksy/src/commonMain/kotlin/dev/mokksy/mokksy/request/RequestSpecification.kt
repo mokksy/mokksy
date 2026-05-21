@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy.request
 
+import dev.mokksy.mokksy.ExperimentalMokksyApi
 import dev.mokksy.mokksy.MokksyDsl
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.string.contain
@@ -60,12 +61,13 @@ internal data class MatchResult(
  * (3) earliest registration order breaks remaining ties.
  */
 @Suppress("LongParameterList")
-public open class RequestSpecification<P : Any>(
+public open class RequestSpecification<P : Any> internal constructor(
     public val method: Matcher<HttpMethod>? = null,
     public val path: Matcher<String>? = null,
     public val headers: List<Matcher<Headers>> = listOf(),
     public val body: List<Matcher<P?>> = listOf(),
     public val bodyString: List<Matcher<String?>> = listOf(),
+    internal val formDataPartSpecs: List<FormDataPartSpec> = listOf(),
     public val priority: Int = DEFAULT_STUB_PRIORITY,
     internal val requestType: KClass<P>,
 ) {
@@ -78,10 +80,12 @@ public open class RequestSpecification<P : Any>(
             if (headers.isNotEmpty()) appendLine("headers: $headers")
             if (body.isNotEmpty()) appendLine("body: $body")
             if (bodyString.isNotEmpty()) appendLine("bodyString: $bodyString")
+            if (formDataPartSpecs.isNotEmpty()) appendLine("formData: $formDataPartSpecs")
         }
 }
 
 @MokksyDsl
+@Suppress("TooManyFunctions")
 public open class RequestSpecificationBuilder<P : Any>(
     protected val requestType: KClass<P>,
 ) {
@@ -90,6 +94,7 @@ public open class RequestSpecificationBuilder<P : Any>(
     public val headers: MutableList<Matcher<Headers>> = mutableListOf()
     public val body: MutableList<Matcher<P?>> = mutableListOf()
     public val bodyString: MutableList<Matcher<String?>> = mutableListOf()
+    internal val formDataPartSpecs: MutableList<FormDataPartSpec> = mutableListOf()
     public var priority: Int = DEFAULT_STUB_PRIORITY
 
     public fun method(matcher: Matcher<HttpMethod>): RequestSpecificationBuilder<P> =
@@ -168,6 +173,36 @@ public open class RequestSpecificationBuilder<P : Any>(
         }
 
     /**
+     * Configures body matching through a dedicated [BodySpecBuilder] scope.
+     *
+     * Groups all body-matching criteria — `formData`, `predicate`, and future matchers —
+     * under a single block for better discoverability.
+     *
+     * Example:
+     * ```kotlin
+     * mokksy.post {
+     *     path("/upload")
+     *     body {
+     *         formData {
+     *             field("locale", equalTo("test"))
+     *             file("avatar") { filename(containing("photo")) }
+     *         }
+     *         predicate { it?.status == "active" }
+     *     }
+     * }
+     * ```
+     */
+    @ExperimentalMokksyApi
+    public fun body(block: BodySpecBuilder<P>.() -> Unit): RequestSpecificationBuilder<P> =
+        apply {
+            val bodySpec = BodySpecBuilder<P>()
+            bodySpec.apply(block)
+            val result = bodySpec.build()
+            this.formDataPartSpecs += result.formDataPartSpecs
+            this.body += result.predicateMatchers
+        }
+
+    /**
      * Sets the priority for this stub. Higher values indicate higher priority.
      *
      * Priority is a tiebreaker: it only applies when two stubs match with equal specificity scores.
@@ -196,6 +231,7 @@ public open class RequestSpecificationBuilder<P : Any>(
             requestType = requestType,
             body = body,
             bodyString = bodyString,
+            formDataPartSpecs = formDataPartSpecs,
             priority = priority,
         )
 }
