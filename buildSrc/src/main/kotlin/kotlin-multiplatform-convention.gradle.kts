@@ -45,6 +45,7 @@ kotlin {
             javaParameters = true
             jvmDefault.set(JvmDefaultMode.ENABLE)
             jvmTarget = JvmTarget.JVM_17
+            extraWarnings = true
             // Enable debug symbols and line number information
             freeCompilerArgs.addAll(
                 "-Xdebug",
