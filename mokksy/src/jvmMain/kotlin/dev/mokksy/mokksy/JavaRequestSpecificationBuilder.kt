@@ -5,7 +5,7 @@ package dev.mokksy.mokksy
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import dev.mokksy.mokksy.request.predicateMatcher
 import io.kotest.matchers.Matcher
-import io.kotest.matchers.MatcherResult
+import io.kotest.matchers.equals.beEqual
 import java.util.function.Consumer
 import java.util.function.Predicate
 
@@ -124,7 +124,7 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
      */
     @ExperimentalMokksyApi
     public fun body(expectedValue: String): JavaRequestSpecificationBuilder<P> =
-        apply { delegate.bodyString(exactStringMatcher(expectedValue)) }
+        apply { delegate.bodyString(beEqual(expectedValue)) }
 
     /**
      * Configures body matching through a [JavaBodySpecBuilder] scope.
@@ -156,15 +156,3 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
     public fun priority(value: Int): JavaRequestSpecificationBuilder<P> =
         apply { delegate.priority(value) }
 }
-
-private fun exactStringMatcher(expected: String): Matcher<String?> =
-    object : Matcher<String?> {
-        override fun test(value: String?): MatcherResult =
-            MatcherResult(
-                value == expected,
-                { "expected \"$expected\" but got \"$value\"" },
-                { "expected not \"$expected\"" },
-            )
-
-        override fun toString(): String = "equalTo(\"$expected\")"
-    }

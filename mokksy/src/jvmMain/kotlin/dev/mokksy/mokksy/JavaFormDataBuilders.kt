@@ -7,6 +7,7 @@ import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import dev.mokksy.mokksy.request.predicateMatcher
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.MatcherResult
+import io.kotest.matchers.equals.beEqual
 import io.ktor.http.ContentType
 import java.util.function.Consumer
 import java.util.function.Predicate
@@ -74,7 +75,7 @@ public class JavaFormDataSpecBuilder internal constructor() {
         parts +=
             FormDataPartSpec(
                 name = name,
-                bodyMatchers = listOf(exactStringMatcher(expectedValue)),
+                bodyMatchers = listOf(beEqual(expectedValue)),
             )
         return this
     }
@@ -140,7 +141,7 @@ public class JavaFormDataFileSpecBuilder internal constructor(
      * @return This builder for chaining.
      */
     public fun filename(expectedFilename: String): JavaFormDataFileSpecBuilder {
-        filenameMatcher = exactStringMatcher(expectedFilename)
+        filenameMatcher = beEqual(expectedFilename)
         return this
     }
 
@@ -151,16 +152,15 @@ public class JavaFormDataFileSpecBuilder internal constructor(
      * @return This builder for chaining.
      */
     public fun contentType(contentType: String): JavaFormDataFileSpecBuilder {
+        val expected = ContentType.parse(contentType)
         contentTypeMatcher =
             object : Matcher<ContentType?> {
-                override fun test(value: ContentType?): MatcherResult {
-                    val expected = ContentType.parse(contentType)
-                    return MatcherResult(
+                override fun test(value: ContentType?): MatcherResult =
+                    MatcherResult(
                         value == expected,
                         { "expected content type \"$expected\" but got \"$value\"" },
                         { "expected content type not \"$expected\"" },
                     )
-                }
             }
         return this
     }
@@ -172,7 +172,7 @@ public class JavaFormDataFileSpecBuilder internal constructor(
      * @return This builder for chaining.
      */
     public fun body(expectedContent: String): JavaFormDataFileSpecBuilder {
-        bodyMatchers = listOf(exactStringMatcher(expectedContent))
+        bodyMatchers = listOf(beEqual(expectedContent))
         return this
     }
 
@@ -217,14 +217,4 @@ internal fun <P : Any> RequestSpecificationBuilder<P>.addBodyMatcher(matcher: Ma
     body += matcher
 }
 
-private fun exactStringMatcher(expected: String): Matcher<String?> =
-    object : Matcher<String?> {
-        override fun test(value: String?): MatcherResult =
-            MatcherResult(
-                value == expected,
-                { "expected \"$expected\" but got \"$value\"" },
-                { "expected not \"$expected\"" },
-            )
 
-        override fun toString(): String = "equalTo(\"$expected\")"
-    }

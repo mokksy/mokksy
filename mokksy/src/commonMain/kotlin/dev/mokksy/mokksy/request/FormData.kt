@@ -25,7 +25,7 @@ internal data class FormDataPartSpec(
 )
 
 /**
- * Builds form-data matching criteria within a [body] block.
+ * Builds form-data matching criteria within a `body` block.
  *
  * Use [field] to match text fields and [file] to match file uploads.
  * Each call adds a new part specification to the matching criteria.
@@ -99,7 +99,7 @@ public class FormDataFieldSpecBuilder internal constructor(
      */
     @ExperimentalMokksyApi
     public fun body(matcher: Matcher<String?>) {
-        bodyMatchers = listOf(matcher)
+        bodyMatchers += matcher
     }
 
     internal fun build(): FormDataPartSpec =
@@ -155,7 +155,7 @@ public class FormDataFileSpecBuilder internal constructor(
      */
     @ExperimentalMokksyApi
     public fun body(matcher: Matcher<String?>) {
-        bodyMatchers = listOf(matcher)
+        bodyMatchers += matcher
     }
 
     internal fun build(): FormDataPartSpec =
@@ -168,7 +168,7 @@ public class FormDataFileSpecBuilder internal constructor(
 }
 
 /**
- * Builder for configuring body matching criteria within a [body] block.
+ * Builder for configuring body matching criteria within a `body` block.
  *
  * Groups all body-matching criteria — [formData], [predicate], and future matchers —
  * under a single block. Obtained via [RequestSpecificationBuilder.body].
@@ -223,8 +223,12 @@ internal suspend fun scoreFormDataMatchers(
     request: ApplicationRequest,
     formDataPartSpecs: List<FormDataPartSpec>,
 ): Pair<Int, List<String>> {
-    val contentType = request.headers[HttpHeaders.ContentType]
-    if (contentType == null || !contentType.contains("multipart/form-data")) {
+    val contentTypeHeader = request.headers[HttpHeaders.ContentType]
+    if (contentTypeHeader == null) {
+        return 0 to formDataPartSpecs.indices.map { "formData[$it]" }
+    }
+    val parsedContentType = ContentType.parse(contentTypeHeader)
+    if (!parsedContentType.match(ContentType.MultiPart.FormData)) {
         return 0 to formDataPartSpecs.indices.map { "formData[$it]" }
     }
 
@@ -255,14 +259,18 @@ internal suspend fun scoreFormDataMatchers(
     var score = 0
     val failed = mutableListOf<String>()
 
-    formDataPartSpecs.forEachIndexed { i, spec ->
-        val matchingParts = parts.filter { it.name == spec.name }
-        if (matchingParts.isEmpty()) {
-            failed += "formData[$i]"
-        } else {
-            val passed = matchingParts.any { part -> matchFormDataPart(part, spec) }
-            if (passed) score++ else failed += "formData[$i]"
+    try {
+        formDataPartSpecs.forEachIndexed { i, spec ->
+            val matchingParts = parts.filter { it.name == spec.name }
+            if (matchingParts.isEmpty()) {
+                failed += "formData[$i]"
+            } else {
+                val passed = matchingParts.any { part -> matchFormDataPart(part, spec) }
+                if (passed) score++ else failed += "formData[$i]"
+            }
         }
+    } finally {
+        parts.forEach { it.dispose() }
     }
 
     return score to failed
