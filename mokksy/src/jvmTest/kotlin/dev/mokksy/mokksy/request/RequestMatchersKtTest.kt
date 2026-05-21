@@ -27,9 +27,9 @@ class RequestMatchersKtTest {
         assertSoftly(testResult) {
             passed() shouldBe true
             failureMessage() shouldBe
-                "Object 'Input(name=foo)' should match predicate 'predicateToString'"
+                "Object 'Input(name=foo, age=null)' should match predicate 'predicateToString'"
             negatedFailureMessage() shouldBe
-                "Object 'Input(name=foo)' should NOT match predicate 'predicateToString'"
+                "Object 'Input(name=foo, age=null)' should NOT match predicate 'predicateToString'"
         }
     }
 
@@ -45,9 +45,9 @@ class RequestMatchersKtTest {
         assertSoftly(testResult) {
             passed() shouldBe true
             failureMessage() shouldStartWith
-                "Object 'Input(name=foo)' should satisfy '"
+                "Object 'Input(name=foo, age=null)' should satisfy '"
             negatedFailureMessage() shouldStartWith
-                "Object 'Input(name=foo)' should NOT satisfy '"
+                "Object 'Input(name=foo, age=null)' should NOT satisfy '"
         }
     }
 }
