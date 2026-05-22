@@ -18,6 +18,18 @@ open annotation class dev.mokksy.mokksy/MokksyDsl : kotlin/Annotation { // dev.m
     constructor <init>() // dev.mokksy.mokksy/MokksyDsl.<init>|<init>(){}[0]
 }
 
+final enum class dev.mokksy.mokksy.request/FormEncoding : kotlin/Enum<dev.mokksy.mokksy.request/FormEncoding> { // dev.mokksy.mokksy.request/FormEncoding|null[0]
+    enum entry AUTO // dev.mokksy.mokksy.request/FormEncoding.AUTO|null[0]
+    enum entry MULTIPART // dev.mokksy.mokksy.request/FormEncoding.MULTIPART|null[0]
+    enum entry URL_ENCODED // dev.mokksy.mokksy.request/FormEncoding.URL_ENCODED|null[0]
+
+    final val entries // dev.mokksy.mokksy.request/FormEncoding.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<dev.mokksy.mokksy.request/FormEncoding> // dev.mokksy.mokksy.request/FormEncoding.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): dev.mokksy.mokksy.request/FormEncoding // dev.mokksy.mokksy.request/FormEncoding.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<dev.mokksy.mokksy.request/FormEncoding> // dev.mokksy.mokksy.request/FormEncoding.values|values#static(){}[0]
+}
+
 final enum class dev.mokksy.mokksy.utils.highlight/AnsiColor : kotlin/Enum<dev.mokksy.mokksy.utils.highlight/AnsiColor> { // dev.mokksy.mokksy.utils.highlight/AnsiColor|null[0]
     enum entry BLACK // dev.mokksy.mokksy.utils.highlight/AnsiColor.BLACK|null[0]
     enum entry BLUE // dev.mokksy.mokksy.utils.highlight/AnsiColor.BLUE|null[0]
@@ -106,6 +118,18 @@ sealed interface dev.mokksy.mokksy.jsonrpc/RequestId { // dev.mokksy.mokksy.json
     }
 }
 
+abstract class <#A: dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder<#A>> dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder { // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder|null[0]
+    final fun bytes(io.kotest.matchers/Matcher<kotlin/ByteArray?>): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.bytes|bytes(io.kotest.matchers.Matcher<kotlin.ByteArray?>){}[0]
+    final fun bytes(kotlin/ByteArray): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.bytes|bytes(kotlin.ByteArray){}[0]
+    final fun bytes(kotlin/Function1<kotlin/ByteArray?, kotlin/Boolean>): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.bytes|bytes(kotlin.Function1<kotlin.ByteArray?,kotlin.Boolean>){}[0]
+    final fun contentType(io.kotest.matchers/Matcher<io.ktor.http/ContentType?>): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.contentType|contentType(io.kotest.matchers.Matcher<io.ktor.http.ContentType?>){}[0]
+    final fun contentType(io.ktor.http/ContentType): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.contentType|contentType(io.ktor.http.ContentType){}[0]
+    final fun contentType(kotlin/String): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.contentType|contentType(kotlin.String){}[0]
+    final fun text(io.kotest.matchers/Matcher<kotlin/String?>): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.text|text(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+    final fun text(kotlin/Function1<kotlin/String?, kotlin/Boolean>): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.text|text(kotlin.Function1<kotlin.String?,kotlin.Boolean>){}[0]
+    final fun text(kotlin/String): #A // dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder.text|text(kotlin.String){}[0]
+}
+
 abstract class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder { // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder|null[0]
     constructor <init>(kotlin.time/Duration = ...) // dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder.<init>|<init>(kotlin.time.Duration){}[0]
 
@@ -144,8 +168,19 @@ abstract class <#A: kotlin/Any?> dev.mokksy.mokksy.response/AbstractResponseDefi
 }
 
 final class <#A: kotlin/Any> dev.mokksy.mokksy.request/BodySpecBuilder { // dev.mokksy.mokksy.request/BodySpecBuilder|null[0]
-    final fun formData(kotlin/Function1<dev.mokksy.mokksy.request/FormDataSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/BodySpecBuilder.formData|formData(kotlin.Function1<dev.mokksy.mokksy.request.FormDataSpecBuilder,kotlin.Unit>){}[0]
+    final fun bytes(io.kotest.matchers/Matcher<kotlin/ByteArray?>) // dev.mokksy.mokksy.request/BodySpecBuilder.bytes|bytes(io.kotest.matchers.Matcher<kotlin.ByteArray?>){}[0]
+    final fun bytes(kotlin/ByteArray) // dev.mokksy.mokksy.request/BodySpecBuilder.bytes|bytes(kotlin.ByteArray){}[0]
+    final fun bytes(kotlin/Function1<kotlin/ByteArray?, kotlin/Boolean>) // dev.mokksy.mokksy.request/BodySpecBuilder.bytes|bytes(kotlin.Function1<kotlin.ByteArray?,kotlin.Boolean>){}[0]
+    final fun contentType(io.kotest.matchers/Matcher<io.ktor.http/ContentType?>) // dev.mokksy.mokksy.request/BodySpecBuilder.contentType|contentType(io.kotest.matchers.Matcher<io.ktor.http.ContentType?>){}[0]
+    final fun contentType(io.ktor.http/ContentType) // dev.mokksy.mokksy.request/BodySpecBuilder.contentType|contentType(io.ktor.http.ContentType){}[0]
+    final fun contentType(kotlin/String) // dev.mokksy.mokksy.request/BodySpecBuilder.contentType|contentType(kotlin.String){}[0]
+    final fun form(dev.mokksy.mokksy.request/FormEncoding = ..., kotlin/Function1<dev.mokksy.mokksy.request/FormSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/BodySpecBuilder.form|form(dev.mokksy.mokksy.request.FormEncoding;kotlin.Function1<dev.mokksy.mokksy.request.FormSpecBuilder,kotlin.Unit>){}[0]
+    final fun multipart(io.ktor.http/ContentType, kotlin/Function1<dev.mokksy.mokksy.request/MultipartSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/BodySpecBuilder.multipart|multipart(io.ktor.http.ContentType;kotlin.Function1<dev.mokksy.mokksy.request.MultipartSpecBuilder,kotlin.Unit>){}[0]
+    final fun multipart(kotlin/String, kotlin/Function1<dev.mokksy.mokksy.request/MultipartSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/BodySpecBuilder.multipart|multipart(kotlin.String;kotlin.Function1<dev.mokksy.mokksy.request.MultipartSpecBuilder,kotlin.Unit>){}[0]
     final fun predicate(kotlin/String? = ..., kotlin/Function1<#A?, kotlin/Boolean>) // dev.mokksy.mokksy.request/BodySpecBuilder.predicate|predicate(kotlin.String?;kotlin.Function1<1:0?,kotlin.Boolean>){}[0]
+    final fun text(io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/BodySpecBuilder.text|text(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+    final fun text(kotlin/Function1<kotlin/String?, kotlin/Boolean>) // dev.mokksy.mokksy.request/BodySpecBuilder.text|text(kotlin.Function1<kotlin.String?,kotlin.Boolean>){}[0]
+    final fun text(kotlin/String) // dev.mokksy.mokksy.request/BodySpecBuilder.text|text(kotlin.String){}[0]
 }
 
 final class <#A: kotlin/Any> dev.mokksy.mokksy.request/CapturedRequest { // dev.mokksy.mokksy.request/CapturedRequest|null[0]
@@ -360,20 +395,25 @@ final class <#A: out kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCRequest : dev
     }
 }
 
-final class dev.mokksy.mokksy.request/FormDataFieldSpecBuilder { // dev.mokksy.mokksy.request/FormDataFieldSpecBuilder|null[0]
-    final fun body(io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/FormDataFieldSpecBuilder.body|body(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+final class dev.mokksy.mokksy.request/DataPartSpecBuilder : dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder<dev.mokksy.mokksy.request/DataPartSpecBuilder> // dev.mokksy.mokksy.request/DataPartSpecBuilder|null[0]
+
+final class dev.mokksy.mokksy.request/FilePartSpecBuilder : dev.mokksy.mokksy.request/AbstractDataPartSpecBuilder<dev.mokksy.mokksy.request/FilePartSpecBuilder> { // dev.mokksy.mokksy.request/FilePartSpecBuilder|null[0]
+    final fun filename(io.kotest.matchers/Matcher<kotlin/String?>): dev.mokksy.mokksy.request/FilePartSpecBuilder // dev.mokksy.mokksy.request/FilePartSpecBuilder.filename|filename(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+    final fun filename(kotlin/Function1<kotlin/String?, kotlin/Boolean>): dev.mokksy.mokksy.request/FilePartSpecBuilder // dev.mokksy.mokksy.request/FilePartSpecBuilder.filename|filename(kotlin.Function1<kotlin.String?,kotlin.Boolean>){}[0]
+    final fun filename(kotlin/String): dev.mokksy.mokksy.request/FilePartSpecBuilder // dev.mokksy.mokksy.request/FilePartSpecBuilder.filename|filename(kotlin.String){}[0]
 }
 
-final class dev.mokksy.mokksy.request/FormDataFileSpecBuilder { // dev.mokksy.mokksy.request/FormDataFileSpecBuilder|null[0]
-    final fun body(io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/FormDataFileSpecBuilder.body|body(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
-    final fun contentType(io.kotest.matchers/Matcher<io.ktor.http/ContentType?>) // dev.mokksy.mokksy.request/FormDataFileSpecBuilder.contentType|contentType(io.kotest.matchers.Matcher<io.ktor.http.ContentType?>){}[0]
-    final fun filename(io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/FormDataFileSpecBuilder.filename|filename(io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+final class dev.mokksy.mokksy.request/FormSpecBuilder { // dev.mokksy.mokksy.request/FormSpecBuilder|null[0]
+    final fun field(kotlin/String, io.kotest.matchers/Matcher<kotlin/String?>): dev.mokksy.mokksy.request/FormSpecBuilder // dev.mokksy.mokksy.request/FormSpecBuilder.field|field(kotlin.String;io.kotest.matchers.Matcher<kotlin.String?>){}[0]
+    final fun field(kotlin/String, kotlin/Function1<kotlin/String?, kotlin/Boolean>): dev.mokksy.mokksy.request/FormSpecBuilder // dev.mokksy.mokksy.request/FormSpecBuilder.field|field(kotlin.String;kotlin.Function1<kotlin.String?,kotlin.Boolean>){}[0]
+    final fun field(kotlin/String, kotlin/String): dev.mokksy.mokksy.request/FormSpecBuilder // dev.mokksy.mokksy.request/FormSpecBuilder.field|field(kotlin.String;kotlin.String){}[0]
+    final fun file(kotlin/String, kotlin/Function1<dev.mokksy.mokksy.request/FilePartSpecBuilder, kotlin/Unit>): dev.mokksy.mokksy.request/FormSpecBuilder // dev.mokksy.mokksy.request/FormSpecBuilder.file|file(kotlin.String;kotlin.Function1<dev.mokksy.mokksy.request.FilePartSpecBuilder,kotlin.Unit>){}[0]
 }
 
-final class dev.mokksy.mokksy.request/FormDataSpecBuilder { // dev.mokksy.mokksy.request/FormDataSpecBuilder|null[0]
-    final fun field(kotlin/String, io.kotest.matchers/Matcher<kotlin/String?>) // dev.mokksy.mokksy.request/FormDataSpecBuilder.field|field(kotlin.String;io.kotest.matchers.Matcher<kotlin.String?>){}[0]
-    final fun field(kotlin/String, kotlin/Function1<dev.mokksy.mokksy.request/FormDataFieldSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/FormDataSpecBuilder.field|field(kotlin.String;kotlin.Function1<dev.mokksy.mokksy.request.FormDataFieldSpecBuilder,kotlin.Unit>){}[0]
-    final fun file(kotlin/String, kotlin/Function1<dev.mokksy.mokksy.request/FormDataFileSpecBuilder, kotlin/Unit>) // dev.mokksy.mokksy.request/FormDataSpecBuilder.file|file(kotlin.String;kotlin.Function1<dev.mokksy.mokksy.request.FormDataFileSpecBuilder,kotlin.Unit>){}[0]
+final class dev.mokksy.mokksy.request/MultipartSpecBuilder { // dev.mokksy.mokksy.request/MultipartSpecBuilder|null[0]
+    final fun boundary(kotlin/Function1<kotlin/String?, kotlin/Boolean>): dev.mokksy.mokksy.request/MultipartSpecBuilder // dev.mokksy.mokksy.request/MultipartSpecBuilder.boundary|boundary(kotlin.Function1<kotlin.String?,kotlin.Boolean>){}[0]
+    final fun boundary(kotlin/String): dev.mokksy.mokksy.request/MultipartSpecBuilder // dev.mokksy.mokksy.request/MultipartSpecBuilder.boundary|boundary(kotlin.String){}[0]
+    final fun part(kotlin/String, kotlin/Function1<dev.mokksy.mokksy.request/DataPartSpecBuilder, kotlin/Unit>): dev.mokksy.mokksy.request/MultipartSpecBuilder // dev.mokksy.mokksy.request/MultipartSpecBuilder.part|part(kotlin.String;kotlin.Function1<dev.mokksy.mokksy.request.DataPartSpecBuilder,kotlin.Unit>){}[0]
 }
 
 final class dev.mokksy.mokksy.request/RecordedRequest { // dev.mokksy.mokksy.request/RecordedRequest|null[0]

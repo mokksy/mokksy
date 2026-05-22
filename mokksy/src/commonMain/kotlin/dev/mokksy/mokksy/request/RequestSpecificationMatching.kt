@@ -73,11 +73,17 @@ private suspend fun <P : Any> RequestSpecification<P>.matchesTyped(
         score += bodyStringScore
         failed += bodyStringFailed
 
-        if (formDataPartSpecs.isNotEmpty()) {
-            val (fdScore, fdFailed) = scoreFormDataMatchers(request, formDataPartSpecs)
-            score += fdScore
-            failed += fdFailed
-        }
+        val (formScore, formFailed) = scoreFormMatchers(request, formSpecs)
+        score += formScore
+        failed += formFailed
+
+        val (multipartScore, multipartFailed) = scoreMultipartMatchers(request, multipartSpecs)
+        score += multipartScore
+        failed += multipartFailed
+
+        val (byteBodyScore, byteBodyFailed) = scoreByteBodyMatchers(request, byteBodySpecs)
+        score += byteBodyScore
+        failed += byteBodyFailed
 
         MatchResult(matched = failed.isEmpty(), score = score, failedMatchers = failed)
     }.onFailure {

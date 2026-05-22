@@ -89,7 +89,7 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
      * @return This builder instance.
      */
     @ExperimentalMokksyApi
-    public fun body(predicate: Predicate<String?>): JavaRequestSpecificationBuilder<P> =
+    public fun bodyTextMatches(predicate: Predicate<String?>): JavaRequestSpecificationBuilder<P> =
         apply {
             delegate.bodyString(
                 predicateMatcher(description = null, predicate = { predicate.test(it) }),
@@ -104,7 +104,7 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
      * @return This builder instance.
      */
     @ExperimentalMokksyApi
-    public fun body(
+    public fun bodyTextMatches(
         description: String?,
         predicate: Predicate<String?>,
     ): JavaRequestSpecificationBuilder<P> =
@@ -123,23 +123,26 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
      * @return This builder instance.
      */
     @ExperimentalMokksyApi
-    public fun body(expectedValue: String): JavaRequestSpecificationBuilder<P> =
+    public fun bodyText(expectedValue: String): JavaRequestSpecificationBuilder<P> =
         apply { delegate.bodyString(beEqual(expectedValue)) }
 
     /**
      * Configures body matching through a [JavaBodySpecBuilder] scope.
      *
-     * Groups all body-matching criteria — `formData`, `predicate`, and future matchers —
+     * Groups all body-matching criteria — forms, multipart data, raw bytes, predicates, and future matchers —
      * under a single block.
      *
      * @param configurer A [Consumer] that configures a [JavaBodySpecBuilder].
      * @return This builder instance.
      */
-    @ExperimentalMokksyApi
     public fun body(
         configurer: Consumer<JavaBodySpecBuilder<P>>,
     ): JavaRequestSpecificationBuilder<P> =
-        apply { configurer.accept(JavaBodySpecBuilder(delegate)) }
+        apply {
+            val builder = JavaBodySpecBuilder(delegate)
+            configurer.accept(builder)
+            builder.applyToDelegate()
+        }
 
     public fun containsHeader(
         name: String,

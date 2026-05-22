@@ -45,6 +45,7 @@ Additional resources:
   * [GET request](#get-request)
   * [POST request](#post-request)
   * [Typed request body](#typed-request-body)
+  * [Multipart form data](#multipart-form-data)
   * [Status-only responses](#status-only-responses)
 * [Server-Side Events (SSE) response](#server-side-events-sse-response)
   * [Long-lived SSE streams](#long-lived-sse-streams)
@@ -161,15 +162,20 @@ import dev.mokksy.mokksy.Mokksy
 import dev.mokksy.mokksy.MokksyServer
 import dev.mokksy.mokksy.post
 import dev.mokksy.mokksy.start
+import dev.mokksy.mokksy.ExperimentalMokksyApi
 import io.kotest.matchers.equals.beEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.contain
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.append
+import io.ktor.client.request.forms.formData
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -181,11 +187,13 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
+import kotlinx.io.writeString
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import org.junit.jupiter.api.Test
 
+@OptIn(ExperimentalMokksyApi::class)
 class ReadmeTest {
     val mokksy: MokksyServer = Mokksy(verbose = true).start()
     val client: HttpClient =
@@ -401,6 +409,73 @@ see [Jackson support](#jackson-support).
 
 When no stub matches and verbose mode is on (`Mokksy(verbose = true)`), Mokksy logs the closest
 partial match and its failed conditions to help diagnose the mismatch.
+
+### Multipart form data
+
+[Multipart form data][multipart] is common in file uploads, user registration, and any endpoint that
+accepts a mix of text fields and binary content. Mokksy can match these requests field-by-field —
+both text fields and file uploads — through the `body { form { ... } }` block.
+
+Each part spec adds a condition to the specificity score, so a stub matching three fields
+automatically beats a stub matching only one.
+
+<!--- INCLUDE
+  @Test
+  suspend fun testMultipartFormData() {
+-->
+
+```kotlin
+mokksy.post {
+  path("/upload")
+  body {
+    form {
+      field("user", "alice")
+      field("role") { it?.startsWith("admin") == true }
+      file("avatar") {}
+    }
+  }
+} respondsWith {
+  body = "Uploaded"
+}
+
+// when - send a multipart request
+val result = client.post("/upload") {
+  setBody(MultiPartFormDataContent(formData {
+    append("user", "alice")
+    append("role", "administrator")
+    append("avatar", "avatar.jpg", ContentType.Image.JPEG) {
+      writeString("[image-data]")
+    }
+  }))
+}
+
+// then
+result.status shouldBe HttpStatusCode.OK
+result.bodyAsText() shouldBe "Uploaded"
+```
+
+<!--- INCLUDE
+  }
+-->
+
+For text fields, use `field(name, value)`, `field(name, matcher)`, or `field(name) { ... }`.
+File parts support `filename`, `contentType`, `text`, and `bytes` matchers. Raw binary bodies can be
+matched with `body { bytes(...) }`, while non-form multipart payloads use `body { multipart(...) { ... } }`.
+
+Java callers use the `body` Consumer overload:
+
+```java
+mokksy.post(spec -> spec
+    .path("/upload")
+    .body(b -> b
+        .form(form -> form
+            .field("user", "alice")
+            .fieldMatches("role", v -> v != null && v.startsWith("admin"))
+            .file("avatar", file -> file.filenameMatches(name -> name != null && name.endsWith(".jpg")))
+        )
+    )
+).respondsWith("Uploaded");
+```
 
 ### Status-only responses
 
@@ -1279,6 +1354,8 @@ status(201));
 ```
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification"
+
+[multipart]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST "HTTP multipart/form-data"
 
 [ai-mocks]: https://github.com/mokksy/ai-mocks/ "AI-Mock: Mokksy extensions for AI integrations"
 

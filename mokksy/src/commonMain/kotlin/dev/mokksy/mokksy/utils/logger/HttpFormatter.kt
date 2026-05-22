@@ -119,11 +119,10 @@ public open class HttpFormatter(
         values: List<String>,
     ): String =
         "${k.colorize(colors.headerName, useColor)}: ${
-            values.joinToString(separator = ",", prefix = "[", postfix = "]")
-                .colorize(
-                    colors.headerValue,
-                    useColor,
-                )
+            values.joinToString(separator = ",", prefix = "[", postfix = "]").colorize(
+                colors.headerValue,
+                useColor,
+            )
         }"
 
     /**
@@ -146,8 +145,12 @@ public open class HttpFormatter(
     public fun formatBody(
         body: Any?,
         contentType: ContentType = ContentType.Any,
-    ): String =
-        when (body) {
+    ): String {
+        if (!contentType.isTextContent()) {
+            return "[binary content omitted]"
+        }
+
+        return when (body) {
             null -> {
                 ""
             }
@@ -167,11 +170,15 @@ public open class HttpFormatter(
             else -> {
                 val isJson =
                     contentType.match(ContentType.Application.Json) ||
-                        contentType.contentSubtype.endsWith("+json", ignoreCase = true)
+                        contentType.contentSubtype.endsWith(
+                            "+json",
+                            ignoreCase = true,
+                        )
                 val jsonElement = if (isJson) tryEncodeToJsonElement(body) else null
                 jsonElement?.let { highlightBody(it, useColor) } ?: body.toString()
             }
         }
+    }
 
     /**
      * Formats an HTTP request into a colorized, multi-line string representation.
@@ -183,7 +190,14 @@ public open class HttpFormatter(
      * @return A formatted string representing the full HTTP request.
      */
     internal suspend fun formatRequest(request: RoutingRequest): String {
-        val body = request.call.receiveText()
+        val contentType = request.contentType()
+        val body =
+            if (contentType.isTextContent()) {
+                request.call.receiveText()
+            } else {
+                "[binary content omitted]"
+            }
+
         return buildString {
             appendLine(requestLine(request.httpMethod, request.uri))
             request.headers.entries().forEach { (key, value) ->
@@ -234,6 +248,14 @@ public open class HttpFormatter(
             val serializer = body::class.serializerOrNull() ?: return null
             json.encodeToJsonElement(serializer as KSerializer<Any>, body)
         }.getOrNull()
+
+    private fun ContentType.isTextContent(): Boolean =
+        match(ContentType.Application.Json) ||
+            match(ContentType.Application.Xml) ||
+            match(ContentType.Application.FormUrlEncoded) ||
+            match(ContentType.Text.Any) ||
+            contentSubtype.endsWith("+json", ignoreCase = true) ||
+            contentSubtype.endsWith("+xml", ignoreCase = true)
 
     @InternalMokksyApi
     public data class ColorScheme(
