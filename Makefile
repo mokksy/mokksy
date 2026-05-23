@@ -18,7 +18,7 @@ clean:
 
 .PHONY: test
 test:
-	./gradlew --rerun-tasks check
+	@./gradlew --rerun-tasks check
 
 .PHONY: apidocs
 apidocs:

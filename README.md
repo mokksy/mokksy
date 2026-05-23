@@ -19,9 +19,10 @@
 
 **_Mokksy_** - Mock HTTP Server, built with [Kotlin](https://kotlinlang.org/) and [Ktor](https://ktor.io/).
 
-**Check out the [AI-Mocks][ai-mocks] project for advanced LLM and [A2A protocol][a2a] mocking capabilities.**
+**Check out the [AI-Mocks][ai-mocks] for advanced LLM and [A2A protocol][a2a] mocking capabilities.**
 
-Full documentation: https://mokksy.dev/docs/mokksy/
+Full documentation: https://mokksy.dev/docs/mokksy/.
+If you are LLM or Agent, read https://mokksy.dev/llms.txt and https://mokksy.dev/llms-full.txt
 
 > [!NOTE]
 > Mokksy server was a part of the [AI-Mocks][ai-mocks] project and has now moved to a separate repository. No artefact
@@ -471,7 +472,9 @@ mokksy.post(spec -> spec
         .form(form -> form
             .field("user", "alice")
             .fieldMatches("role", v -> v != null && v.startsWith("admin"))
-            .file("avatar", file -> file.filenameMatches(name -> name != null && name.endsWith(".jpg")))
+            .file("avatar", file -> file
+                .filenameMatches(name -> name != null && name.endsWith(".jpg"))
+            )
         )
     )
 ).respondsWith("Uploaded");
@@ -486,18 +489,13 @@ It's an infix function, so it reads naturally next to the stub definition:
 Java callers use the `int` overload on `JavaBuildingStep`:
 
 ```java
-mokksy.get(spec ->spec.
+mokksy
+    .get(spec -> spec.path("/ping"))
+    .respondsWithStatus(204);
 
-path("/ping")).
-
-respondsWithStatus(204);
-mokksy.
-
-delete(spec ->spec.
-
-path("/item")).
-
-respondsWithStatus(410);
+mokksy
+    .delete(spec -> spec.path("/item"))
+    .respondsWithStatus(410);
 ```
 
 ## Server-Side Events (SSE) response
@@ -921,29 +919,15 @@ Java callers use `dev.mokksy.Mokksy` — a JVM-only, `AutoCloseable` wrapper tha
 import dev.mokksy.Mokksy;
 
 Mokksy mokksy = Mokksy.create().start();
-
-mokksy.
-
-get("/ping").
-
-respondsWith("Pong");
-
-mokksy.
-
-shutdown();
+mokksy.get("/ping").respondsWith("Pong");
+mokksy.shutdown();
 ```
 
 `Mokksy` implements `AutoCloseable`, so try-with-resources works for test fixtures that need a short-lived server:
 
 ```java
-try(Mokksy mokksy = Mokksy.create().start()){
-  mokksy
-  .
-
-post("/items")
-        .
-
-respondsWith("{\"id\":\"42\"}",201);
+try (Mokksy mokksy = Mokksy.create().start()) {
+    mokksy.post("/items").respondsWith("{\"id\":\"42\"}", 201);
 }
 ```
 
@@ -951,9 +935,7 @@ respondsWith("{\"id\":\"42\"}",201);
 
 ```java
 import dev.mokksy.Mokksy;
-
 import java.net.http.HttpClient;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -988,71 +970,52 @@ Use the full `spec` lambda when you need additional matchers:
 
 ```java
 // Path-only shortcut (most common case)
-mokksy.get("/ping").
-
-respondsWith("Pong");
+mokksy
+    .get("/ping")
+    .respondsWith("Pong");
 
 // Full spec for headers, body matchers, or priority
-mokksy.
-
-get(spec ->spec.
-
-path("/ping").
-
-containsHeader("Accept","application/json"))
-  .
-
-respondsWith(builder ->builder.
-
-body("Pong"));
+mokksy
+    .get(spec -> spec
+        .path("/ping")
+        .containsHeader("Accept", "application/json")
+    ).respondsWith(builder -> builder.body("Pong"));
 ```
 
 **Response shortcuts** — `respondsWith(String)` and `respondsWith(String, int)` cover the
 common case of returning a string body with an optional status code:
 
 ```java
-mokksy.get("/hello").
+mokksy
+    .get("/hello")
+    .respondsWith("Hello, World!");
 
-respondsWith("Hello, World!");
-mokksy.
-
-post("/items").
-
-respondsWith("{\"id\":42}",201);
+mokksy
+    .post("/items")
+    .respondsWith("{\"id\":42}", 201);
 ```
 
 When you need headers, delays, or a custom content type, use the full builder:
 
 ```java
 mokksy.post("/items")
-      .
-
-respondsWith(builder ->builder
-  .
-
-body("{\"id\":\"42\"}")
-          .
-
-status(201)
-          .
-
-header("Location","/items/42")
-          .
-
-delayMillis(50));
+    .respondsWith(builder -> builder
+        .body("{\"id\":\"42\"}")
+        .status(201)
+        .header("Location", "/items/42")
+        .delayMillis(50)
+    );
 ```
 
 **Status-only responses** — use `respondsWithStatus(int)` when no body is needed:
 
 ```java
-mokksy.get("/health").
-
-respondsWithStatus(200);
-mokksy.
-
-delete("/items/1").
-
-respondsWithStatus(204);
+mokksy
+    .get("/health")
+    .respondsWithStatus(200);
+mokksy
+    .delete("/items/1")
+    .respondsWithStatus(204);
 ```
 
 **One-time stubs** — use `StubConfiguration.once()` to create a stub that is removed after
@@ -1061,33 +1024,22 @@ its first match:
 ```java
 import dev.mokksy.mokksy.StubConfiguration;
 
-mokksy.get(StubConfiguration.once("my-stub"), "/once")
-  .
-
-respondsWith("First!");
+mokksy
+    .get(StubConfiguration.once("my-stub"), "/once")
+    .respondsWith("First!");
 // second request to /once returns 404
 ```
 
 **Request matchers** — the `spec` block mirrors the Kotlin DSL:
 
 ```java
-mokksy.post(spec ->{
-  spec.
-
-path("/secured");
-    spec.
-
-containsHeader("X-Api-Key","secret");
-    spec.
-
-bodyContains("\"role\":\"admin\"");
-}).
-
-respondsWith(builder ->builder.
-
-body("authorized").
-
-status(200));
+mokksy.post(spec -> {
+    spec.path("/secured");
+    spec.containsHeader("X-Api-Key", "secret");
+    spec.bodyContains("\"role\":\"admin\"");
+}).respondsWith(builder -> builder
+    .body("authorized")
+    .status(200));
 ```
 
 **All HTTP verbs** are available as named methods (`get`, `post`, `put`, `delete`, `patch`,
@@ -1095,9 +1047,9 @@ status(200));
 Use `method(String, String)` or `method(String, spec)` for dynamic method names in parameterised tests:
 
 ```java
-mokksy.method("PATCH","/resource").
-
-respondsWith("patched");
+mokksy
+    .method("PATCH", "/resource")
+    .respondsWith("patched");
 ```
 
 ### Streaming responses
@@ -1109,15 +1061,9 @@ which matches what most streaming AI APIs and SSE endpoints produce.
 **Chunks from a list** — the simplest case:
 
 ```java
-mokksy.get(spec ->spec.
-
-path("/stream"))
-  .
-
-respondsWithStream(builder ->builder
-  .
-
-chunks(List.of("Hello", " ","World")));
+mokksy.get(spec -> spec.path("/stream"))
+    .respondsWithStream(builder -> builder
+        .chunks(List.of("Hello", " ", "World")));
 ```
 
 **Chunks from a `Stream<T>`** — the stream is consumed lazily when the first matching request
@@ -1125,71 +1071,39 @@ arrives, not when the stub is registered. This is useful for live generators or 
 that should reflect their state at request time:
 
 ```java
-mokksy.get(spec ->spec.
-
-path("/events"))
-  .
-
-respondsWithStream(builder ->builder
-  .
-
-chunks(Stream.of("data1", "data2")));
+mokksy.get(spec -> spec.path("/events"))
+    .respondsWithStream(builder -> builder
+        .chunks(Stream.of("data1", "data2")));
 ```
 
 **Delays** — simulate network and processing latency at two granularities:
 
 ```java
-mokksy.get(spec ->spec.
-
-path("/slow-stream"))
-  .
-
-respondsWithStream(builder ->builder
-  .
-
-chunks(List.of("A", "B","C"))
-  .
-
-delayMillis(200L)               // pause before the first chunk
-          .
-
-delayBetweenChunksMillis(100L)); // pause between each subsequent chunk
+mokksy.get(spec -> spec.path("/slow-stream"))
+    .respondsWithStream(builder -> builder
+        .chunks(List.of("A", "B", "C"))
+        .delayMillis(200L)                // pause before the first chunk
+        .delayBetweenChunksMillis(100L)); // pause between each subsequent chunk
 ```
 
 **Custom `Content-Type`** — override the default when the stream carries a different format, such
 as NDJSON:
 
 ```java
-mokksy.get(spec ->spec.
-
-path("/ndjson"))
-  .
-
-respondsWithStream(builder ->builder
-  .
-
-chunks(List.of("{\"value\":1}", "{\"value\":2}"))
-  .
-
-contentType("application/x-ndjson"));
+mokksy.get(spec -> spec.path("/ndjson"))
+    .respondsWithStream(builder -> builder
+        .chunks(List.of("{\"value\":1}", "{\"value\":2}"))
+        .contentType("application/x-ndjson"));
 ```
 
 For typed chunks, pass the class token as the first argument. Chunks are serialized to the
 response body using each object's `toString()`:
 
 ```java
-mokksy.get(spec ->spec.
-
-path("/typed"))
-  .
-
-respondsWithStream(MyEvent .class, builder ->builder
-  .
-
-chunk(new MyEvent("start"))
-  .
-
-chunk(new MyEvent("end")));
+mokksy.get(spec -> spec.path("/typed"))
+    .respondsWithStream(MyEvent.class, builder -> builder
+        .chunk(new MyEvent("start"))
+        .chunk(new MyEvent("end")));
 ```
 
 ### SSE streaming responses
@@ -1204,94 +1118,53 @@ Each chunk is a `ServerSentEvent` that Mokksy sends using the standard SSE wire 
 import dev.mokksy.mokksy.SseEvent;
 
 mokksy.get("/sse")
-      .
-
-respondsWithSseStream(builder ->builder
-  .
-
-chunk(SseEvent.data("Hello"))
-  .
-
-chunk(SseEvent.data("World")));
+    .respondsWithSseStream(builder -> builder
+        .chunk(SseEvent.data("Hello"))
+        .chunk(SseEvent.data("World")));
 ```
 
 **SSE with event type, id, retry, and comments** — use `SseEvent.builder()` for multi-field events:
 
 ```java
 mokksy.get("/sse-full")
-      .
-
-respondsWithSseStream(builder ->builder
-  .
-
-chunk(SseEvent.builder()
-              .
-
-data("payload")
-              .
-
-event("message")
-              .
-
-id("42")
-              .
-
-retry(5000L)
-              .
-
-comments("keep-alive")
-              .
-
-build()));
+    .respondsWithSseStream(builder -> builder
+        .chunk(SseEvent.builder()
+            .data("payload")
+            .event("message")
+            .id("42")
+            .retry(5000L)
+            .comments("keep-alive")
+            .build()));
 ```
 
 **From a list:**
 
 ```java
 mokksy.get("/sse-list")
-      .
-
-respondsWithSseStream(builder ->builder
-  .
-
-chunks(List.of(
-  SseEvent.data("event-1"),
-              SseEvent.
-
-data("event-2"))));
+mokksy.get("/sse-list")
+    .respondsWithSseStream(builder -> builder
+        .chunks(List.of(
+            SseEvent.data("event-1"),
+            SseEvent.data("event-2"))));
 ```
 
 **With delays:**
 
 ```java
 mokksy.get("/sse-slow")
-      .
-
-respondsWithSseStream(builder ->builder
-  .
-
-chunk(SseEvent.data("first"))
-  .
-
-chunk(SseEvent.data("second"))
-  .
-
-delayMillis(200L)
-          .
-
-delayBetweenChunksMillis(100L));
+    .respondsWithSseStream(builder -> builder
+        .chunk(SseEvent.data("first"))
+        .chunk(SseEvent.data("second"))
+        .delayMillis(200L)
+        .delayBetweenChunksMillis(100L));
 ```
 
 **Typed SSE** — pass the data-type class token for the event's `data` field type:
 
 ```java
 mokksy.get("/typed-sse")
-      .
-
-respondsWithSseStream(String .class, builder ->builder
-  .
-
-chunk(SseEvent.data("typed-event")));
+    .respondsWithSseStream(String.class, builder -> builder
+        .chunk(SseEvent.data("typed-event")));
 ```
 
 > **Tip:** `SseEvent.data(String)` and `SseEvent.builder()` are Java-friendly factories for
@@ -1321,22 +1194,20 @@ import dev.mokksy.MokksyJackson;
 // Default Jackson configuration
 Mokksy mokksy = MokksyJackson.create().start();
 
-  // // Or customise the ObjectMapper — e.g. register Java time / records support
-  Mokksy mokksyWithJackson = MokksyJackson.create(ObjectMapper::findAndRegisterModules).start();
+// Customise the ObjectMapper — e.g. register Java time / records support
+Mokksy mokksyWithJackson = MokksyJackson.create(ObjectMapper::findAndRegisterModules).start();
 ```
 
 Typed body matchers work the same way as in the standard API — pass the `Class` token to
 the stub-registration method and use `bodyMatchesPredicate` to assert on the deserialized object:
 
 ```java
-record CreateItemRequest(String name, int quantity) {
-}
+record CreateItemRequest(String name, int quantity) {}
 
-mokksy.post( CreateItemRequest.class, spec -> 
-        spec.path("/items")
-        .bodyMatchesPredicate(req ->"widget".equals(req.name()))
-    )
-    .respondsWith(builder ->builder.body("{\"id\":\"1\"}").status(201));
+mokksy.post(CreateItemRequest.class, spec -> spec
+        .path("/items")
+        .bodyMatchesPredicate(req -> "widget".equals(req.name())))
+    .respondsWith(builder -> builder.body("{\"id\":\"1\"}").status(201));
 ```
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification"
