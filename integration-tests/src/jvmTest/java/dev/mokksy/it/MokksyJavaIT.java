@@ -13,10 +13,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MokksyJavaIT {
@@ -492,7 +494,7 @@ class MokksyJavaIT {
     // region delay
 
     @Test
-    void get_withDelayMillis_shouldDelayResponse() throws Exception {
+    void get_withDelayMillis_shouldDelayResponse() {
         mokksy.get(spec -> spec.path("/delayed"))
             .respondsWith(builder -> builder
                 .body("ok")
@@ -667,15 +669,12 @@ class MokksyJavaIT {
     }
 
     @Test
-    void findStub_shouldReturnNullWhenStubHasNoName()
-        throws IOException, InterruptedException {
+    void findStub_shouldReturnNullWhenStubHasNoName() {
         try (Mokksy fresh = Mokksy.create().start()) {
             fresh.get(spec -> spec.path("/java-find-stub"))
                 .respondsWith(builder -> builder.body("ok"));
 
-            var found = fresh.getStub("java-find-stub");
-
-            assertThat(found).isNull();
+            assertThrows(NoSuchElementException.class, () -> fresh.getStub("java-find-stub"));
         }
     }
 
@@ -702,7 +701,7 @@ class MokksyJavaIT {
     }
 
     @Test
-    void verifyCalled_atLeast_scenarios() throws Exception {
+    void verifyCalled_atLeast_scenarios() {
         try (Mokksy fresh = Mokksy.create().start()) {
             var stub = fresh.get(new StubConfiguration("java-atleast"), spec ->
                     spec.path("/java-atleast"))
@@ -758,7 +757,7 @@ class MokksyJavaIT {
     }
 
     @Test
-    void verifyCalled_exactly_scenarios() throws Exception {
+    void verifyCalled_exactly_scenarios() {
         try (Mokksy fresh = Mokksy.create().start()) {
             var stub = fresh.get(new StubConfiguration("java-exactly"), spec ->
                     spec.path("/java-exactly"))
