@@ -661,39 +661,6 @@ public class MokksyServer
          */
         public fun allStubs(): List<StubHandle> = stubRegistry.getAll().map { StubHandle(it) }
 
-        /**
-         * Verifies that a named stub was called at least [atLeast] times.
-         *
-         * Example:
-         * ```kotlin
-         * mokksy.post(name = "create-item") {
-         *     path("/items")
-         * } respondsWith { httpStatus = HttpStatusCode.Created }
-         *
-         * // later in the test
-         * mokksy.verifyStubCalled("create-item")
-         * mokksy.verifyStubCalled("create-item", atLeast = 2)
-         * ```
-         *
-         * @param name The name of the stub to verify.
-         * @param atLeast The minimum number of invocations expected (default: 1).
-         * @throws AssertionError if the stub is not found or was called fewer than [atLeast] times.
-         */
-        public fun verifyStubCalled(
-            name: String,
-            atLeast: Int = 1,
-        ) {
-            val handle =
-                findStub(name)
-                    ?: throw AssertionError("Stub with name '$name' not found")
-            val count = handle.matchCount()
-            if (count < atLeast) {
-                throw AssertionError(
-                    "Stub '$name' was called $count time(s), expected at least $atLeast",
-                )
-            }
-        }
-
         private fun ensureJournalAvailable() {
             check(configuration.journalMode != JournalMode.NONE) {
                 "Journal-dependent methods are disabled because [JournalMode.NONE] is active. " +

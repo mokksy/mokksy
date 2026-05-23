@@ -60,6 +60,8 @@ Additional resources:
   * [Verify no unexpected requests arrived](#verify-no-unexpected-requests-arrived)
   * [Recommended AfterEach setup](#recommended-aftereach-setup)
   * [Inspecting unmatched items](#inspecting-unmatched-items)
+  * [Stub match count and verification](#stub-match-count-and-verification)
+    * [Java](#java)
 * [Request Journal](#request-journal)
 * [Embedding in an existing Ktor application](#embedding-in-an-existing-ktor-application)
   * [Application-level installation](#application-level-installation)
@@ -801,11 +803,81 @@ Use the `find*` variants to retrieve the unmatched items directly for custom ass
 // List<RecordedRequest> — HTTP requests with no matching stub
 val unmatchedRequests: List<RecordedRequest> = mokksy.findAllUnexpectedRequests()
 
-// List<RequestSpecification<*>> — stubs that were never triggered
-val unmatchedStubs: List<RequestSpecification<*>> = mokksy.findAllUnmatchedStubs()
+// List<StubHandle> — stubs that were never triggered
+val unmatchedStubs: List<StubHandle> = mokksy.findAllUnmatchedStubs()
 ```
 
 `RecordedRequest` is an immutable snapshot that captures `method`, `uri`, and `headers` of the incoming request.
+
+### Stub match count and verification
+
+Every `respondsWith*` call returns a `StubHandle` that tracks how many times the stub was
+matched and provides a fluent verification API via `verifyCalled()`:
+
+```kotlin
+val stub = mokksy.post(name = "create-item") {
+    path("/items")
+} respondsWith { httpStatus = HttpStatusCode.Created }
+
+// matchCount: how many times this stub has been triggered
+assert(stub.matchCount() == 0L)
+
+client.post("/items") {
+    setBody(Item("widget"))
+}
+
+assert(stub.matchCount() == 1L)
+
+// Every verifyCalled method is terminal — asserts immediately and returns StubHandle:
+
+stub.verifyCalled().atLeast(1)    // at least once
+stub.verifyCalled().atLeast(2)    // at least twice
+stub.verifyCalled().atMost(5)     // at most five times
+stub.verifyCalled().exactly(3)    // exactly three times
+stub.verifyCalled().never()       // never called
+
+// Convenience shortcut for exact counts:
+stub.verifyCalled(3)              // same as .exactly(3)
+```
+
+The handle remains valid even for once-only (`eventuallyRemove`) stubs — `matchCount()` returns
+`1` after the first (and only) match.
+
+#### Java
+
+```java
+StubHandle stub = mokksy.post(new StubConfiguration("create-item"), spec ->
+    spec.path("/items")
+).respondsWith(builder -> builder.body("ok"));
+
+assert stub.matchCount() == 0;
+
+client.post("/items", "widget");
+
+assert stub.matchCount() == 1;
+
+stub.verifyCalled().atLeast(1);              // at least once
+stub.verifyCalled().atMost(5);               // at most five times
+stub.verifyCalled().exactly(3);              // exactly three times
+stub.verifyCalled().never();                 // never called
+stub.verifyCalled(3);                        // convenience shortcut
+```
+
+For named stubs, you can also look them up later via `findStub`:
+
+```kotlin
+val handle = mokksy.findStub("create-item") ?: error("stub not found")
+handle.verifyCalled().exactly(1)
+```
+
+`findStub` returns `null` if no stub with that name is registered or if the stub was
+already removed (once-only stubs are removed from the registry after their first match).
+
+List all registered stubs with `allStubs()`:
+
+```kotlin
+val allStubs: List<StubHandle> = mokksy.allStubs()
+```
 
 ## Request Journal
 

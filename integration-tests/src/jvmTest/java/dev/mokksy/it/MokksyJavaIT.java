@@ -16,6 +16,7 @@ import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MokksyJavaIT {
@@ -701,49 +702,112 @@ class MokksyJavaIT {
     }
 
     @Test
-    void verifyStubCalled_shouldPassWhenStubWasCalled()
-        throws IOException, InterruptedException {
+    void verifyCalled_atLeast_scenarios() throws Exception {
         try (Mokksy fresh = Mokksy.create().start()) {
-            fresh.get(new StubConfiguration("java-verify-ok"), spec -> spec.path("/java-verify-ok"))
+            var stub = fresh.get(new StubConfiguration("java-atleast"), spec ->
+                    spec.path("/java-atleast"))
                 .respondsWith(builder -> builder.body("ok"));
+            var url = URI.create(fresh.baseUrl() + "/java-atleast");
+            var get = HttpRequest.newBuilder().uri(url).GET().build();
+            var handler = HttpResponse.BodyHandlers.ofString();
 
-            httpClient.send(
-                HttpRequest.newBuilder()
-                    .uri(URI.create(fresh.baseUrl() + "/java-verify-ok"))
-                    .GET().build(),
-                HttpResponse.BodyHandlers.ofString()
+            assertAll(
+                () -> assertThatThrownBy(() -> stub.verifyCalled().atLeast(1))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    stub.verifyCalled().atLeast(1);
+                },
+                () -> assertThatThrownBy(() -> stub.verifyCalled().atLeast(2))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    stub.verifyCalled().atLeast(2);
+                    stub.verifyCalled().atLeast(1);
+                }
             );
-
-            fresh.verifyStubCalled("java-verify-ok");
         }
     }
 
     @Test
-    void verifyStubCalled_shouldThrowWhenStubNeverCalled() {
+    void verifyCalled_atMost_scenarios() throws Exception {
         try (Mokksy fresh = Mokksy.create().start()) {
-            fresh.get(new StubConfiguration("java-verify-never"), spec -> spec.path("/java-verify-never"))
+            var stub = fresh.get(new StubConfiguration("java-atmost"), spec ->
+                    spec.path("/java-atmost"))
+                .respondsWith(builder -> builder.body("ok"));
+            var url = URI.create(fresh.baseUrl() + "/java-atmost");
+            var get = HttpRequest.newBuilder().uri(url).GET().build();
+            var handler = HttpResponse.BodyHandlers.ofString();
+
+            httpClient.send(get, handler);
+            httpClient.send(get, handler);
+
+            assertAll(
+                () -> stub.verifyCalled().atMost(5),
+                () -> stub.verifyCalled().atMost(2),
+                () -> assertThatThrownBy(() -> stub.verifyCalled().atMost(1))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    assertThatThrownBy(() -> stub.verifyCalled().atMost(2))
+                        .isInstanceOf(AssertionError.class);
+                },
+                () -> stub.verifyCalled().atMost(3)
+            );
+        }
+    }
+
+    @Test
+    void verifyCalled_exactly_scenarios() throws Exception {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(new StubConfiguration("java-exactly"), spec ->
+                    spec.path("/java-exactly"))
+                .respondsWith(builder -> builder.body("ok"));
+            var url = URI.create(fresh.baseUrl() + "/java-exactly");
+            var get = HttpRequest.newBuilder().uri(url).GET().build();
+            var handler = HttpResponse.BodyHandlers.ofString();
+
+            assertAll(
+                () -> stub.verifyCalled().exactly(0),
+                () -> assertThatThrownBy(() -> stub.verifyCalled().exactly(1))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    stub.verifyCalled().exactly(1);
+                },
+                () -> assertThatThrownBy(() -> stub.verifyCalled().exactly(0))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    httpClient.send(get, handler);
+                    stub.verifyCalled().exactly(3);
+                    stub.verifyCalled(3);
+                },
+                () -> assertThatThrownBy(() -> stub.verifyCalled().exactly(2))
+                    .isInstanceOf(AssertionError.class),
+                () -> assertThatThrownBy(() -> stub.verifyCalled().never())
+                    .isInstanceOf(AssertionError.class)
+            );
+        }
+    }
+
+    @Test
+    void verifyCalled_never_scenario() throws Exception {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(new StubConfiguration("java-never"), spec ->
+                    spec.path("/java-never"))
                 .respondsWith(builder -> builder.body("never"));
 
-            assertThatThrownBy(() -> fresh.verifyStubCalled("java-verify-never"))
-                .isInstanceOf(AssertionError.class);
-        }
-    }
-
-    @Test
-    void verifyStubCalled_shouldThrowWhenStubCalledFewerTimesThanAtLeast()
-        throws IOException, InterruptedException {
-        try (Mokksy fresh = Mokksy.create().start()) {
-            fresh.get(new StubConfiguration("java-verify-insufficient"), spec -> spec.path("/java-verify-insufficient"))
-                .respondsWith(builder -> builder.body("ok"));
+            stub.verifyCalled().never();
 
             httpClient.send(
                 HttpRequest.newBuilder()
-                    .uri(URI.create(fresh.baseUrl() + "/java-verify-insufficient"))
+                    .uri(URI.create(fresh.baseUrl() + "/java-never"))
                     .GET().build(),
                 HttpResponse.BodyHandlers.ofString()
             );
 
-            assertThatThrownBy(() -> fresh.verifyStubCalled("java-verify-insufficient", 3))
+            assertThatThrownBy(() -> stub.verifyCalled().never())
                 .isInstanceOf(AssertionError.class);
         }
     }

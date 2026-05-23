@@ -16,7 +16,7 @@ import java.util.function.Consumer
  * ```java
  * StubHandle ping = mokksy.get(spec -> spec.path("/ping"))
  *       .respondsWith(builder -> builder.body("Pong"));
- * assert ping.matchCount() == 1;
+ * assert ping.matchCount() == 0;
  * ```
  *
  * All response-definition methods return a [StubHandle] which exposes [StubHandle.matchCount]

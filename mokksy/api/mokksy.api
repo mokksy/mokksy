@@ -116,9 +116,6 @@ public final class dev/mokksy/Mokksy : java/lang/AutoCloseable {
 	public static synthetic fun startSuspend$default (Ldev/mokksy/Mokksy;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun verifyNoUnexpectedRequests ()V
 	public final fun verifyNoUnmatchedStubs ()V
-	public final fun verifyStubCalled (Ljava/lang/String;)V
-	public final fun verifyStubCalled (Ljava/lang/String;I)V
-	public static synthetic fun verifyStubCalled$default (Ldev/mokksy/Mokksy;Ljava/lang/String;IILjava/lang/Object;)V
 }
 
 public final class dev/mokksy/Mokksy$Companion {
@@ -359,8 +356,6 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHand
 	public static synthetic fun startSuspend$default (Ldev/mokksy/mokksy/MokksyServer;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun verifyNoUnexpectedRequests ()V
 	public final fun verifyNoUnmatchedStubs ()V
-	public final fun verifyStubCalled (Ljava/lang/String;I)V
-	public static synthetic fun verifyStubCalled$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;IILjava/lang/Object;)V
 }
 
 public final class dev/mokksy/mokksy/Mokksy_jvmKt {
@@ -454,6 +449,15 @@ public final class dev/mokksy/mokksy/StubHandle {
 	public final fun getName ()Ljava/lang/String;
 	public final fun matchCount ()J
 	public fun toString ()Ljava/lang/String;
+	public final fun verifyCalled ()Ldev/mokksy/mokksy/VerificationBuilder;
+	public final fun verifyCalled (I)Ldev/mokksy/mokksy/StubHandle;
+}
+
+public final class dev/mokksy/mokksy/VerificationBuilder {
+	public final fun atLeast (I)Ldev/mokksy/mokksy/StubHandle;
+	public final fun atMost (I)Ldev/mokksy/mokksy/StubHandle;
+	public final fun exactly (I)Ldev/mokksy/mokksy/StubHandle;
+	public final fun never ()Ldev/mokksy/mokksy/StubHandle;
 }
 
 public final class dev/mokksy/mokksy/jsonrpc/JSONRPCError {

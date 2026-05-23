@@ -494,7 +494,6 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
     final fun resetMatchState() // dev.mokksy.mokksy/MokksyServer.resetMatchState|resetMatchState(){}[0]
     final fun verifyNoUnexpectedRequests() // dev.mokksy.mokksy/MokksyServer.verifyNoUnexpectedRequests|verifyNoUnexpectedRequests(){}[0]
     final fun verifyNoUnmatchedStubs() // dev.mokksy.mokksy/MokksyServer.verifyNoUnmatchedStubs|verifyNoUnmatchedStubs(){}[0]
-    final fun verifyStubCalled(kotlin/String, kotlin/Int = ...) // dev.mokksy.mokksy/MokksyServer.verifyStubCalled|verifyStubCalled(kotlin.String;kotlin.Int){}[0]
     final suspend fun awaitStarted(): dev.mokksy.mokksy/MokksyServer // dev.mokksy.mokksy/MokksyServer.awaitStarted|awaitStarted(){}[0]
     final suspend fun handle(io.ktor.server.routing/RoutingContext) // dev.mokksy.mokksy/MokksyServer.handle|handle(io.ktor.server.routing.RoutingContext){}[0]
     final suspend fun shutdownSuspend(kotlin/Long = ..., kotlin/Long = ...) // dev.mokksy.mokksy/MokksyServer.shutdownSuspend|shutdownSuspend(kotlin.Long;kotlin.Long){}[0]
@@ -558,6 +557,15 @@ final class dev.mokksy.mokksy/StubHandle { // dev.mokksy.mokksy/StubHandle|null[
 
     final fun matchCount(): kotlin/Long // dev.mokksy.mokksy/StubHandle.matchCount|matchCount(){}[0]
     final fun toString(): kotlin/String // dev.mokksy.mokksy/StubHandle.toString|toString(){}[0]
+    final fun verifyCalled(): dev.mokksy.mokksy/VerificationBuilder // dev.mokksy.mokksy/StubHandle.verifyCalled|verifyCalled(){}[0]
+    final fun verifyCalled(kotlin/Int): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/StubHandle.verifyCalled|verifyCalled(kotlin.Int){}[0]
+}
+
+final class dev.mokksy.mokksy/VerificationBuilder { // dev.mokksy.mokksy/VerificationBuilder|null[0]
+    final fun atLeast(kotlin/Int): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/VerificationBuilder.atLeast|atLeast(kotlin.Int){}[0]
+    final fun atMost(kotlin/Int): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/VerificationBuilder.atMost|atMost(kotlin.Int){}[0]
+    final fun exactly(kotlin/Int): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/VerificationBuilder.exactly|exactly(kotlin.Int){}[0]
+    final fun never(): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/VerificationBuilder.never|never(){}[0]
 }
 
 open class <#A: kotlin/Any, #B: kotlin/Any> dev.mokksy.mokksy.response/ResponseDefinitionBuilder : dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder<#A, #B> { // dev.mokksy.mokksy.response/ResponseDefinitionBuilder|null[0]

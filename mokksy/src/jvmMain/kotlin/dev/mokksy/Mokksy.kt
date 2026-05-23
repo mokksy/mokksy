@@ -525,19 +525,6 @@ public class Mokksy(
     /** Returns a snapshot of all registered stubs. */
     public fun allStubs(): List<StubHandle> = delegate.allStubs()
 
-    /**
-     * Verifies that a named stub was called at least [atLeast] times.
-     *
-     * @throws AssertionError if the stub is not found or was called fewer than [atLeast] times.
-     */
-    @JvmOverloads
-    public fun verifyStubCalled(
-        name: String,
-        atLeast: Int = 1,
-    ) {
-        delegate.verifyStubCalled(name, atLeast)
-    }
-
     /** Returns all requests that were not matched by any stub. */
     public fun findAllUnexpectedRequests(): List<RecordedRequest> =
         delegate.findAllUnexpectedRequests()

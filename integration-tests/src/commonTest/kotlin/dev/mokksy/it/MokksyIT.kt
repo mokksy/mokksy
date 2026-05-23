@@ -1,5 +1,6 @@
 package dev.mokksy.it
 
+import dev.mokksy.mokksy.ExperimentalMokksyApi
 import dev.mokksy.mokksy.Mokksy
 import dev.mokksy.mokksy.StubConfiguration
 import io.kotest.assertions.assertSoftly
@@ -32,6 +33,7 @@ import kotlin.time.measureTimedValue
  * This test intentionally creates and starts Mokksy once and never shuts it down after each test.
  * This verifies a scenario when Mokksy is started once and used across multiple tests.
  */
+@OptIn(ExperimentalMokksyApi::class)
 internal class MokksyIT {
     companion object {
         val mokksy = Mokksy()
@@ -551,44 +553,99 @@ internal class MokksyIT {
 
     // endregion
 
-    // region verifyStubCalled
+    // region StubHandle.verifyCalled
 
     @Test
-    fun `verifyStubCalled passes when stub was called`() =
+    fun `verifyCalled atLeast scenarios`() =
         runIntegrationTest {
-            mokksy.get(StubConfiguration(name = "verify-called-ok")) {
-                path("/verify-called-ok")
-            } respondsWith { body = "ok" }
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "atleast-scenarios")) {
+                        path("/atleast-scenarios")
+                    }.respondsWith { body = "ok" }
+            val url = mokksy.baseUrl() + "/atleast-scenarios"
 
-            client.get(mokksy.baseUrl() + "/verify-called-ok")
+            assertSoftly {
+                shouldThrow<AssertionError> { stub.verifyCalled().atLeast(1) }
 
-            mokksy.verifyStubCalled("verify-called-ok")
-        }
+                client.get(url)
+                stub.verifyCalled().atLeast(1)
+                shouldThrow<AssertionError> { stub.verifyCalled().atLeast(2) }
 
-    @Test
-    fun `verifyStubCalled throws when stub never called`() =
-        runIntegrationTest {
-            mokksy.post(StubConfiguration(name = "verify-called-never")) {
-                path("/verify-called-never")
-            } respondsWith { body = "never" }
-
-            shouldThrow<AssertionError> {
-                mokksy.verifyStubCalled("verify-called-never")
+                client.get(url)
+                stub.verifyCalled().atLeast(2)
+                stub.verifyCalled().atLeast(1)
             }
         }
 
     @Test
-    fun `verifyStubCalled with atLeast throws when insufficient`() =
+    fun `verifyCalled atMost scenarios`() =
         runIntegrationTest {
-            mokksy.get(StubConfiguration(name = "verify-called-insufficient")) {
-                path("/verify-called-insufficient")
-            } respondsWith { body = "ok" }
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "atmost-scenarios")) {
+                        path("/atmost-scenarios")
+                    }.respondsWith { body = "ok" }
+            val url = mokksy.baseUrl() + "/atmost-scenarios"
 
-            client.get(mokksy.baseUrl() + "/verify-called-insufficient")
-            client.get(mokksy.baseUrl() + "/verify-called-insufficient")
+            client.get(url)
+            client.get(url)
+
+            assertSoftly {
+                stub.verifyCalled().atMost(5)
+                stub.verifyCalled().atMost(2)
+                shouldThrow<AssertionError> { stub.verifyCalled().atMost(1) }
+
+                client.get(url)
+
+                shouldThrow<AssertionError> { stub.verifyCalled().atMost(2) }
+                stub.verifyCalled().atMost(3)
+            }
+        }
+
+    @Test
+    fun `verifyCalled exactly scenarios`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "exactly-scenarios")) {
+                        path("/exactly-scenarios")
+                    }.respondsWith { body = "ok" }
+            val url = mokksy.baseUrl() + "/exactly-scenarios"
+
+            assertSoftly {
+                stub.verifyCalled().exactly(0)
+                shouldThrow<AssertionError> { stub.verifyCalled().exactly(1) }
+
+                client.get(url)
+                stub.verifyCalled().exactly(1)
+                shouldThrow<AssertionError> { stub.verifyCalled().exactly(0) }
+
+                client.get(url)
+                client.get(url)
+                stub.verifyCalled().exactly(3)
+                stub.verifyCalled(3) // convenience shortcut
+                shouldThrow<AssertionError> { stub.verifyCalled().exactly(2) }
+
+                shouldThrow<AssertionError> { stub.verifyCalled().never() } // already called
+            }
+        }
+
+    @Test
+    fun `verifyCalled never scenario`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "never-scenarios")) {
+                        path("/never-scenarios")
+                    }.respondsWith { body = "never" }
+
+            stub.verifyCalled().never()
+
+            client.get(mokksy.baseUrl() + "/never-scenarios")
 
             shouldThrow<AssertionError> {
-                mokksy.verifyStubCalled("verify-called-insufficient", atLeast = 3)
+                stub.verifyCalled().never()
             }
         }
 
