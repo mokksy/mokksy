@@ -641,18 +641,36 @@ public class MokksyServer
                 .toList()
 
         /**
-         * Finds a registered stub by its [name].
+         * Returns the registered stub with the given [name].
          *
-         * Only stubs registered with an explicit [StubConfiguration.name] can be found.
+         * Only stubs registered with an explicit [StubConfiguration.name] can be retrieved.
          *
          * @param name The name assigned to the stub at registration time.
-         * @return A [StubHandle] for the matching stub, or `null` if no stub with that name exists.
+         * @return A [StubHandle] for the matching stub.
+         * @throws NoSuchElementException if no stub with that name exists.
+         * @throws IllegalStateException if multiple stubs share that name.
          */
-        public fun findStub(name: String): StubHandle? =
-            stubRegistry
-                .getAll()
-                .firstOrNull { it.configuration.name == name }
-                ?.let { StubHandle(it) }
+        public fun getStub(name: String): StubHandle {
+            val matchingStubs =
+                stubRegistry
+                    .getAll()
+                    .filter { it.configuration.name == name }
+            return when (matchingStubs.size) {
+                1 -> {
+                    StubHandle(matchingStubs.single())
+                }
+
+                0 -> {
+                    throw NoSuchElementException("No stub registered with name '$name'")
+                }
+
+                else -> {
+                    error(
+                        "Expected exactly one stub named '$name', but found ${matchingStubs.size}",
+                    )
+                }
+            }
+        }
 
         /**
          * Returns a snapshot of all registered stubs.
@@ -684,7 +702,7 @@ public class MokksyServer
          * Returns all HTTP requests that arrived at the server but were not matched by any stub.
          *
          * @return A list of [RecordedRequest] snapshots.
-         * @throws IllegalStateException when [configuration.journalMode] is [JournalMode.NONE].
+         * @throws IllegalStateException when [ServerConfiguration.journalMode] is [JournalMode.NONE].
          */
         public fun findAllUnexpectedRequests(): List<RecordedRequest> {
             ensureJournalAvailable()
@@ -786,7 +804,7 @@ public class MokksyServer
          * ```
          *
          * @throws AssertionError If there are any requests that have not been matched by a stub.
-         * @throws IllegalStateException when [configuration.journalMode] is [JournalMode.NONE].
+         * @throws IllegalStateException when [ServerConfiguration.journalMode] is [JournalMode.NONE].
          */
         public fun verifyNoUnexpectedRequests() {
             val unmatched = findAllUnexpectedRequests()

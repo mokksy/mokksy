@@ -519,8 +519,13 @@ public class Mokksy(
     /** Returns all stubs that were never matched. */
     public fun findAllUnmatchedStubs(): List<StubHandle> = delegate.findAllUnmatchedStubs()
 
-    /** Finds a registered stub by name, or `null` if not found. */
-    public fun findStub(name: String): StubHandle? = delegate.findStub(name)
+    /**
+     * Returns the registered stub with the given name.
+     *
+     * @throws NoSuchElementException if no stub with that name exists.
+     * @throws IllegalStateException if multiple stubs share that name.
+     */
+    public fun getStub(name: String): StubHandle = delegate.getStub(name)
 
     /** Returns a snapshot of all registered stubs. */
     public fun allStubs(): List<StubHandle> = delegate.allStubs()

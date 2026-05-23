@@ -511,16 +511,18 @@ internal class MokksyIT {
 
     // endregion
 
-    // region findStub
+    // region getStub
 
     @Test
-    fun `findStub returns null for unknown name`() =
+    fun `getStub returns null for unknown name`() =
         runIntegrationTest {
-            mokksy.findStub("nonexistent") shouldBe null
+            shouldThrow<NoSuchElementException> {
+                mokksy.getStub("nonexistent")
+            }
         }
 
     @Test
-    fun `findStub returns handle for named stub`() =
+    fun `getStub returns handle for named stub`() =
         runIntegrationTest {
             val stub =
                 mokksy
@@ -528,13 +530,13 @@ internal class MokksyIT {
                         path("/find-stub-by-name")
                     }.respondsWith { body = "ok" }
 
-            val found = mokksy.findStub("find-stub-by-name")
-            found?.name shouldBe "find-stub-by-name"
-            found?.matchCount() shouldBe 0
+            val found = mokksy.getStub("find-stub-by-name")
+            found.name shouldBe "find-stub-by-name"
+            found.matchCount() shouldBe 0
 
             client.get(mokksy.baseUrl() + "/find-stub-by-name")
             stub.matchCount() shouldBe 1
-            found?.matchCount() shouldBe 1
+            found.matchCount() shouldBe 1
         }
 
     @Test

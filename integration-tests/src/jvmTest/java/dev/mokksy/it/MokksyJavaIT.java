@@ -673,7 +673,7 @@ class MokksyJavaIT {
             fresh.get(spec -> spec.path("/java-find-stub"))
                 .respondsWith(builder -> builder.body("ok"));
 
-            var found = fresh.findStub("java-find-stub");
+            var found = fresh.getStub("java-find-stub");
 
             assertThat(found).isNull();
         }
@@ -686,7 +686,7 @@ class MokksyJavaIT {
             fresh.get(StubConfiguration.once("java-named-find"), spec -> spec.path("/java-named-find"))
                 .respondsWith(builder -> builder.body("ok"));
 
-            var found = fresh.findStub("java-named-find");
+            var found = fresh.getStub("java-named-find");
             assertThat(found).isNotNull();
             assertThat(found.getName()).isEqualTo("java-named-find");
             assertThat(found.matchCount()).isEqualTo(0);

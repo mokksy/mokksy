@@ -9,7 +9,7 @@ package dev.mokksy.mokksy
  * exposing the internal [Stub] type.
  *
  * Returned by [BuildingStep.respondsWith] and related methods, and by
- * [MokksyServer.findStub], [MokksyServer.allStubs], and
+ * [MokksyServer.getStub], [MokksyServer.allStubs], and
  * [MokksyServer.findAllUnmatchedStubs].
  */
 public class StubHandle internal constructor(
