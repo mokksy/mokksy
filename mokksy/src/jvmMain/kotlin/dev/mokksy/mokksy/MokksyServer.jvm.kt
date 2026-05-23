@@ -118,7 +118,7 @@ public fun MokksyServer.shutdown(
 public fun <P : Any, T : Any> BuildingStep<P>.respondsWith(
     responseType: Class<T>,
     configurer: Consumer<ResponseDefinitionBuilder<P, T>>,
-): Unit = respondsWith(responseType.kotlin) { configurer.accept(this) }
+): StubHandle = respondsWith(responseType.kotlin) { configurer.accept(this) }
 
 /**
  * Java-friendly overload for [BuildingStep.respondsWithStream].
@@ -132,6 +132,6 @@ public fun <P : Any, T : Any> BuildingStep<P>.respondsWith(
 public fun <P : Any, T : Any> BuildingStep<P>.respondsWithStream(
     responseType: Class<T>,
     configurer: Consumer<StreamingResponseDefinitionBuilder<P, T>>,
-): Unit = respondsWithStream(responseType.kotlin) { configurer.accept(this) }
+): StubHandle = respondsWithStream(responseType.kotlin) { configurer.accept(this) }
 
 // endregion

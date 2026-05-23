@@ -5,7 +5,9 @@ package dev.mokksy.mokksy
 import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.response.ResponseDefinitionSupplier
 import io.ktor.server.application.ApplicationCall
-import kotlinx.atomicfu.atomic
+import kotlin.concurrent.atomics.AtomicLong
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
+import kotlin.concurrent.atomics.incrementAndFetch
 
 /**
  * Represents a mapping between an inbound [RequestSpecification] and an outbound response definition.
@@ -23,6 +25,7 @@ import kotlinx.atomicfu.atomic
  *          This includes headers, body, and HTTP status code, which are applied to the HTTP response.
  * @author Konstantin Pavlov
  */
+@OptIn(ExperimentalAtomicApi::class)
 internal data class Stub<P : Any, T : Any>(
     val configuration: StubConfiguration,
     val requestSpecification: RequestSpecification<P>,
@@ -30,7 +33,7 @@ internal data class Stub<P : Any, T : Any>(
 ) : Comparable<Stub<*, *>> {
     private companion object {
         // Multiplatform atomic counter for creation order
-        private val COUNTER = atomic(0L)
+        private val COUNTER = AtomicLong(0L)
     }
 
     /**
@@ -40,31 +43,33 @@ internal data class Stub<P : Any, T : Any>(
      *
      * Used by [StubComparator].
      */
-    internal val creationOrder = COUNTER.incrementAndGet()
+    internal val creationOrder = COUNTER.incrementAndFetch()
 
     // region Match tracking
 
     /**
-     * Whether this stub has been matched at least once.
+     * How many times this stub has been matched.
      *
-     * This flag is the single source of truth for match state. It is used by:
-     * - [MokksyServer.findAllUnmatchedStubs] to find stubs that have never been hit.
-     * - [MokksyServer.resetMatchCounts] to re-arm stubs for a new test scenario.
+     * This is the single source of truth for match state. It is used by:
+     * - [findAllUnmatchedStubs] to find stubs that have never been hit.
+     * - [resetMatchState] to re-arm stubs for a new test scenario.
      * - [claimMatch] to enforce the [StubConfiguration.eventuallyRemove] invariant
      *   without holding the registry mutex during request evaluation.
+     *
+     * Exposed publicly via [matchCount].
      */
-    private val matched = atomic(false)
+    private val matchCount = AtomicLong(0)
 
     /**
      * Returns `true` if this stub has been matched at least once.
      */
-    fun hasBeenMatched(): Boolean = matched.value
+    fun hasBeenMatched(): Boolean = matchCount.load() > 0
 
     /**
      * Marks this stub as matched. Used for reusable stubs where every match succeeds.
      */
     fun markMatched() {
-        matched.value = true
+        matchCount.incrementAndFetch()
     }
 
     /**
@@ -74,7 +79,17 @@ internal data class Stub<P : Any, T : Any>(
      * scheduling removal when [StubConfiguration.eventuallyRemove] is set.
      * Every subsequent call returns `false`.
      */
-    fun claimMatch(): Boolean = matched.compareAndSet(expect = false, update = true)
+    fun claimMatch(): Boolean = matchCount.compareAndSet(0L, 1L)
+
+    /**
+     * Returns how many times this stub has been matched so far.
+     *
+     * For reusable stubs this is the total invocation count.
+     * For once-only ([StubConfiguration.eventuallyRemove]) stubs this is `1` after the
+     * first match and does not increase further because the stub is removed from the
+     * registry immediately after its single claim.
+     */
+    fun matchCount(): Long = matchCount.load()
 
     /**
      * Resets match state to unmatched, re-arming the stub for a new test scenario.
@@ -82,7 +97,7 @@ internal data class Stub<P : Any, T : Any>(
      * @see MokksyServer.resetMatchState
      */
     fun reset() {
-        matched.value = false
+        matchCount.store(0L)
     }
 
     // endregion

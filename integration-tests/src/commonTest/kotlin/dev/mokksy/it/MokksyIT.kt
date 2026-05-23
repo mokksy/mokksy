@@ -452,5 +452,145 @@ internal class MokksyIT {
             }
         }
 
+    // region StubHandle / matchCount
+
+    @Test
+    fun `matchCount returns 0 initially`() =
+        runIntegrationTest {
+            val stub = mokksy.get { path("/match-count-zero") }.respondsWith { body = "ok" }
+
+            stub.matchCount() shouldBe 0
+        }
+
+    @Test
+    fun `matchCount increments on each request`() =
+        runIntegrationTest {
+            val stub = mokksy.get { path("/match-count-inc") }.respondsWith { body = "ok" }
+
+            stub.matchCount() shouldBe 0
+            client.get(mokksy.baseUrl() + "/match-count-inc")
+            stub.matchCount() shouldBe 1
+            client.get(mokksy.baseUrl() + "/match-count-inc")
+            stub.matchCount() shouldBe 2
+            client.get(mokksy.baseUrl() + "/match-count-inc")
+            stub.matchCount() shouldBe 3
+        }
+
+    @Test
+    fun `matchCount on eventuallyRemove stub is 1 after match`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "once-count", eventuallyRemove = true)) {
+                        path("/once-count")
+                    }.respondsWith { body = "First!" }
+
+            stub.matchCount() shouldBe 0
+            client.get(mokksy.baseUrl() + "/once-count")
+            stub.matchCount() shouldBe 1
+            client.get(mokksy.baseUrl() + "/once-count") // second call — 404
+            stub.matchCount() shouldBe 1 // does not increase after removal
+        }
+
+    @Test
+    fun `verify resetMatchState`() =
+        runIntegrationTest {
+            val stub = mokksy.get { path("/match-count-reset") }.respondsWith { body = "ok" }
+
+            client.get(mokksy.baseUrl() + "/match-count-reset")
+            stub.matchCount() shouldBe 1
+
+            mokksy.resetMatchState()
+            stub.matchCount() shouldBe 0
+
+            client.get(mokksy.baseUrl() + "/match-count-reset")
+            stub.matchCount() shouldBe 1
+        }
+
+    // endregion
+
+    // region findStub
+
+    @Test
+    fun `findStub returns null for unknown name`() =
+        runIntegrationTest {
+            mokksy.findStub("nonexistent") shouldBe null
+        }
+
+    @Test
+    fun `findStub returns handle for named stub`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "find-stub-by-name")) {
+                        path("/find-stub-by-name")
+                    }.respondsWith { body = "ok" }
+
+            val found = mokksy.findStub("find-stub-by-name")
+            found?.name shouldBe "find-stub-by-name"
+            found?.matchCount() shouldBe 0
+
+            client.get(mokksy.baseUrl() + "/find-stub-by-name")
+            stub.matchCount() shouldBe 1
+            found?.matchCount() shouldBe 1
+        }
+
+    @Test
+    fun `findAllStubs returns all registered stubs`() =
+        runIntegrationTest {
+            val beforeCount = mokksy.allStubs().size
+
+            mokksy.get { path("/stub-a") }.respondsWith { body = "a" }
+            mokksy.get { path("/stub-b") }.respondsWith { body = "b" }
+
+            mokksy.allStubs() shouldHaveSize (beforeCount + 2)
+
+            client.get(mokksy.baseUrl() + "/stub-a")
+            client.get(mokksy.baseUrl() + "/stub-b")
+        }
+
+    // endregion
+
+    // region verifyStubCalled
+
+    @Test
+    fun `verifyStubCalled passes when stub was called`() =
+        runIntegrationTest {
+            mokksy.get(StubConfiguration(name = "verify-called-ok")) {
+                path("/verify-called-ok")
+            } respondsWith { body = "ok" }
+
+            client.get(mokksy.baseUrl() + "/verify-called-ok")
+
+            mokksy.verifyStubCalled("verify-called-ok")
+        }
+
+    @Test
+    fun `verifyStubCalled throws when stub never called`() =
+        runIntegrationTest {
+            mokksy.post(StubConfiguration(name = "verify-called-never")) {
+                path("/verify-called-never")
+            } respondsWith { body = "never" }
+
+            shouldThrow<AssertionError> {
+                mokksy.verifyStubCalled("verify-called-never")
+            }
+        }
+
+    @Test
+    fun `verifyStubCalled with atLeast throws when insufficient`() =
+        runIntegrationTest {
+            mokksy.get(StubConfiguration(name = "verify-called-insufficient")) {
+                path("/verify-called-insufficient")
+            } respondsWith { body = "ok" }
+
+            client.get(mokksy.baseUrl() + "/verify-called-insufficient")
+            client.get(mokksy.baseUrl() + "/verify-called-insufficient")
+
+            shouldThrow<AssertionError> {
+                mokksy.verifyStubCalled("verify-called-insufficient", atLeast = 3)
+            }
+        }
+
     // endregion
 }

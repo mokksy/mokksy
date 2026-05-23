@@ -17,7 +17,9 @@
 
 ![mokksy-mascot-256.png](docs/mokksy-mascot-256.png)
 
-**_Mokksy_** - Mock HTTP Server, built with [Kotlin](https://kotlinlang.org/) and [Ktor](https://ktor.io/).
+**_Mokksy_** is the [Kotlin](https://kotlinlang.org/)-first mock HTTP server for JVM integration testing — built for modern APIs 
+where WireMock-style mocks fall short, including streaming responses, Server-Side Events, 
+[Ktor](https://ktor.io/) applications, and LLM clients.
 
 **Check out the [AI-Mocks][ai-mocks] for advanced LLM and [A2A protocol][a2a] mocking capabilities.**
 

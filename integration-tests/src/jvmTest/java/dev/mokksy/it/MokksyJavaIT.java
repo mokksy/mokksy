@@ -589,6 +589,167 @@ class MokksyJavaIT {
 
     // endregion
 
+    // region StubHandle / matchCount
+
+    @Test
+    void matchCount_shouldReturnZeroInitiallyAndIncrementOnCalls()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(spec -> spec.path("/match-count-inc"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            assertThat(stub.matchCount()).isEqualTo(0);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/match-count-inc"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(1);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/match-count-inc"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(2);
+        }
+    }
+
+    @Test
+    void matchCount_onEventuallyRemoveStub_shouldBeOneAfterMatch()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(StubConfiguration.once("java-once-count"), spec -> spec.path("/once-count"))
+                .respondsWith(builder -> builder.body("First!"));
+
+            assertThat(stub.matchCount()).isEqualTo(0);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/once-count"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(1);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/once-count"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void matchCount_shouldResetAfterResetMatchState()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(spec -> spec.path("/match-count-reset"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/match-count-reset"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(1);
+
+            fresh.resetMatchState();
+            assertThat(stub.matchCount()).isEqualTo(0);
+        }
+    }
+
+    @Test
+    void findStub_shouldReturnNullWhenStubHasNoName()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            fresh.get(spec -> spec.path("/java-find-stub"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            var found = fresh.findStub("java-find-stub");
+
+            assertThat(found).isNull();
+        }
+    }
+
+    @Test
+    void findStub_shouldReturnHandleForNamedStub()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            fresh.get(StubConfiguration.once("java-named-find"), spec -> spec.path("/java-named-find"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            var found = fresh.findStub("java-named-find");
+            assertThat(found).isNotNull();
+            assertThat(found.getName()).isEqualTo("java-named-find");
+            assertThat(found.matchCount()).isEqualTo(0);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/java-named-find"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(found.matchCount()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void verifyStubCalled_shouldPassWhenStubWasCalled()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            fresh.get(new StubConfiguration("java-verify-ok"), spec -> spec.path("/java-verify-ok"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/java-verify-ok"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+
+            fresh.verifyStubCalled("java-verify-ok");
+        }
+    }
+
+    @Test
+    void verifyStubCalled_shouldThrowWhenStubNeverCalled() {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            fresh.get(new StubConfiguration("java-verify-never"), spec -> spec.path("/java-verify-never"))
+                .respondsWith(builder -> builder.body("never"));
+
+            assertThatThrownBy(() -> fresh.verifyStubCalled("java-verify-never"))
+                .isInstanceOf(AssertionError.class);
+        }
+    }
+
+    @Test
+    void verifyStubCalled_shouldThrowWhenStubCalledFewerTimesThanAtLeast()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            fresh.get(new StubConfiguration("java-verify-insufficient"), spec -> spec.path("/java-verify-insufficient"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/java-verify-insufficient"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+
+            assertThatThrownBy(() -> fresh.verifyStubCalled("java-verify-insufficient", 3))
+                .isInstanceOf(AssertionError.class);
+        }
+    }
+
+    // endregion
+
     // region helpers
 
     private HttpResponse<String> get(String path) throws IOException, InterruptedException {

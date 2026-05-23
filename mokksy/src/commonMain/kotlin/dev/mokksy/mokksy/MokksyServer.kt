@@ -626,19 +626,73 @@ public class MokksyServer
         ): BuildingStep<String> = method(configuration, Options, String::class, block)
 
         /**
-         * Returns all stub specifications that have not been matched by any incoming request.
+         * Returns all stubs that have not been matched by any incoming request.
          *
          * A stub is considered unmatched if it has never been matched.
          *
-         * @return A list of unmatched stub request specifications.
+         * @return A list of [StubHandle] for unmatched stubs.
          */
-        public fun findAllUnmatchedStubs(): List<RequestSpecification<*>> =
+        public fun findAllUnmatchedStubs(): List<StubHandle> =
             stubRegistry
                 .getAll()
                 .filter {
                     !it.hasBeenMatched()
-                }.map { it.requestSpecification }
+                }.map { StubHandle(it) }
                 .toList()
+
+        /**
+         * Finds a registered stub by its [name].
+         *
+         * Only stubs registered with an explicit [StubConfiguration.name] can be found.
+         *
+         * @param name The name assigned to the stub at registration time.
+         * @return A [StubHandle] for the matching stub, or `null` if no stub with that name exists.
+         */
+        public fun findStub(name: String): StubHandle? =
+            stubRegistry
+                .getAll()
+                .firstOrNull { it.configuration.name == name }
+                ?.let { StubHandle(it) }
+
+        /**
+         * Returns a snapshot of all registered stubs.
+         *
+         * @return A list of [StubHandle] for every registered stub.
+         */
+        public fun allStubs(): List<StubHandle> = stubRegistry.getAll().map { StubHandle(it) }
+
+        /**
+         * Verifies that a named stub was called at least [atLeast] times.
+         *
+         * Example:
+         * ```kotlin
+         * mokksy.post(name = "create-item") {
+         *     path("/items")
+         * } respondsWith { httpStatus = HttpStatusCode.Created }
+         *
+         * // later in the test
+         * mokksy.verifyStubCalled("create-item")
+         * mokksy.verifyStubCalled("create-item", atLeast = 2)
+         * ```
+         *
+         * @param name The name of the stub to verify.
+         * @param atLeast The minimum number of invocations expected (default: 1).
+         * @throws AssertionError if the stub is not found or was called fewer than [atLeast] times.
+         */
+        public fun verifyStubCalled(
+            name: String,
+            atLeast: Int = 1,
+        ) {
+            val handle =
+                findStub(name)
+                    ?: throw AssertionError("Stub with name '$name' not found")
+            val count = handle.matchCount()
+            if (count < atLeast) {
+                throw AssertionError(
+                    "Stub '$name' was called $count time(s), expected at least $atLeast",
+                )
+            }
+        }
 
         private fun ensureJournalAvailable() {
             check(configuration.journalMode != JournalMode.NONE) {
@@ -732,9 +786,7 @@ public class MokksyServer
             val unmatchedStubs = findAllUnmatchedStubs()
             if (unmatchedStubs.isNotEmpty()) {
                 throw AssertionError(
-                    "The following stubs were not matched: ${
-                        unmatchedStubs.joinToString { it.toLogString() }
-                    }",
+                    "The following stubs were not matched: ${unmatchedStubs.joinToString()}",
                 )
             }
         }

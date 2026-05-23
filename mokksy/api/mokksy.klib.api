@@ -191,13 +191,13 @@ final class <#A: kotlin/Any> dev.mokksy.mokksy.request/CapturedRequest { // dev.
 }
 
 final class <#A: kotlin/Any> dev.mokksy.mokksy/BuildingStep { // dev.mokksy.mokksy/BuildingStep|null[0]
-    final fun <#A1: kotlin/Any> respondsWith(kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>) // dev.mokksy.mokksy/BuildingStep.respondsWith|respondsWith(kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.ResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
-    final fun <#A1: kotlin/Any> respondsWith(kotlin.reflect/KClass<#A1>, kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>) // dev.mokksy.mokksy/BuildingStep.respondsWith|respondsWith(kotlin.reflect.KClass<0:0>;kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.ResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
-    final fun <#A1: kotlin/Any> respondsWithSseStream(kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, io.ktor.sse/ServerSentEventMetadata<#A1>>, kotlin/Unit>) // dev.mokksy.mokksy/BuildingStep.respondsWithSseStream|respondsWithSseStream(kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,io.ktor.sse.ServerSentEventMetadata<0:0>>,kotlin.Unit>){0§<kotlin.Any>}[0]
-    final fun <#A1: kotlin/Any> respondsWithSseStream(kotlin.reflect/KClass<#A1>, kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, io.ktor.sse/ServerSentEventMetadata<#A1>>, kotlin/Unit>) // dev.mokksy.mokksy/BuildingStep.respondsWithSseStream|respondsWithSseStream(kotlin.reflect.KClass<0:0>;kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,io.ktor.sse.ServerSentEventMetadata<0:0>>,kotlin.Unit>){0§<kotlin.Any>}[0]
-    final fun <#A1: kotlin/Any> respondsWithStream(kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>) // dev.mokksy.mokksy/BuildingStep.respondsWithStream|respondsWithStream(kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
-    final fun <#A1: kotlin/Any> respondsWithStream(kotlin.reflect/KClass<#A1>, kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>) // dev.mokksy.mokksy/BuildingStep.respondsWithStream|respondsWithStream(kotlin.reflect.KClass<0:0>;kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
-    final fun respondsWithStatus(io.ktor.http/HttpStatusCode) // dev.mokksy.mokksy/BuildingStep.respondsWithStatus|respondsWithStatus(io.ktor.http.HttpStatusCode){}[0]
+    final fun <#A1: kotlin/Any> respondsWith(kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/BuildingStep.respondsWith|respondsWith(kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.ResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> respondsWith(kotlin.reflect/KClass<#A1>, kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/ResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/BuildingStep.respondsWith|respondsWith(kotlin.reflect.KClass<0:0>;kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.ResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> respondsWithSseStream(kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, io.ktor.sse/ServerSentEventMetadata<#A1>>, kotlin/Unit>): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/BuildingStep.respondsWithSseStream|respondsWithSseStream(kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,io.ktor.sse.ServerSentEventMetadata<0:0>>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> respondsWithSseStream(kotlin.reflect/KClass<#A1>, kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, io.ktor.sse/ServerSentEventMetadata<#A1>>, kotlin/Unit>): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/BuildingStep.respondsWithSseStream|respondsWithSseStream(kotlin.reflect.KClass<0:0>;kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,io.ktor.sse.ServerSentEventMetadata<0:0>>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> respondsWithStream(kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/BuildingStep.respondsWithStream|respondsWithStream(kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun <#A1: kotlin/Any> respondsWithStream(kotlin.reflect/KClass<#A1>, kotlin.coroutines/SuspendFunction1<dev.mokksy.mokksy.response/StreamingResponseDefinitionBuilder<#A, #A1>, kotlin/Unit>): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/BuildingStep.respondsWithStream|respondsWithStream(kotlin.reflect.KClass<0:0>;kotlin.coroutines.SuspendFunction1<dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder<1:0,0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun respondsWithStatus(io.ktor.http/HttpStatusCode): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/BuildingStep.respondsWithStatus|respondsWithStatus(io.ktor.http.HttpStatusCode){}[0]
 }
 
 final class <#A: kotlin/Any?, #B: kotlin/Any?> dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder { // dev.mokksy.mokksy.jsonrpc/JSONRPCResponseBuilder|null[0]
@@ -466,6 +466,7 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
     final fun <#A1: kotlin/Any> post(kotlin/String? = ..., kotlin.reflect/KClass<#A1>, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A1>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A1> // dev.mokksy.mokksy/MokksyServer.post|post(kotlin.String?;kotlin.reflect.KClass<0:0>;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun <#A1: kotlin/Any> put(dev.mokksy.mokksy/StubConfiguration, kotlin.reflect/KClass<#A1>, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A1>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A1> // dev.mokksy.mokksy/MokksyServer.put|put(dev.mokksy.mokksy.StubConfiguration;kotlin.reflect.KClass<0:0>;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun <#A1: kotlin/Any> put(kotlin/String? = ..., kotlin.reflect/KClass<#A1>, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A1>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A1> // dev.mokksy.mokksy/MokksyServer.put|put(kotlin.String?;kotlin.reflect.KClass<0:0>;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun allStubs(): kotlin.collections/List<dev.mokksy.mokksy/StubHandle> // dev.mokksy.mokksy/MokksyServer.allStubs|allStubs(){}[0]
     final fun baseUrl(): kotlin/String // dev.mokksy.mokksy/MokksyServer.baseUrl|baseUrl(){}[0]
     final fun checkForUnmatchedRequests() // dev.mokksy.mokksy/MokksyServer.checkForUnmatchedRequests|checkForUnmatchedRequests(){}[0]
     final fun checkForUnmatchedStubs() // dev.mokksy.mokksy/MokksyServer.checkForUnmatchedStubs|checkForUnmatchedStubs(){}[0]
@@ -474,7 +475,8 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
     final fun findAllMatchedRequests(): kotlin.collections/List<dev.mokksy.mokksy.request/RecordedRequest> // dev.mokksy.mokksy/MokksyServer.findAllMatchedRequests|findAllMatchedRequests(){}[0]
     final fun findAllUnexpectedRequests(): kotlin.collections/List<dev.mokksy.mokksy.request/RecordedRequest> // dev.mokksy.mokksy/MokksyServer.findAllUnexpectedRequests|findAllUnexpectedRequests(){}[0]
     final fun findAllUnmatchedRequests(): kotlin.collections/List<dev.mokksy.mokksy.request/RecordedRequest> // dev.mokksy.mokksy/MokksyServer.findAllUnmatchedRequests|findAllUnmatchedRequests(){}[0]
-    final fun findAllUnmatchedStubs(): kotlin.collections/List<dev.mokksy.mokksy.request/RequestSpecification<*>> // dev.mokksy.mokksy/MokksyServer.findAllUnmatchedStubs|findAllUnmatchedStubs(){}[0]
+    final fun findAllUnmatchedStubs(): kotlin.collections/List<dev.mokksy.mokksy/StubHandle> // dev.mokksy.mokksy/MokksyServer.findAllUnmatchedStubs|findAllUnmatchedStubs(){}[0]
+    final fun findStub(kotlin/String): dev.mokksy.mokksy/StubHandle? // dev.mokksy.mokksy/MokksyServer.findStub|findStub(kotlin.String){}[0]
     final fun get(dev.mokksy.mokksy/StubConfiguration, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.get|get(dev.mokksy.mokksy.StubConfiguration;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun get(kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.get|get(kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun head(dev.mokksy.mokksy/StubConfiguration, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.head|head(dev.mokksy.mokksy.StubConfiguration;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
@@ -492,6 +494,7 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
     final fun resetMatchState() // dev.mokksy.mokksy/MokksyServer.resetMatchState|resetMatchState(){}[0]
     final fun verifyNoUnexpectedRequests() // dev.mokksy.mokksy/MokksyServer.verifyNoUnexpectedRequests|verifyNoUnexpectedRequests(){}[0]
     final fun verifyNoUnmatchedStubs() // dev.mokksy.mokksy/MokksyServer.verifyNoUnmatchedStubs|verifyNoUnmatchedStubs(){}[0]
+    final fun verifyStubCalled(kotlin/String, kotlin/Int = ...) // dev.mokksy.mokksy/MokksyServer.verifyStubCalled|verifyStubCalled(kotlin.String;kotlin.Int){}[0]
     final suspend fun awaitStarted(): dev.mokksy.mokksy/MokksyServer // dev.mokksy.mokksy/MokksyServer.awaitStarted|awaitStarted(){}[0]
     final suspend fun handle(io.ktor.server.routing/RoutingContext) // dev.mokksy.mokksy/MokksyServer.handle|handle(io.ktor.server.routing.RoutingContext){}[0]
     final suspend fun shutdownSuspend(kotlin/Long = ..., kotlin/Long = ...) // dev.mokksy.mokksy/MokksyServer.shutdownSuspend|shutdownSuspend(kotlin.Long;kotlin.Long){}[0]
@@ -524,7 +527,6 @@ final class dev.mokksy.mokksy/ServerConfiguration { // dev.mokksy.mokksy/ServerC
 }
 
 final class dev.mokksy.mokksy/StubConfiguration { // dev.mokksy.mokksy/StubConfiguration|null[0]
-    constructor <init>(kotlin/Boolean) // dev.mokksy.mokksy/StubConfiguration.<init>|<init>(kotlin.Boolean){}[0]
     constructor <init>(kotlin/String? = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // dev.mokksy.mokksy/StubConfiguration.<init>|<init>(kotlin.String?;kotlin.Boolean;kotlin.Boolean){}[0]
 
     final val eventuallyRemove // dev.mokksy.mokksy/StubConfiguration.eventuallyRemove|{}eventuallyRemove[0]
@@ -548,6 +550,14 @@ final class dev.mokksy.mokksy/StubConfiguration { // dev.mokksy.mokksy/StubConfi
         final fun once(kotlin/String? = ...): dev.mokksy.mokksy/StubConfiguration // dev.mokksy.mokksy/StubConfiguration.Companion.once|once(kotlin.String?){}[0]
         final fun removeAfterMatch(kotlin/String? = ..., kotlin/Boolean = ..., kotlin/Boolean = ...): dev.mokksy.mokksy/StubConfiguration // dev.mokksy.mokksy/StubConfiguration.Companion.removeAfterMatch|removeAfterMatch(kotlin.String?;kotlin.Boolean;kotlin.Boolean){}[0]
     }
+}
+
+final class dev.mokksy.mokksy/StubHandle { // dev.mokksy.mokksy/StubHandle|null[0]
+    final val name // dev.mokksy.mokksy/StubHandle.name|{}name[0]
+        final fun <get-name>(): kotlin/String? // dev.mokksy.mokksy/StubHandle.name.<get-name>|<get-name>(){}[0]
+
+    final fun matchCount(): kotlin/Long // dev.mokksy.mokksy/StubHandle.matchCount|matchCount(){}[0]
+    final fun toString(): kotlin/String // dev.mokksy.mokksy/StubHandle.toString|toString(){}[0]
 }
 
 open class <#A: kotlin/Any, #B: kotlin/Any> dev.mokksy.mokksy.response/ResponseDefinitionBuilder : dev.mokksy.mokksy.response/AbstractResponseDefinitionBuilder<#A, #B> { // dev.mokksy.mokksy.response/ResponseDefinitionBuilder|null[0]
