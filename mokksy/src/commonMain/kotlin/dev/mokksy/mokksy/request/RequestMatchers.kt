@@ -8,6 +8,9 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldNot
 import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
+import io.ktor.http.Parameters
+import kotlin.collections.any
+import kotlin.collections.orEmpty
 import kotlin.jvm.JvmName
 
 /**
@@ -134,3 +137,24 @@ internal fun methodEqual(expected: HttpMethod): Matcher<HttpMethod> =
 
         override fun toString(): String = "$expected"
     }
+
+internal fun byteArrayEqual(expected: ByteArray): Matcher<ByteArray?> =
+    object : Matcher<ByteArray?> {
+        override fun test(value: ByteArray?): MatcherResult =
+            MatcherResult(
+                value contentEquals expected,
+                { "ByteArray should equal expected bytes" },
+                { "ByteArray should not equal expected bytes" },
+            )
+    }
+
+internal fun matchesUrlEncodedPart(
+    parameters: Parameters,
+    spec: BodyPartSpec,
+): Boolean {
+    if (spec.kind != BodyPartKind.FIELD) return false
+    val values = parameters.getAll(spec.name).orEmpty()
+    return values.any { value ->
+        spec.contentMatchers.all { matcher -> matcher.matches(value) }
+    }
+}

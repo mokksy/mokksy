@@ -1,12 +1,12 @@
 package dev.mokksy.mokksy.request
 
-import dev.mokksy.mokksy.ExperimentalMokksyApi
 import dev.mokksy.mokksy.MokksyDsl
 import io.kotest.matchers.Matcher
 import io.kotest.matchers.string.contain
 import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmSynthetic
 import kotlin.reflect.KClass
 
 /**
@@ -67,7 +67,9 @@ public open class RequestSpecification<P : Any> internal constructor(
     public val headers: List<Matcher<Headers>> = listOf(),
     public val body: List<Matcher<P?>> = listOf(),
     public val bodyString: List<Matcher<String?>> = listOf(),
-    internal val formDataPartSpecs: List<FormDataPartSpec> = listOf(),
+    internal val formSpecs: List<FormBodySpec> = listOf(),
+    internal val multipartSpecs: List<MultipartBodySpec> = listOf(),
+    internal val byteBodySpecs: List<ByteBodySpec> = listOf(),
     public val priority: Int = DEFAULT_STUB_PRIORITY,
     internal val requestType: KClass<P>,
 ) {
@@ -80,7 +82,9 @@ public open class RequestSpecification<P : Any> internal constructor(
             if (headers.isNotEmpty()) appendLine("headers: $headers")
             if (body.isNotEmpty()) appendLine("body: $body")
             if (bodyString.isNotEmpty()) appendLine("bodyString: $bodyString")
-            if (formDataPartSpecs.isNotEmpty()) appendLine("formData: $formDataPartSpecs")
+            if (formSpecs.isNotEmpty()) appendLine("forms: $formSpecs")
+            if (multipartSpecs.isNotEmpty()) appendLine("multipart: $multipartSpecs")
+            if (byteBodySpecs.isNotEmpty()) appendLine("bytes: $byteBodySpecs")
         }
 }
 
@@ -94,7 +98,9 @@ public open class RequestSpecificationBuilder<P : Any>(
     public val headers: MutableList<Matcher<Headers>> = mutableListOf()
     public val body: MutableList<Matcher<P?>> = mutableListOf()
     public val bodyString: MutableList<Matcher<String?>> = mutableListOf()
-    internal val formDataPartSpecs: MutableList<FormDataPartSpec> = mutableListOf()
+    internal val formSpecs: MutableList<FormBodySpec> = mutableListOf()
+    internal val multipartSpecs: MutableList<MultipartBodySpec> = mutableListOf()
+    internal val byteBodySpecs: MutableList<ByteBodySpec> = mutableListOf()
     public var priority: Int = DEFAULT_STUB_PRIORITY
 
     public fun method(matcher: Matcher<HttpMethod>): RequestSpecificationBuilder<P> =
@@ -175,7 +181,7 @@ public open class RequestSpecificationBuilder<P : Any>(
     /**
      * Configures body matching through a dedicated [BodySpecBuilder] scope.
      *
-     * Groups all body-matching criteria — `formData`, `predicate`, and future matchers —
+     * Groups all body-matching criteria — forms, multipart data, raw bytes, predicates, and future matchers —
      * under a single block for better discoverability.
      *
      * Example:
@@ -183,22 +189,24 @@ public open class RequestSpecificationBuilder<P : Any>(
      * mokksy.post {
      *     path("/upload")
      *     body {
-     *         formData {
-     *             field("locale", equalTo("test"))
-     *             file("avatar") { filename(containing("photo")) }
+     *         form {
+     *             field("locale", "test")
+     *             file("avatar") { filename { it?.contains("photo") == true } }
      *         }
      *         predicate { it?.status == "active" }
      *     }
      * }
      * ```
      */
-    @ExperimentalMokksyApi
+    @JvmSynthetic
     public fun body(block: BodySpecBuilder<P>.() -> Unit): RequestSpecificationBuilder<P> =
         apply {
             val bodySpec = BodySpecBuilder<P>()
             bodySpec.apply(block)
             val result = bodySpec.build()
-            this.formDataPartSpecs += result.formDataPartSpecs
+            this.formSpecs += result.formSpecs
+            this.multipartSpecs += result.multipartSpecs
+            this.byteBodySpecs += result.byteBodySpecs
             this.body += result.predicateMatchers
         }
 
@@ -231,7 +239,9 @@ public open class RequestSpecificationBuilder<P : Any>(
             requestType = requestType,
             body = body,
             bodyString = bodyString,
-            formDataPartSpecs = formDataPartSpecs,
+            formSpecs = formSpecs,
+            multipartSpecs = multipartSpecs,
+            byteBodySpecs = byteBodySpecs,
             priority = priority,
         )
 }
