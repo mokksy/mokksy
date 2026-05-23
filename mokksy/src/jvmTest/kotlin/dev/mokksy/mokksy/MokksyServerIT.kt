@@ -135,6 +135,53 @@ internal class MokksyServerIT : AbstractIT() {
 
     // endregion
 
+    // region getStub
+
+    @Test
+    fun `getStub returns named stub handle`() {
+        val expected =
+            mokksy.get(name = "named-stub", requestType = String::class) {
+                path("/named-stub-$seed")
+            } respondsWith {
+                body = "ok"
+            }
+
+        mokksy.getStub("named-stub").name shouldBe expected.name
+    }
+
+    @Test
+    fun `getStub throws when stub not found`() {
+        val error =
+            shouldThrow<NoSuchElementException> {
+                mokksy.getStub("missing-stub")
+            }
+
+        error.message shouldContain "No stub registered with name 'missing-stub'"
+    }
+
+    @Test
+    fun `getStub throws when multiple stubs share the same name`() {
+        mokksy.get(name = "duplicate-stub", requestType = String::class) {
+            path("/duplicate-stub-a-$seed")
+        } respondsWith {
+            body = "a"
+        }
+        mokksy.post(name = "duplicate-stub", requestType = String::class) {
+            path("/duplicate-stub-b-$seed")
+        } respondsWith {
+            body = "b"
+        }
+
+        val error =
+            shouldThrow<IllegalStateException> {
+                mokksy.getStub("duplicate-stub")
+            }
+
+        error.message shouldContain "Expected exactly one stub named 'duplicate-stub'"
+    }
+
+    // endregion
+
     // region findAllUnmatchedRequests (deprecated)
 
     @Suppress("DEPRECATION")

@@ -21,6 +21,9 @@ import kotlin.reflect.KClass
  * This class is part of a fluent API used to define mappings between request specifications
  * and their respective responses.
  *
+ * All response-definition methods return a [StubHandle] which exposes [StubHandle.matchCount]
+ * and [StubHandle.name] for verifying stub invocation after tests.
+ *
  * @param P The type of the request payload.
  * @property requestType The type of the request that this step is processing.
  * @property configuration Configuration options for the stub, such as name and behavior flags.
@@ -64,11 +67,12 @@ public class BuildingStep<P : Any> internal constructor(
      * @param T The type of the response body.
      * @param block A suspend lambda applied to a [ResponseDefinitionBuilder],
      * used to configure the response definition.
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     @Suppress("ThrowsCount")
     public infix fun <T : Any> respondsWith(
         block: suspend ResponseDefinitionBuilder<P, T>.() -> Unit,
-    ) {
+    ): StubHandle {
         val stub =
             Stub(
                 configuration = configuration,
@@ -91,6 +95,7 @@ public class BuildingStep<P : Any> internal constructor(
                 }
             }
         registerStub(stub)
+        return StubHandle(stub)
     }
 
     /**
@@ -104,13 +109,12 @@ public class BuildingStep<P : Any> internal constructor(
      * @param responseType A [KClass] token for `T`, used only for type inference at the call site.
      * @param block A suspend lambda applied to a [ResponseDefinitionBuilder],
      * used to configure the response definition.
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     public fun <T : Any> respondsWith(
         @Suppress("unused") responseType: KClass<T>,
         block: suspend ResponseDefinitionBuilder<P, T>.() -> Unit,
-    ) {
-        respondsWith(block)
-    }
+    ): StubHandle = respondsWith(block)
 
     /**
      * Associates the current [RequestSpecification] with a body-free response carrying
@@ -128,8 +132,9 @@ public class BuildingStep<P : Any> internal constructor(
      * ```
      *
      * @param status The HTTP status code to return.
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
-    public infix fun respondsWithStatus(status: HttpStatusCode): Unit =
+    public infix fun respondsWithStatus(status: HttpStatusCode): StubHandle =
         respondsWith<Unit> { httpStatus = status }
 
     /**
@@ -142,11 +147,12 @@ public class BuildingStep<P : Any> internal constructor(
      * @param T The type of the elements in the streaming response data.
      * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder],
      * used to configure the streaming response definition.
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     @Suppress("ThrowsCount")
     public infix fun <T : Any> respondsWithStream(
         block: suspend StreamingResponseDefinitionBuilder<P, T>.() -> Unit,
-    ): Unit =
+    ): StubHandle =
         registerStreamingStub(
             builderFactory = { req ->
                 StreamingResponseDefinitionBuilder(
@@ -168,13 +174,12 @@ public class BuildingStep<P : Any> internal constructor(
      * @param responseType A [KClass] token for `T`, used only for type inference at the call site.
      * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder],
      * used to configure the streaming response definition.
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     public fun <T : Any> respondsWithStream(
         @Suppress("unused") responseType: KClass<T>,
         block: suspend StreamingResponseDefinitionBuilder<P, T>.() -> Unit,
-    ) {
-        respondsWithStream(block)
-    }
+    ): StubHandle = respondsWithStream(block)
 
     /**
      * Associates the current [RequestSpecification] with a server-sent events (SSE) streaming response definition.
@@ -183,10 +188,11 @@ public class BuildingStep<P : Any> internal constructor(
      * @param T The type of `data` field in the ServerSentEventMetadata.
      * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder] specifically for
      * configuring the response as a stream of server-sent events.
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     public infix fun <T : Any> respondsWithSseStream(
         block: suspend StreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<T>>.() -> Unit,
-    ): Unit =
+    ): StubHandle =
         registerStreamingStub(
             builderFactory = { req ->
                 SseStreamingResponseDefinitionBuilder(request = req, formatter = formatter)
@@ -204,17 +210,18 @@ public class BuildingStep<P : Any> internal constructor(
      * @param T The type of `data` field in the [ServerSentEventMetadata].
      * @param responseType A [KClass] token for `T`, used only for type inference at the call site.
      * @param block A suspend lambda applied to a [StreamingResponseDefinitionBuilder].
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     public fun <T : Any> respondsWithSseStream(
         @Suppress("unused") responseType: KClass<T>,
         block: suspend StreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<T>>.() -> Unit,
-    ): Unit = respondsWithSseStream(block)
+    ): StubHandle = respondsWithSseStream(block)
 
     @Suppress("ThrowsCount")
     private fun <T : Any> registerStreamingStub(
         builderFactory: (CapturedRequest<P>) -> StreamingResponseDefinitionBuilder<P, T>,
         block: suspend StreamingResponseDefinitionBuilder<P, T>.() -> Unit,
-    ) {
+    ): StubHandle {
         val stub =
             Stub(
                 configuration = configuration,
@@ -240,5 +247,6 @@ public class BuildingStep<P : Any> internal constructor(
             }
 
         registerStub(stub)
+        return StubHandle(stub)
     }
 }

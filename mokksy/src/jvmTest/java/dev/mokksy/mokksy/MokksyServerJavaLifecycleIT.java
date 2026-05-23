@@ -8,8 +8,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MokksyServerJavaLifecycleIT {
     @Test
@@ -64,6 +66,33 @@ public class MokksyServerJavaLifecycleIT {
 
             assertThat(response.statusCode()).isEqualTo(200);
             assertThat(response.body()).isEqualTo("alive");
+        } finally {
+            mokksy.shutdown();
+        }
+    }
+
+    @Test
+    public void getStubReturnsNamedStubHandle() {
+        var mokksy = Mokksy.create().start();
+
+        try {
+            var expected = mokksy.get(new StubConfiguration("java-get-stub"), "/java-get-stub")
+                .respondsWith("alive");
+
+            assertThat(mokksy.getStub("java-get-stub").getName()).isEqualTo(expected.getName());
+        } finally {
+            mokksy.shutdown();
+        }
+    }
+
+    @Test
+    public void getStubThrowsWhenStubNotFound() {
+        var mokksy = Mokksy.create().start();
+
+        try {
+            assertThatThrownBy(() -> mokksy.getStub("missing-stub"))
+                .isInstanceOf(NoSuchElementException.class)
+                .hasMessage("No stub registered with name 'missing-stub'");
         } finally {
             mokksy.shutdown();
         }

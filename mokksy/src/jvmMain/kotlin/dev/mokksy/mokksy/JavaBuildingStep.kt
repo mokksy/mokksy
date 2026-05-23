@@ -14,15 +14,13 @@ import java.util.function.Consumer
  *
  * Example (Java):
  * ```java
- * mokksy.get(spec -> spec.path("/ping"))
+ * StubHandle ping = mokksy.get(spec -> spec.path("/ping"))
  *       .respondsWith(builder -> builder.body("Pong"));
- *
- * mokksy.post(MyRequest.class, spec -> spec.path("/items"))
- *       .respondsWith(MyResponse.class, builder -> builder
- *           .body(new MyResponse("created"))
- *           .status(201)
- *           .header("Location", "/items/1"));
+ * assert ping.matchCount() == 0;
  * ```
+ *
+ * All response-definition methods return a [StubHandle] which exposes [StubHandle.matchCount]
+ * and [StubHandle.name] for verifying stub invocation after tests.
  *
  * @param P The type of the request payload.
  */
@@ -35,11 +33,12 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * @param T The type of the response body.
      * @param responseType The Java [Class] of the response type.
      * @param configurer A [Consumer] that configures a [JavaResponseDefinitionBuilder].
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     public fun <T : Any> respondsWith(
         responseType: Class<T>,
         configurer: Consumer<JavaResponseDefinitionBuilder<P, T>>,
-    ): Unit =
+    ): StubHandle =
         step.respondsWith(responseType.kotlin) {
             configurer.accept(
                 JavaResponseDefinitionBuilder(this),
@@ -52,9 +51,11 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * Shorthand for `respondsWith(String.class, configurer)`.
      *
      * @param configurer A [Consumer] that configures a [JavaResponseDefinitionBuilder].
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
-    public fun respondsWith(configurer: Consumer<JavaResponseDefinitionBuilder<P, String>>): Unit =
-        respondsWith(String::class.java, configurer)
+    public fun respondsWith(
+        configurer: Consumer<JavaResponseDefinitionBuilder<P, String>>,
+    ): StubHandle = respondsWith(String::class.java, configurer)
 
     /**
      * Configures a typed streaming response for this stub.
@@ -62,11 +63,12 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * @param T The type of elements in the streaming response.
      * @param responseType The Java [Class] of the streaming element type.
      * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     public fun <T : Any> respondsWithStream(
         responseType: Class<T>,
         configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, T>>,
-    ): Unit =
+    ): StubHandle =
         step.respondsWithStream(responseType.kotlin) {
             configurer.accept(JavaStreamingResponseDefinitionBuilder(this))
         }
@@ -77,10 +79,11 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * Shorthand for `respondsWithStream(String.class, configurer)`.
      *
      * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     public fun respondsWithStream(
         configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, String>>,
-    ): Unit = respondsWithStream(String::class.java, configurer)
+    ): StubHandle = respondsWithStream(String::class.java, configurer)
 
     /**
      * Configures a typed SSE streaming response for this stub.
@@ -101,11 +104,12 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * @param T The type of the `data` field in each SSE event.
      * @param dataType The Java [Class] of the SSE event data type.
      * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
     public fun <T : Any> respondsWithSseStream(
         dataType: Class<T>,
         configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<T>>>,
-    ): Unit =
+    ): StubHandle =
         step.respondsWithSseStream(dataType.kotlin) {
             configurer.accept(JavaStreamingResponseDefinitionBuilder(this))
         }
@@ -116,11 +120,12 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * Shorthand for `respondsWithSseStream(String.class, configurer)`.
      *
      * @param configurer A [Consumer] that configures a [JavaStreamingResponseDefinitionBuilder].
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
-    // Cannot delegate to typed overload: ServerSentEvent vs ServerSentEventMetadata<String> variance
     public fun respondsWithSseStream(
-        configurer: Consumer<JavaStreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<String>>>,
-    ): Unit =
+        configurer:
+            Consumer<JavaStreamingResponseDefinitionBuilder<P, ServerSentEventMetadata<String>>>,
+    ): StubHandle =
         step.respondsWithSseStream(String::class) {
             configurer.accept(JavaStreamingResponseDefinitionBuilder(this))
         }
@@ -134,9 +139,9 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * ```
      *
      * @param body The response body string.
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
-    public fun respondsWith(body: String): Unit =
-        respondsWith { it.body(body) }
+    public fun respondsWith(body: String): StubHandle = respondsWith { it.body(body) }
 
     /**
      * Configures a simple [String] response body with a custom HTTP status code.
@@ -148,9 +153,12 @@ public class JavaBuildingStep<P : Any> internal constructor(
      *
      * @param body The response body string.
      * @param statusCode The HTTP status code, e.g. `201`, `400`.
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
-    public fun respondsWith(body: String, statusCode: Int): Unit =
-        respondsWith { it.body(body).status(statusCode) }
+    public fun respondsWith(
+        body: String,
+        statusCode: Int,
+    ): StubHandle = respondsWith { it.body(body).status(statusCode) }
 
     /**
      * Associates this stub with a body-free response carrying only an HTTP status code.
@@ -161,7 +169,8 @@ public class JavaBuildingStep<P : Any> internal constructor(
      * ```
      *
      * @param statusCode The HTTP status code to return (e.g. `204`, `404`).
+     * @return A [StubHandle] for further inspection (e.g. [StubHandle.matchCount]).
      */
-    public fun respondsWithStatus(statusCode: Int): Unit =
+    public fun respondsWithStatus(statusCode: Int): StubHandle =
         step.respondsWithStatus(HttpStatusCode.fromValue(statusCode))
 }

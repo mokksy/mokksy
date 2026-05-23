@@ -87,25 +87,6 @@ public data class StubConfiguration
                 )
         }
 
-        /**
-         * Secondary constructor for creating a [StubConfiguration] instance.
-         *
-         * This constructor is deprecated and should be replaced
-         * with the `StubConfiguration(eventuallyRemove)` constructor.
-         *
-         * @param removeAfterMatch Indicates whether the stub should be eventually removed after it has been matched.
-         * @deprecated Use `StubConfiguration(eventuallyRemove)` instead.
-         */
-        @Deprecated(
-            message = "Use StubConfiguration(eventuallyRemove = removeAfterMatch) instead",
-            replaceWith = ReplaceWith("StubConfiguration(eventuallyRemove = removeAfterMatch)"),
-        )
-        public constructor(
-            removeAfterMatch: Boolean,
-        ) : this(
-            eventuallyRemove = removeAfterMatch,
-        )
-
         override fun toString(): String =
             buildString {
                 append("StubConfiguration(")

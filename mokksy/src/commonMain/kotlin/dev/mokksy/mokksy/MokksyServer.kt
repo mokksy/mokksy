@@ -626,19 +626,58 @@ public class MokksyServer
         ): BuildingStep<String> = method(configuration, Options, String::class, block)
 
         /**
-         * Returns all stub specifications that have not been matched by any incoming request.
+         * Returns all stubs that have not been matched by any incoming request.
          *
          * A stub is considered unmatched if it has never been matched.
          *
-         * @return A list of unmatched stub request specifications.
+         * @return A list of [StubHandle] for unmatched stubs.
          */
-        public fun findAllUnmatchedStubs(): List<RequestSpecification<*>> =
+        public fun findAllUnmatchedStubs(): List<StubHandle> =
             stubRegistry
                 .getAll()
                 .filter {
                     !it.hasBeenMatched()
-                }.map { it.requestSpecification }
+                }.map { StubHandle(it) }
                 .toList()
+
+        /**
+         * Returns the registered stub with the given [name].
+         *
+         * Only stubs registered with an explicit [StubConfiguration.name] can be retrieved.
+         *
+         * @param name The name assigned to the stub at registration time.
+         * @return A [StubHandle] for the matching stub.
+         * @throws NoSuchElementException if no stub with that name exists.
+         * @throws IllegalStateException if multiple stubs share that name.
+         */
+        public fun getStub(name: String): StubHandle {
+            val matchingStubs =
+                stubRegistry
+                    .getAll()
+                    .filter { it.configuration.name == name }
+            return when (matchingStubs.size) {
+                1 -> {
+                    StubHandle(matchingStubs.single())
+                }
+
+                0 -> {
+                    throw NoSuchElementException("No stub registered with name '$name'")
+                }
+
+                else -> {
+                    error(
+                        "Expected exactly one stub named '$name', but found ${matchingStubs.size}",
+                    )
+                }
+            }
+        }
+
+        /**
+         * Returns a snapshot of all registered stubs.
+         *
+         * @return A list of [StubHandle] for every registered stub.
+         */
+        public fun allStubs(): List<StubHandle> = stubRegistry.getAll().map { StubHandle(it) }
 
         private fun ensureJournalAvailable() {
             check(configuration.journalMode != JournalMode.NONE) {
@@ -663,7 +702,7 @@ public class MokksyServer
          * Returns all HTTP requests that arrived at the server but were not matched by any stub.
          *
          * @return A list of [RecordedRequest] snapshots.
-         * @throws IllegalStateException when [configuration.journalMode] is [JournalMode.NONE].
+         * @throws IllegalStateException when [ServerConfiguration.journalMode] is [JournalMode.NONE].
          */
         public fun findAllUnexpectedRequests(): List<RecordedRequest> {
             ensureJournalAvailable()
@@ -732,9 +771,7 @@ public class MokksyServer
             val unmatchedStubs = findAllUnmatchedStubs()
             if (unmatchedStubs.isNotEmpty()) {
                 throw AssertionError(
-                    "The following stubs were not matched: ${
-                        unmatchedStubs.joinToString { it.toLogString() }
-                    }",
+                    "The following stubs were not matched: ${unmatchedStubs.joinToString()}",
                 )
             }
         }
@@ -767,7 +804,7 @@ public class MokksyServer
          * ```
          *
          * @throws AssertionError If there are any requests that have not been matched by a stub.
-         * @throws IllegalStateException when [configuration.journalMode] is [JournalMode.NONE].
+         * @throws IllegalStateException when [ServerConfiguration.journalMode] is [JournalMode.NONE].
          */
         public fun verifyNoUnexpectedRequests() {
             val unmatched = findAllUnexpectedRequests()

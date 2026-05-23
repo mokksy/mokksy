@@ -13,9 +13,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class MokksyJavaIT {
@@ -491,7 +494,7 @@ class MokksyJavaIT {
     // region delay
 
     @Test
-    void get_withDelayMillis_shouldDelayResponse() throws Exception {
+    void get_withDelayMillis_shouldDelayResponse() {
         mokksy.get(spec -> spec.path("/delayed"))
             .respondsWith(builder -> builder
                 .body("ok")
@@ -583,6 +586,227 @@ class MokksyJavaIT {
             fresh.resetMatchState();
 
             assertThatThrownBy(fresh::verifyNoUnmatchedStubs)
+                .isInstanceOf(AssertionError.class);
+        }
+    }
+
+    // endregion
+
+    // region StubHandle / matchCount
+
+    @Test
+    void matchCount_shouldReturnZeroInitiallyAndIncrementOnCalls()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(spec -> spec.path("/match-count-inc"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            assertThat(stub.matchCount()).isEqualTo(0);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/match-count-inc"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(1);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/match-count-inc"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(2);
+        }
+    }
+
+    @Test
+    void matchCount_onEventuallyRemoveStub_shouldBeOneAfterMatch()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(StubConfiguration.once("java-once-count"), spec -> spec.path("/once-count"))
+                .respondsWith(builder -> builder.body("First!"));
+
+            assertThat(stub.matchCount()).isEqualTo(0);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/once-count"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(1);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/once-count"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void matchCount_shouldResetAfterResetMatchState()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(spec -> spec.path("/match-count-reset"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/match-count-reset"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(stub.matchCount()).isEqualTo(1);
+
+            fresh.resetMatchState();
+            assertThat(stub.matchCount()).isEqualTo(0);
+        }
+    }
+
+    @Test
+    void findStub_shouldReturnNullWhenStubHasNoName() {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            fresh.get(spec -> spec.path("/java-find-stub"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            assertThrows(NoSuchElementException.class, () -> fresh.getStub("java-find-stub"));
+        }
+    }
+
+    @Test
+    void findStub_shouldReturnHandleForNamedStub()
+        throws IOException, InterruptedException {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            fresh.get(StubConfiguration.once("java-named-find"), spec -> spec.path("/java-named-find"))
+                .respondsWith(builder -> builder.body("ok"));
+
+            var found = fresh.getStub("java-named-find");
+            assertThat(found).isNotNull();
+            assertThat(found.getName()).isEqualTo("java-named-find");
+            assertThat(found.matchCount()).isEqualTo(0);
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/java-named-find"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+            assertThat(found.matchCount()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void verifyCalled_atLeast_scenarios() {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(new StubConfiguration("java-atleast"), spec ->
+                    spec.path("/java-atleast"))
+                .respondsWith(builder -> builder.body("ok"));
+            var url = URI.create(fresh.baseUrl() + "/java-atleast");
+            var get = HttpRequest.newBuilder().uri(url).GET().build();
+            var handler = HttpResponse.BodyHandlers.ofString();
+
+            assertAll(
+                () -> assertThatThrownBy(() -> stub.verifyCalled().atLeast(1))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    stub.verifyCalled().atLeast(1);
+                },
+                () -> assertThatThrownBy(() -> stub.verifyCalled().atLeast(2))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    stub.verifyCalled().atLeast(2);
+                    stub.verifyCalled().atLeast(1);
+                }
+            );
+        }
+    }
+
+    @Test
+    void verifyCalled_atMost_scenarios() throws Exception {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(new StubConfiguration("java-atmost"), spec ->
+                    spec.path("/java-atmost"))
+                .respondsWith(builder -> builder.body("ok"));
+            var url = URI.create(fresh.baseUrl() + "/java-atmost");
+            var get = HttpRequest.newBuilder().uri(url).GET().build();
+            var handler = HttpResponse.BodyHandlers.ofString();
+
+            httpClient.send(get, handler);
+            httpClient.send(get, handler);
+
+            assertAll(
+                () -> stub.verifyCalled().atMost(5),
+                () -> stub.verifyCalled().atMost(2),
+                () -> assertThatThrownBy(() -> stub.verifyCalled().atMost(1))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    assertThatThrownBy(() -> stub.verifyCalled().atMost(2))
+                        .isInstanceOf(AssertionError.class);
+                },
+                () -> stub.verifyCalled().atMost(3)
+            );
+        }
+    }
+
+    @Test
+    void verifyCalled_exactly_scenarios() {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(new StubConfiguration("java-exactly"), spec ->
+                    spec.path("/java-exactly"))
+                .respondsWith(builder -> builder.body("ok"));
+            var url = URI.create(fresh.baseUrl() + "/java-exactly");
+            var get = HttpRequest.newBuilder().uri(url).GET().build();
+            var handler = HttpResponse.BodyHandlers.ofString();
+
+            assertAll(
+                () -> stub.verifyCalled().exactly(0),
+                () -> assertThatThrownBy(() -> stub.verifyCalled().exactly(1))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    stub.verifyCalled().exactly(1);
+                },
+                () -> assertThatThrownBy(() -> stub.verifyCalled().exactly(0))
+                    .isInstanceOf(AssertionError.class),
+                () -> {
+                    httpClient.send(get, handler);
+                    httpClient.send(get, handler);
+                    stub.verifyCalled().exactly(3);
+                    stub.verifyCalled(3);
+                },
+                () -> assertThatThrownBy(() -> stub.verifyCalled().exactly(2))
+                    .isInstanceOf(AssertionError.class),
+                () -> assertThatThrownBy(() -> stub.verifyCalled().never())
+                    .isInstanceOf(AssertionError.class)
+            );
+        }
+    }
+
+    @Test
+    void verifyCalled_never_scenario() throws Exception {
+        try (Mokksy fresh = Mokksy.create().start()) {
+            var stub = fresh.get(new StubConfiguration("java-never"), spec ->
+                    spec.path("/java-never"))
+                .respondsWith(builder -> builder.body("never"));
+
+            stub.verifyCalled().never();
+
+            httpClient.send(
+                HttpRequest.newBuilder()
+                    .uri(URI.create(fresh.baseUrl() + "/java-never"))
+                    .GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+            );
+
+            assertThatThrownBy(() -> stub.verifyCalled().never())
                 .isInstanceOf(AssertionError.class);
         }
     }

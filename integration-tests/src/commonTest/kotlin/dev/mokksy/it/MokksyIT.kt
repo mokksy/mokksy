@@ -1,5 +1,6 @@
 package dev.mokksy.it
 
+import dev.mokksy.mokksy.ExperimentalMokksyApi
 import dev.mokksy.mokksy.Mokksy
 import dev.mokksy.mokksy.StubConfiguration
 import io.kotest.assertions.assertSoftly
@@ -32,6 +33,7 @@ import kotlin.time.measureTimedValue
  * This test intentionally creates and starts Mokksy once and never shuts it down after each test.
  * This verifies a scenario when Mokksy is started once and used across multiple tests.
  */
+@OptIn(ExperimentalMokksyApi::class)
 internal class MokksyIT {
     companion object {
         val mokksy = Mokksy()
@@ -449,6 +451,203 @@ internal class MokksyIT {
 
             shouldThrow<AssertionError> {
                 mokksy.verifyNoUnmatchedStubs()
+            }
+        }
+
+    // region StubHandle / matchCount
+
+    @Test
+    fun `matchCount returns 0 initially`() =
+        runIntegrationTest {
+            val stub = mokksy.get { path("/match-count-zero") }.respondsWith { body = "ok" }
+
+            stub.matchCount() shouldBe 0
+        }
+
+    @Test
+    fun `matchCount increments on each request`() =
+        runIntegrationTest {
+            val stub = mokksy.get { path("/match-count-inc") }.respondsWith { body = "ok" }
+
+            stub.matchCount() shouldBe 0
+            client.get(mokksy.baseUrl() + "/match-count-inc")
+            stub.matchCount() shouldBe 1
+            client.get(mokksy.baseUrl() + "/match-count-inc")
+            stub.matchCount() shouldBe 2
+            client.get(mokksy.baseUrl() + "/match-count-inc")
+            stub.matchCount() shouldBe 3
+        }
+
+    @Test
+    fun `matchCount on eventuallyRemove stub is 1 after match`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "once-count", eventuallyRemove = true)) {
+                        path("/once-count")
+                    }.respondsWith { body = "First!" }
+
+            stub.matchCount() shouldBe 0
+            client.get(mokksy.baseUrl() + "/once-count")
+            stub.matchCount() shouldBe 1
+            client.get(mokksy.baseUrl() + "/once-count") // second call — 404
+            stub.matchCount() shouldBe 1 // does not increase after removal
+        }
+
+    @Test
+    fun `verify resetMatchState`() =
+        runIntegrationTest {
+            val stub = mokksy.get { path("/match-count-reset") }.respondsWith { body = "ok" }
+
+            client.get(mokksy.baseUrl() + "/match-count-reset")
+            stub.matchCount() shouldBe 1
+
+            mokksy.resetMatchState()
+            stub.matchCount() shouldBe 0
+
+            client.get(mokksy.baseUrl() + "/match-count-reset")
+            stub.matchCount() shouldBe 1
+        }
+
+    // endregion
+
+    // region getStub
+
+    @Test
+    fun `getStub returns null for unknown name`() =
+        runIntegrationTest {
+            shouldThrow<NoSuchElementException> {
+                mokksy.getStub("nonexistent")
+            }
+        }
+
+    @Test
+    fun `getStub returns handle for named stub`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "find-stub-by-name")) {
+                        path("/find-stub-by-name")
+                    }.respondsWith { body = "ok" }
+
+            val found = mokksy.getStub("find-stub-by-name")
+            found.name shouldBe "find-stub-by-name"
+            found.matchCount() shouldBe 0
+
+            client.get(mokksy.baseUrl() + "/find-stub-by-name")
+            stub.matchCount() shouldBe 1
+            found.matchCount() shouldBe 1
+        }
+
+    @Test
+    fun `findAllStubs returns all registered stubs`() =
+        runIntegrationTest {
+            val beforeCount = mokksy.allStubs().size
+
+            mokksy.get { path("/stub-a") }.respondsWith { body = "a" }
+            mokksy.get { path("/stub-b") }.respondsWith { body = "b" }
+
+            mokksy.allStubs() shouldHaveSize (beforeCount + 2)
+
+            client.get(mokksy.baseUrl() + "/stub-a")
+            client.get(mokksy.baseUrl() + "/stub-b")
+        }
+
+    // endregion
+
+    // region StubHandle.verifyCalled
+
+    @Test
+    fun `verifyCalled atLeast scenarios`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "atleast-scenarios")) {
+                        path("/atleast-scenarios")
+                    }.respondsWith { body = "ok" }
+            val url = mokksy.baseUrl() + "/atleast-scenarios"
+
+            assertSoftly {
+                shouldThrow<AssertionError> { stub.verifyCalled().atLeast(1) }
+
+                client.get(url)
+                stub.verifyCalled().atLeast(1)
+                shouldThrow<AssertionError> { stub.verifyCalled().atLeast(2) }
+
+                client.get(url)
+                stub.verifyCalled().atLeast(2)
+                stub.verifyCalled().atLeast(1)
+            }
+        }
+
+    @Test
+    fun `verifyCalled atMost scenarios`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "atmost-scenarios")) {
+                        path("/atmost-scenarios")
+                    }.respondsWith { body = "ok" }
+            val url = mokksy.baseUrl() + "/atmost-scenarios"
+
+            client.get(url)
+            client.get(url)
+
+            assertSoftly {
+                stub.verifyCalled().atMost(5)
+                stub.verifyCalled().atMost(2)
+                shouldThrow<AssertionError> { stub.verifyCalled().atMost(1) }
+
+                client.get(url)
+
+                shouldThrow<AssertionError> { stub.verifyCalled().atMost(2) }
+                stub.verifyCalled().atMost(3)
+            }
+        }
+
+    @Test
+    fun `verifyCalled exactly scenarios`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "exactly-scenarios")) {
+                        path("/exactly-scenarios")
+                    }.respondsWith { body = "ok" }
+            val url = mokksy.baseUrl() + "/exactly-scenarios"
+
+            assertSoftly {
+                stub.verifyCalled().exactly(0)
+                shouldThrow<AssertionError> { stub.verifyCalled().exactly(1) }
+
+                client.get(url)
+                stub.verifyCalled().exactly(1)
+                shouldThrow<AssertionError> { stub.verifyCalled().exactly(0) }
+
+                client.get(url)
+                client.get(url)
+                stub.verifyCalled().exactly(3)
+                stub.verifyCalled(3) // convenience shortcut
+                shouldThrow<AssertionError> { stub.verifyCalled().exactly(2) }
+
+                shouldThrow<AssertionError> { stub.verifyCalled().never() } // already called
+            }
+        }
+
+    @Test
+    fun `verifyCalled never scenario`() =
+        runIntegrationTest {
+            val stub =
+                mokksy
+                    .get(StubConfiguration(name = "never-scenarios")) {
+                        path("/never-scenarios")
+                    }.respondsWith { body = "never" }
+
+            stub.verifyCalled().never()
+
+            client.get(mokksy.baseUrl() + "/never-scenarios")
+
+            shouldThrow<AssertionError> {
+                stub.verifyCalled().never()
             }
         }
 

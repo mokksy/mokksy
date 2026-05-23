@@ -30,19 +30,6 @@ class StubConfigurationTest {
 
     // endregion
 
-    // region removeAfterMatch deprecated property
-
-    @Suppress("DEPRECATION")
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    fun `removeAfterMatch property delegates to eventuallyRemove`(value: Boolean) {
-        StubConfiguration(eventuallyRemove = value).eventuallyRemove shouldBe value
-        StubConfiguration(eventuallyRemove = value).removeAfterMatch shouldBe value
-        StubConfiguration(removeAfterMatch = value).eventuallyRemove shouldBe value
-    }
-
-    // endregion
-
     // region removeAfterMatch companion factory (deprecated)
 
     @Suppress("DEPRECATION")

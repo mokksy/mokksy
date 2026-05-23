@@ -7,10 +7,10 @@ import dev.mokksy.mokksy.JavaBuildingStep
 import dev.mokksy.mokksy.JavaRequestSpecificationBuilder
 import dev.mokksy.mokksy.MokksyServer
 import dev.mokksy.mokksy.StubConfiguration
+import dev.mokksy.mokksy.StubHandle
 import dev.mokksy.mokksy.loadStubsFromEnv
 import dev.mokksy.mokksy.loadStubsFromFile
 import dev.mokksy.mokksy.request.RecordedRequest
-import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import dev.mokksy.mokksy.start
 import io.ktor.http.HttpMethod
@@ -517,8 +517,18 @@ public class Mokksy(
     public fun resetMatchState(): Unit = delegate.resetMatchState()
 
     /** Returns all stubs that were never matched. */
-    public fun findAllUnmatchedStubs(): List<RequestSpecification<*>> =
-        delegate.findAllUnmatchedStubs()
+    public fun findAllUnmatchedStubs(): List<StubHandle> = delegate.findAllUnmatchedStubs()
+
+    /**
+     * Returns the registered stub with the given name.
+     *
+     * @throws NoSuchElementException if no stub with that name exists.
+     * @throws IllegalStateException if multiple stubs share that name.
+     */
+    public fun getStub(name: String): StubHandle = delegate.getStub(name)
+
+    /** Returns a snapshot of all registered stubs. */
+    public fun allStubs(): List<StubHandle> = delegate.allStubs()
 
     /** Returns all requests that were not matched by any stub. */
     public fun findAllUnexpectedRequests(): List<RecordedRequest> =
