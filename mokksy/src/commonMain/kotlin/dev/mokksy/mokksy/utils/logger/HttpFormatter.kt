@@ -38,6 +38,7 @@ private val DefaultJson = Json { ignoreUnknownKeys = true }
  *             [kotlinx.serialization.modules.SerializersModule] registrations are reflected in logs.
  */
 @InternalMokksyApi
+@Suppress("TooManyFunctions")
 public open class HttpFormatter(
     theme: ColorTheme = ColorTheme.LIGHT_ON_DARK,
     protected val useColor: Boolean = isColorSupported(),
@@ -189,24 +190,20 @@ public open class HttpFormatter(
      * @param request The HTTP routing request to format.
      * @return A formatted string representing the full HTTP request.
      */
-    internal suspend fun formatRequest(request: RoutingRequest): String {
-        val contentType = request.contentType()
-        val body =
-            if (contentType.isTextContent()) {
-                request.call.receiveText()
-            } else {
-                "[binary content omitted]"
-            }
-
-        return buildString {
+    internal suspend fun formatRequest(request: RoutingRequest): String =
+        buildString {
             appendLine(requestLine(request.httpMethod, request.uri))
             request.headers.entries().forEach { (key, value) ->
                 appendLine(header(key, value))
             }
             appendLine()
-            appendLine(formatBody(body, request.contentType()))
+            val contentType = request.contentType()
+            if (contentType.isTextContent()) {
+                appendLine(formatBody(request.call.receiveText(), contentType))
+            } else {
+                appendLine("[binary content omitted]")
+            }
         }
-    }
 
     internal fun formatResponseHeader(
         httpVersion: String,

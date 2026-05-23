@@ -1,5 +1,6 @@
 package dev.mokksy.mokksy
 
+import dev.mokksy.mokksy.request.FormEncoding
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
@@ -131,6 +132,106 @@ internal class FormMatchingIT : AbstractIT() {
         }
 
         val result = client.post(path) { setBody("plain text body") }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `should reject multipart when form expects URL_ENCODED`() {
+        val path = "/form-reject-multipart-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                form(FormEncoding.URL_ENCODED) {
+                    field("key", "value")
+                }
+            }
+        } respondsWith {
+            body = "multipart-rejected-ok"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData { append("key", "value") },
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `should reject url-encoded when form expects MULTIPART`() {
+        val path = "/form-reject-urlencoded-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                form(FormEncoding.MULTIPART) {
+                    field("key", "value")
+                }
+            }
+        } respondsWith {
+            body = "urlencoded-rejected-ok"
+        }
+
+        val result =
+            client.submitForm(
+                url = path,
+                formParameters = parameters { append("key", "value") },
+            )
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `should match with field predicate`() {
+        val path = "/form-field-predicate-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                form {
+                    field("email") { it?.endsWith("@example.com") == true }
+                }
+            }
+        } respondsWith {
+            body = "field-predicate-ok"
+        }
+
+        val result =
+            client.submitForm(
+                url = path,
+                formParameters = parameters { append("email", "user@example.com") },
+            )
+
+        result.status shouldBe HttpStatusCode.OK
+        result.bodyAsText() shouldBe "field-predicate-ok"
+    }
+
+    @Test
+    suspend fun `should fail when field predicate does not match`() {
+        val path = "/form-field-predicate-fail-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                form {
+                    field("email") { it?.endsWith("@example.com") == true }
+                }
+            }
+        } respondsWith {
+            body = "field-predicate-fail-ok"
+        }
+
+        val result =
+            client.submitForm(
+                url = path,
+                formParameters = parameters { append("email", "user@other.com") },
+            )
 
         result.status shouldBe HttpStatusCode.NotFound
     }

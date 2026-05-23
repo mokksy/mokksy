@@ -40,6 +40,7 @@ internal class DataMatchingIT : AbstractIT() {
     }
 
     @Test
+    @Suppress("LongMethod")
     suspend fun `should match custom multipart data parts`() {
         val path = "/multipart-mixed-$seed"
 
@@ -134,6 +135,131 @@ internal class DataMatchingIT : AbstractIT() {
                                         HttpHeaders.ContentDisposition,
                                         "form-data; name=\"other\"",
                                     )
+                                },
+                            )
+                        },
+                        contentType = ContentType.MultiPart.Mixed,
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `should fail when multipart boundary does not match`() {
+        val path = "/multipart-boundary-mismatch-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                multipart("multipart/mixed") {
+                    boundary("expected-boundary")
+                    part("part1") { text("value") }
+                }
+            }
+        } respondsWith {
+            body = "boundary-mismatch-ok"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "part1",
+                                "value".encodeToByteArray(),
+                                Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"part1\"",
+                                    )
+                                },
+                            )
+                        },
+                        contentType =
+                            ContentType.MultiPart.Mixed.withParameter(
+                                "boundary",
+                                "other-boundary",
+                            ),
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `should fail when multipart content type does not match`() {
+        val path = "/multipart-content-type-mismatch-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                multipart("multipart/mixed") {
+                    part("part1") { text("value") }
+                }
+            }
+        } respondsWith {
+            body = "content-type-mismatch-ok"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "part1",
+                                "value".encodeToByteArray(),
+                                Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"part1\"",
+                                    )
+                                },
+                            )
+                        },
+                        contentType = ContentType.MultiPart.FormData,
+                    ),
+                )
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `should fail when multipart part content type does not match`() {
+        val path = "/multipart-part-content-type-mismatch-$seed"
+
+        mokksy.post {
+            path(path)
+            body {
+                multipart("multipart/mixed") {
+                    part("doc") {
+                        contentType("application/json")
+                    }
+                }
+            }
+        } respondsWith {
+            body = "part-content-type-mismatch-ok"
+        }
+
+        val result =
+            client.post(path) {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append(
+                                "doc",
+                                "content".encodeToByteArray(),
+                                Headers.build {
+                                    append(
+                                        HttpHeaders.ContentDisposition,
+                                        "form-data; name=\"doc\"",
+                                    )
+                                    append(HttpHeaders.ContentType, "text/plain")
                                 },
                             )
                         },

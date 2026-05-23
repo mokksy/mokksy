@@ -189,9 +189,12 @@ private suspend fun scoreMultipartParts(
             return 0 to specs.indices.map { "$label[$it]" }
         }
 
-    val parts = mutableListOf<PartData>()
+    val parts = mutableListOf<Pair<PartData, ByteArray?>>()
     try {
-        multipart.forEachPart { parts.add(it) }
+        multipart.forEachPart { part ->
+            val content = readPartBytes(part)
+            parts.add(part to content)
+        }
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
@@ -205,18 +208,18 @@ private suspend fun scoreMultipartParts(
     try {
         specs.forEachIndexed { index, spec ->
             val matchingParts =
-                parts.filter { part ->
+                parts.filter { (part, _) ->
                     val partName = part.name ?: part.contentDisposition?.parameter("name")
                     partName == spec.name
                 }
-            if (matchingParts.any { part -> matchMultipartPart(part, spec) }) {
+            if (matchingParts.any { (part, content) -> matchMultipartPart(part, spec, content) }) {
                 score++
             } else {
                 failed += "$label[$index]"
             }
         }
     } finally {
-        parts.forEach { it.dispose() }
+        parts.forEach { (part, _) -> part.dispose() }
     }
 
     return score to failed
@@ -226,11 +229,12 @@ private suspend fun scoreMultipartParts(
 private suspend fun matchMultipartPart(
     part: PartData,
     spec: BodyPartSpec,
+    content: ByteArray? = null,
 ): Boolean {
     if (!matchesPartKind(part, spec.kind)) return false
     if (!matchesFilename(part, spec)) return false
     if (!matchesContentType(part, spec)) return false
-    if (!matchesContent(part, spec)) return false
+    if (!matchesContent(part, spec, content)) return false
     return true
 }
 
@@ -259,10 +263,11 @@ private fun matchesContentType(
 private suspend fun matchesContent(
     part: PartData,
     spec: BodyPartSpec,
+    content: ByteArray? = null,
 ): Boolean {
     if (spec.contentMatchers.isEmpty()) return true
-    val content = readPartBytes(part) ?: return false
-    return spec.contentMatchers.all { it.matches(content) }
+    val bytes = content ?: readPartBytes(part) ?: return false
+    return spec.contentMatchers.all { it.matches(bytes) }
 }
 
 private fun matchesPartKind(
