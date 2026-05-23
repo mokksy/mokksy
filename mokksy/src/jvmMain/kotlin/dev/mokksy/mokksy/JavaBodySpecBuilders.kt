@@ -12,13 +12,15 @@ import dev.mokksy.mokksy.request.FormEncoding
 import dev.mokksy.mokksy.request.MultipartBodySpec
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import dev.mokksy.mokksy.request.StringContentMatcher
+import dev.mokksy.mokksy.request.byteArrayEqual
 import dev.mokksy.mokksy.request.predicateMatcher
 import io.kotest.matchers.Matcher
-import io.kotest.matchers.MatcherResult
 import io.kotest.matchers.equals.beEqual
 import io.ktor.http.ContentType
 import java.util.function.Consumer
 import java.util.function.Predicate
+
+// region Body spec builders
 
 /**
  * Java-friendly `body` block equivalent.
@@ -165,6 +167,10 @@ public class JavaBodySpecBuilder<P : Any> internal constructor(
     }
 }
 
+// endregion
+
+// region Form spec builder
+
 /**
  * Java-friendly form matcher builder.
  */
@@ -236,6 +242,10 @@ public class JavaFormSpecBuilder internal constructor() {
     internal fun build(): List<BodyPartSpec> = parts.toList()
 }
 
+// endregion
+
+// region Multipart spec builder
+
 /**
  * Java-friendly multipart matcher builder.
  */
@@ -292,6 +302,10 @@ public class JavaMultipartSpecBuilder internal constructor(
         )
 }
 
+// endregion
+
+// region Part spec builders
+
 /**
  * Java-friendly file-part matcher builder.
  */
@@ -346,6 +360,10 @@ public class JavaDataPartSpecBuilder internal constructor(
             contentMatchers = builtContentMatchers(),
         )
 }
+
+// endregion
+
+// region Abstract data-part builder
 
 /**
  * Base Java-friendly builder for matching multipart part content type and content.
@@ -427,6 +445,8 @@ public abstract class AbstractJavaDataPartSpecBuilder<T : AbstractJavaDataPartSp
         internal fun builtContentMatchers(): List<ContentMatcher> = contentMatchers.toList()
     }
 
+// endregion
+
 internal fun <P : Any> RequestSpecificationBuilder<P>.addFormSpecs(specs: List<FormBodySpec>) {
     formSpecs += specs
 }
@@ -444,13 +464,3 @@ internal fun <P : Any> RequestSpecificationBuilder<P>.addByteBodySpec(spec: Byte
 internal fun <P : Any> RequestSpecificationBuilder<P>.addBodyMatcher(matcher: Matcher<P?>) {
     body += matcher
 }
-
-private fun byteArrayEqual(expected: ByteArray): Matcher<ByteArray?> =
-    object : Matcher<ByteArray?> {
-        override fun test(value: ByteArray?): MatcherResult =
-            MatcherResult(
-                value contentEquals expected,
-                { "ByteArray should equal expected bytes" },
-                { "ByteArray should not equal expected bytes" },
-            )
-    }

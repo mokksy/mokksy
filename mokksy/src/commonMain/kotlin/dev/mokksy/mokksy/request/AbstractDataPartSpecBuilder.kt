@@ -9,6 +9,14 @@ import kotlin.jvm.JvmSynthetic
  * Base builder for matching part content type and content.
  *
  * Used by [FilePartSpecBuilder] and [DataPartSpecBuilder].
+ *
+ * Example:
+ * ```kotlin
+ * FilePartSpecBuilder("avatar").apply {
+ *     contentType("image/png")
+ *     text("expected content")
+ * }
+ * ```
  */
 @Suppress("TooManyFunctions", "AbstractClassCanBeConcreteClass")
 public abstract class AbstractDataPartSpecBuilder<T : AbstractDataPartSpecBuilder<T>>

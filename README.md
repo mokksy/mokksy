@@ -1332,25 +1332,11 @@ the stub-registration method and use `bodyMatchesPredicate` to assert on the des
 record CreateItemRequest(String name, int quantity) {
 }
 
-mokksy.
-
-post(
-  CreateItemRequest .class,
-  spec ->spec.
-
-path("/items")
-                .
-
-bodyMatchesPredicate(req ->"widget".
-
-equals(req.name()))
-  ).
-
-respondsWith(builder ->builder.
-
-body("{\"id\":\"1\"}").
-
-status(201));
+mokksy.post( CreateItemRequest.class, spec -> 
+        spec.path("/items")
+        .bodyMatchesPredicate(req ->"widget".equals(req.name()))
+    )
+    .respondsWith(builder ->builder.body("{\"id\":\"1\"}").status(201));
 ```
 
 [sse]: https://html.spec.whatwg.org/multipage/server-sent-events.html "Server-Side Events Specification"

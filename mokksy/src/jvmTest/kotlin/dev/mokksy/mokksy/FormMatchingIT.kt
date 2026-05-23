@@ -4,7 +4,6 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -131,7 +130,7 @@ internal class FormMatchingIT : AbstractIT() {
             body = "plain-body-ok"
         }
 
-        val result = client.get(path)
+        val result = client.post(path) { setBody("plain text body") }
 
         result.status shouldBe HttpStatusCode.NotFound
     }
