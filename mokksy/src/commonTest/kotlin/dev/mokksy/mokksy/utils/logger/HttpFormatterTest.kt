@@ -3,7 +3,10 @@
 package dev.mokksy.mokksy.utils.logger
 
 import dev.mokksy.mokksy.InternalMokksyApi
+import dev.mokksy.mokksy.utils.highlight.Highlighting.isJsonContentType
+import dev.mokksy.mokksy.utils.highlight.Highlighting.registerJsonContentType
 import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.http.ContentType
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -81,5 +84,21 @@ internal class HttpFormatterTest {
         val dto = ContextualDto("world")
         val result = formatter.formatBody(dto, ContentType.Text.Plain)
         result shouldContain dto.toString()
+    }
+
+    @Test
+    fun `formatBody encodes typed body to JSON for registered custom content type`() {
+        val custom = ContentType("application", "x-ndjson-http-formatter")
+        registerJsonContentType(custom)
+        isJsonContentType(custom) shouldBe true
+
+        val formatter = HttpFormatter(useColor = false)
+        val result = formatter.formatBody(SimpleDto("Bob", 42), custom)
+        assertSoftly(result) {
+            this shouldContain "\"name\""
+            this shouldContain "\"Bob\""
+            this shouldContain "\"age\""
+            this shouldContain "42"
+        }
     }
 }

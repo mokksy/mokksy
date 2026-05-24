@@ -6,6 +6,7 @@ import dev.mokksy.mokksy.InternalMokksyApi
 import dev.mokksy.mokksy.utils.highlight.AnsiColor
 import dev.mokksy.mokksy.utils.highlight.ColorTheme
 import dev.mokksy.mokksy.utils.highlight.Highlighting.highlightBody
+import dev.mokksy.mokksy.utils.highlight.Highlighting.isJsonContentType
 import dev.mokksy.mokksy.utils.highlight.colorize
 import dev.mokksy.mokksy.utils.highlight.isColorSupported
 import io.ktor.http.ContentType
@@ -169,13 +170,8 @@ public open class HttpFormatter(
             }
 
             else -> {
-                val isJson =
-                    contentType.match(ContentType.Application.Json) ||
-                        contentType.contentSubtype.endsWith(
-                            "+json",
-                            ignoreCase = true,
-                        )
-                val jsonElement = if (isJson) tryEncodeToJsonElement(body) else null
+                val jsonElement =
+                    if (isJsonContentType(contentType)) tryEncodeToJsonElement(body) else null
                 jsonElement?.let { highlightBody(it, useColor) } ?: body.toString()
             }
         }
@@ -247,11 +243,10 @@ public open class HttpFormatter(
         }.getOrNull()
 
     private fun ContentType.isTextContent(): Boolean =
-        match(ContentType.Application.Json) ||
+        isJsonContentType(this) ||
             match(ContentType.Application.Xml) ||
             match(ContentType.Application.FormUrlEncoded) ||
             match(ContentType.Text.Any) ||
-            contentSubtype.endsWith("+json", ignoreCase = true) ||
             contentSubtype.endsWith("+xml", ignoreCase = true)
 
     @InternalMokksyApi
