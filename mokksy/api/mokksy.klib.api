@@ -792,7 +792,10 @@ final object dev.mokksy.mokksy.jsonrpc/RequestIdSerializer : kotlinx.serializati
 
 final object dev.mokksy.mokksy.utils.highlight/Highlighting { // dev.mokksy.mokksy.utils.highlight/Highlighting|null[0]
     final fun highlightBody(kotlin/String, io.ktor.http/ContentType, kotlin/Boolean = ...): kotlin/String // dev.mokksy.mokksy.utils.highlight/Highlighting.highlightBody|highlightBody(kotlin.String;io.ktor.http.ContentType;kotlin.Boolean){}[0]
+    final fun highlightBody(kotlin/String, kotlin/String, kotlin/Boolean = ...): kotlin/String // dev.mokksy.mokksy.utils.highlight/Highlighting.highlightBody|highlightBody(kotlin.String;kotlin.String;kotlin.Boolean){}[0]
     final fun highlightBody(kotlinx.serialization.json/JsonElement, kotlin/Boolean = ...): kotlin/String // dev.mokksy.mokksy.utils.highlight/Highlighting.highlightBody|highlightBody(kotlinx.serialization.json.JsonElement;kotlin.Boolean){}[0]
+    final fun registerJsonContentType(io.ktor.http/ContentType) // dev.mokksy.mokksy.utils.highlight/Highlighting.registerJsonContentType|registerJsonContentType(io.ktor.http.ContentType){}[0]
+    final fun registerJsonContentType(kotlin/String) // dev.mokksy.mokksy.utils.highlight/Highlighting.registerJsonContentType|registerJsonContentType(kotlin.String){}[0]
 }
 
 final const val dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY // dev.mokksy.mokksy.request/DEFAULT_STUB_PRIORITY|{}DEFAULT_STUB_PRIORITY[0]

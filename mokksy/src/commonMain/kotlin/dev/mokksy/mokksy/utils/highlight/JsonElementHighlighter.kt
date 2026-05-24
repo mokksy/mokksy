@@ -46,14 +46,16 @@ internal object JsonElementHighlighter {
         depth: Int,
     ) {
         append('{')
-        val entries = obj.entries.toList()
-        entries.forEachIndexed { i, (key, value) ->
+        val entries = obj.entries
+        var i = 0
+        for ((key, value) in entries) {
             appendLine()
             indent(depth + 1)
             appendKey(key, useColor)
             append(": ")
             appendElement(value, useColor, depth + 1)
             if (i < entries.size - 1) append(',')
+            i++
         }
         if (entries.isNotEmpty()) {
             appendLine()
