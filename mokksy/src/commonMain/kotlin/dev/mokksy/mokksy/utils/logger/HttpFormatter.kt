@@ -148,19 +148,14 @@ public open class HttpFormatter(
         body: Any?,
         contentType: ContentType = ContentType.Any,
     ): String {
-        if (!contentType.isTextContent()) {
-            return "[binary content omitted]"
+        if (body == null) {
+            return ""
+        }
+        if (body is String && body.isBlank()) {
+            return ""
         }
 
         return when (body) {
-            null -> {
-                ""
-            }
-
-            is String if body.isBlank() -> {
-                ""
-            }
-
             is String -> {
                 if (useColor) highlightBody(body, contentType) else body
             }
@@ -170,8 +165,12 @@ public open class HttpFormatter(
             }
 
             else -> {
-                val jsonElement =
-                    if (isJsonContentType(contentType)) tryEncodeToJsonElement(body) else null
+                val isJson = isJsonContentType(contentType)
+
+                if (!isJson && !contentType.isTextContent()) {
+                    return "[binary content omitted]"
+                }
+                val jsonElement = if (isJson) tryEncodeToJsonElement(body) else null
                 jsonElement?.let { highlightBody(it, useColor) } ?: body.toString()
             }
         }
