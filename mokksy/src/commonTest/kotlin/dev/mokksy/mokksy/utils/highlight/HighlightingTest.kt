@@ -87,6 +87,34 @@ internal class HighlightingTest {
         }
     }
 
+    @Test
+    fun `should toggle JSON highlighting for registered custom content type`() {
+        val custom = ContentType("application", "x-ndjson")
+        val json = """{"key": "value"}"""
+
+        assertSoftly {
+            Highlighting.isJsonContentType(custom) shouldBe false
+
+            val before = Highlighting.highlightBody(
+                body = json,
+                contentType = custom,
+                useColor = true,
+            )
+            before shouldContain colorize(json, AnsiColor.LIGHT_GRAY)
+
+            Highlighting.registerJsonContentType(custom)
+            Highlighting.isJsonContentType(custom) shouldBe true
+
+            val after = Highlighting.highlightBody(
+                body = json,
+                contentType = custom,
+                useColor = true,
+            )
+            after shouldContain colorize("\"key\"", AnsiColor.MAGENTA)
+            after shouldContain colorize("\"value\"", AnsiColor.GREEN)
+        }
+    }
+
     private fun colorize(
         text: String,
         color: AnsiColor,

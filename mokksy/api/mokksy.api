@@ -1001,10 +1001,15 @@ public final class dev/mokksy/mokksy/utils/highlight/ColorTheme : java/lang/Enum
 
 public final class dev/mokksy/mokksy/utils/highlight/Highlighting {
 	public static final field INSTANCE Ldev/mokksy/mokksy/utils/highlight/Highlighting;
-	public final fun highlightBody (Ljava/lang/String;Lio/ktor/http/ContentType;Z)Ljava/lang/String;
-	public final fun highlightBody (Lkotlinx/serialization/json/JsonElement;Z)Ljava/lang/String;
-	public static synthetic fun highlightBody$default (Ldev/mokksy/mokksy/utils/highlight/Highlighting;Ljava/lang/String;Lio/ktor/http/ContentType;ZILjava/lang/Object;)Ljava/lang/String;
-	public static synthetic fun highlightBody$default (Ldev/mokksy/mokksy/utils/highlight/Highlighting;Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Ljava/lang/String;
+	public static final synthetic fun highlightBody (Ljava/lang/String;Lio/ktor/http/ContentType;Z)Ljava/lang/String;
+	public static final fun highlightBody (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static final fun highlightBody (Ljava/lang/String;Ljava/lang/String;Z)Ljava/lang/String;
+	public static final synthetic fun highlightBody (Lkotlinx/serialization/json/JsonElement;Z)Ljava/lang/String;
+	public static synthetic fun highlightBody$default (Ljava/lang/String;Lio/ktor/http/ContentType;ZILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun highlightBody$default (Ljava/lang/String;Ljava/lang/String;ZILjava/lang/Object;)Ljava/lang/String;
+	public static synthetic fun highlightBody$default (Lkotlinx/serialization/json/JsonElement;ZILjava/lang/Object;)Ljava/lang/String;
+	public static final synthetic fun registerJsonContentType (Lio/ktor/http/ContentType;)V
+	public static final fun registerJsonContentType (Ljava/lang/String;)V
 }
 
 public class dev/mokksy/mokksy/utils/logger/HttpFormatter {

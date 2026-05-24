@@ -25,6 +25,8 @@
 - Use unit tests only for edge cases where integration tests are hard to write
 - Never mock Ktor request/response types — use `testApplication` instead
 - Test new and modified code
+- Do not write redundant and tautological tests.
+- Prefer adding more soft assertions to integration tests, not more tests verifying same scenario over and over.
 - Use AssertJ for testing in Java code.
 - Use Kotest assertions
 - Use JUnit6 `@Test` annotations with suspend functions in JVM tests.
