@@ -9,7 +9,7 @@ internal object FormParamsHighlighter {
      * Applies ANSI color highlighting to URL-encoded form data.
      *
      * Splits the input string into key-value pairs separated by '&' and colors keys in yellow and values in green.
-     * Pairs that do not contain exactly one '=' are left unchanged.
+     * Pairs that do not contain a '=' are left unchanged.
      *
      * @param data The URL-encoded form data to highlight.
      * @param useColor Set explicitly should colorize or not
@@ -18,15 +18,38 @@ internal object FormParamsHighlighter {
     internal fun highlight(
         data: String,
         useColor: Boolean = isColorSupported(),
-    ): String =
-        data.split('&').joinToString("&") {
-            val parts = it.split('=', limit = 2)
-            if (parts.size == 2) {
-                val key = parts[0].colorize(AnsiColor.YELLOW, enabled = useColor)
-                val value = parts[1].colorize(AnsiColor.GREEN, enabled = useColor)
-                "$key=$value"
+    ): String = buildString {
+        var start = 0
+        while (start < data.length) {
+            if (start > 0) append('&')
+            val amp = data.indexOf('&', startIndex = start)
+            val pairEnd = if (amp == -1) data.length else amp
+            val eq = data.indexOf('=', startIndex = start).let { if (it == -1 || it >= pairEnd) -1 else it }
+            if (eq == -1) {
+                append(data, start, pairEnd)
             } else {
-                it
+                appendColorized(data, start, eq, AnsiColor.YELLOW, useColor)
+                append('=')
+                appendColorized(data, eq + 1, pairEnd, AnsiColor.GREEN, useColor)
             }
+            start = pairEnd + 1
         }
+    }
+
+    private fun StringBuilder.appendColorized(
+        data: String,
+        startIndex: Int,
+        endIndex: Int,
+        color: AnsiColor,
+        useColor: Boolean,
+    ) {
+        if (useColor) {
+            append(AnsiColor.RESET.code)
+            append(color.code)
+            append(data, startIndex, endIndex)
+            append(AnsiColor.RESET.code)
+        } else {
+            append(data, startIndex, endIndex)
+        }
+    }
 }

@@ -236,11 +236,14 @@ public open class HttpFormatter(
 
     @OptIn(InternalSerializationApi::class)
     @Suppress("UNCHECKED_CAST")
-    private fun tryEncodeToJsonElement(body: Any): JsonElement? =
-        runCatching {
-            val serializer = body::class.serializerOrNull() ?: return null
+    private fun tryEncodeToJsonElement(body: Any): JsonElement? {
+        val serializer = body::class.serializerOrNull() ?: return null
+        return try {
             json.encodeToJsonElement(serializer as KSerializer<Any>, body)
-        }.getOrNull()
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     private fun ContentType.isTextContent(): Boolean =
         isJsonContentType(this) ||
