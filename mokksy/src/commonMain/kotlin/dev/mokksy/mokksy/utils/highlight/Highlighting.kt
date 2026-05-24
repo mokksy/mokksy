@@ -24,7 +24,9 @@ public object Highlighting {
     /**
      * Registers a custom content type to be treated as JSON for highlighting purposes.
      *
-     * @param contentType The content type to register, e.g. `ContentType("application/x-ndjson")`.
+     * Example: `registerJsonContentType(ContentType("application/x-ndjson"))`
+     *
+     * @param contentType The content type to register.
      */
     @InternalMokksyApi
     @JvmStatic
@@ -37,6 +39,8 @@ public object Highlighting {
      * Registers a custom content type (given as a string) to be treated as JSON.
      *
      * Java-friendly overload of [registerJsonContentType].
+     *
+     * Example: `registerJsonContentType("application/x-ndjson")`
      */
     @InternalMokksyApi
     @JvmStatic
@@ -99,6 +103,8 @@ public object Highlighting {
      * Applies ANSI color highlighting to an HTTP body string for a content type given as a string.
      *
      * Java-friendly overload of [highlightBody] that accepts a content type string.
+     *
+     * Example: `highlightBody(body, "application/x-ndjson")`
      */
     @JvmStatic
     @JvmOverloads
