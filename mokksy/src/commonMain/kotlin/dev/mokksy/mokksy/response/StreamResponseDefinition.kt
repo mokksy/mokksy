@@ -78,6 +78,9 @@ public open class StreamResponseDefinition<T>(
      */
     protected open fun serialize(value: T): ByteArray = "$value".encodeToByteArray()
 
+    internal open fun chunkLogContentType(@Suppress("UNUSED_PARAMETER") value: T): ContentType =
+        chunkContentType ?: contentType
+
     override suspend fun writeResponse(
         call: ApplicationCall,
         verbose: Boolean,
@@ -144,17 +147,11 @@ public open class StreamResponseDefinition<T>(
     ) {
         val serializedValue = serialize(value)
         if (verbose) {
-            val type =
-                chunkContentType
-                    ?: when (value) {
-                        is CharSequence -> ContentType.Text.Plain
-                        else -> ContentType.Application.Json
-                    }
             logger.debug(
                 "Writing chunk:\n ${
                     formatter.formatResponseChunk(
                         chunk = serializedValue.decodeToString(),
-                        contentType = type,
+                        contentType = chunkLogContentType(value),
                     )
                 }",
             )
