@@ -50,6 +50,10 @@ private fun MokksyServer.registerFromConfig(stub: StubConfig) {
             path(stub.path)
             stub.match.bodyContains.forEach { bodyContains(it) }
             stub.match.headers.forEach { (name, value) -> containsHeader(name, value) }
+            stub.match.cookies.forEach { (name, value) -> cookie(name, value) }
+            stub.match.cookiePatterns.forEach { (name, pattern) ->
+                cookie(name) { it?.matches(Regex(pattern)) == true }
+            }
         }
 
     when (stub.response.type) {

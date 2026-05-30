@@ -98,6 +98,56 @@ public abstract class AbstractFileConfigIT {
         assertThat(response.body()).isEqualTo("Hello World");
     }
 
+    // endregion
+
+    // region cookie matching
+
+    @Test
+    void get_withMatchingCookie_returnsConfiguredResponse() throws Exception {
+        var response = get("/cookie-test", "session=abc123");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("cookie-equals");
+    }
+
+    @Test
+    void get_withoutCookie_returns404() throws Exception {
+        var response = get("/cookie-test");
+
+        assertThat(response.statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void get_withWrongCookieValue_returns404() throws Exception {
+        var response = get("/cookie-test", "session=wrong");
+
+        assertThat(response.statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void get_withCookieMatchingRegex_returnsConfiguredResponse() throws Exception {
+        var response = get("/cookie-regex", "session=sess-xyz");
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).isEqualTo("cookie-regex");
+    }
+
+    @Test
+    void get_withCookieNotMatchingRegex_returns404() throws Exception {
+        var response = get("/cookie-regex", "session=wrong");
+
+        assertThat(response.statusCode()).isEqualTo(404);
+    }
+
+    @Test
+    void get_withoutCookieForRegexEndpoint_returns404() throws Exception {
+        var response = get("/cookie-regex");
+
+        assertThat(response.statusCode()).isEqualTo(404);
+    }
+
+    // endregion
+
     protected HttpResponse<String> get(String path) throws IOException, InterruptedException {
         return httpClient.send(
             HttpRequest.newBuilder()
@@ -106,6 +156,16 @@ public abstract class AbstractFileConfigIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString()
         );
+    }
+
+    protected HttpResponse<String> get(String path, String cookieHeader) throws IOException, InterruptedException {
+        var builder = HttpRequest.newBuilder()
+            .uri(URI.create(getBaseUrl() + path))
+            .GET();
+        if (cookieHeader != null) {
+            builder.header("Cookie", cookieHeader);
+        }
+        return httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
     protected HttpResponse<String> post(String path, String body) throws IOException, InterruptedException {

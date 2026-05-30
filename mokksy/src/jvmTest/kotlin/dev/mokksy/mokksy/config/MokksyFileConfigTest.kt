@@ -127,6 +127,48 @@ internal class MokksyFileConfigTest {
     }
 
     @Test
+    fun `parses cookies in match config`() {
+        // language=yaml
+        val yaml =
+            """
+            stubs:
+              - path: /cookie-test
+                match:
+                  cookies:
+                    session: abc123
+                    theme: dark
+                response:
+                  body: ok
+            """.trimIndent()
+
+        val config = parseYamlConfig(yaml)
+
+        config.stubs shouldHaveSize 1
+        config.stubs[0].match.cookies shouldBe mapOf("session" to "abc123", "theme" to "dark")
+    }
+
+    @Test
+    fun `parses cookiePatterns in match config`() {
+        // language=yaml
+        val yaml =
+            """
+            stubs:
+              - path: /cookie-regex
+                match:
+                  cookiePatterns:
+                    session: sess-.*
+                    auth: tok-[A-Z]+
+                response:
+                  body: ok
+            """.trimIndent()
+
+        val config = parseYamlConfig(yaml)
+
+        config.stubs shouldHaveSize 1
+        config.stubs[0].match.cookiePatterns shouldBe mapOf("session" to "sess-.*", "auth" to "tok-[A-Z]+")
+    }
+
+    @Test
     fun `parses multiple stubs`() {
         // language=yaml
         val yaml =
