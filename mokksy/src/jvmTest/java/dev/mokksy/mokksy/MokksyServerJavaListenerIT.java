@@ -24,7 +24,7 @@ public class MokksyServerJavaListenerIT {
             mokksy.addListener((request, response) -> {
                 callCount.incrementAndGet();
                 assertThat(request.getUri()).isEqualTo("/java-listener-test");
-                assertThat(response.getHttpStatus().getValue()).isEqualTo(200);
+                assertThat(response.getHttpStatusCode()).isEqualTo(200);
             });
 
             mokksy.get("/java-listener-test")

@@ -29,11 +29,8 @@ public class MokksyServerJavaLifecycleIT {
 
     @Test
     public void closeShutsDownTheServer() {
-        var mokksy = Mokksy.create().start();
-        try {
+        try (var mokksy = Mokksy.create().start()) {
             assertThat(mokksy.port()).isGreaterThan(0);
-        } finally {
-            mokksy.close();
         }
     }
 
