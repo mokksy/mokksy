@@ -5,17 +5,21 @@ package dev.mokksy.it
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.update
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 private val integrationTestScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -35,6 +39,30 @@ fun runIntegrationTest(block: suspend CoroutineScope.() -> Unit) {
     val job = integrationTestScope.async { block() }
     // Atomically add the job
     jobsRef.update { it + job }
+}
+
+/**
+ * Awaits completion of all integration test jobs except the caller's own job
+ * without cancelling them.
+ *
+ * This first waits for at least one other job to appear (so we don't bail
+ * before JUnit has enqueued the test methods), then waits for all to finish.
+ *
+ * @param pollInterval How often to check for job completion.
+ */
+internal suspend fun awaitIntegrationTests(pollInterval: Duration = 50.milliseconds) {
+    val callerJob = currentCoroutineContext()[Job]
+    while (jobsRef.load().all { it === callerJob }) {
+        delay(pollInterval)
+    }
+    while (true) {
+        val remaining = jobsRef.load().filter { it !== callerJob && it.isActive }
+        if (remaining.isEmpty()) break
+        delay(pollInterval)
+        remaining.forEach {
+            it.await()
+        }
+    }
 }
 
 /**

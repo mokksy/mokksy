@@ -3,7 +3,6 @@ package dev.mokksy.it
 import dev.mokksy.mokksy.ExperimentalMokksyApi
 import dev.mokksy.mokksy.Mokksy
 import io.ktor.client.HttpClient
-import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -22,11 +21,12 @@ internal object MokksyITFixture {
         runIntegrationTest {
             mokksy.startSuspend()
             mokksy.awaitStarted()
+        }
 
-            delay(10.seconds)
+        runIntegrationTest {
+            awaitIntegrationTests()
 
             mokksy.shutdownSuspend()
-
             shutdownTests(1.seconds)
         }
     }

@@ -591,7 +591,7 @@ Mokksy provides various matcher types to specify conditions for matching incomin
 
 <!--- INCLUDE
   @Test
-  suspend fun testCookieMatchers() {
+  fun testCookieMatchers() {
 -->
 
 ```kotlin
