@@ -8,6 +8,7 @@ import dev.mokksy.mokksy.request.RequestSpecification
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import dev.mokksy.mokksy.request.handleRequest
 import dev.mokksy.mokksy.request.methodEqual
+import dev.mokksy.mokksy.response.AbstractResponseDefinition
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
@@ -22,11 +23,14 @@ import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.routing.RoutingContext
 import io.ktor.util.logging.Logger
+import kotlinx.atomicfu.AtomicRef
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmSynthetic
 import kotlin.reflect.KClass
 
 /**
@@ -95,6 +99,12 @@ public class MokksyServer
         private val requestJournal: RequestJournal =
             RequestJournal(configuration.journalMode)
 
+        private val responseListener: AtomicRef<
+            (
+                suspend (RecordedRequest, AbstractResponseDefinition<*>) -> Unit
+            )?,
+        > = atomic(null)
+
         private val started = CompletableDeferred<Unit>()
 
         private val server:
@@ -117,6 +127,7 @@ public class MokksyServer
                 requestJournal = requestJournal,
                 configuration = configuration,
                 formatter = httpFormatter,
+                responseListener = responseListener.value,
             )
         }
 
@@ -158,6 +169,61 @@ public class MokksyServer
         public suspend fun awaitStarted(): MokksyServer {
             started.await()
             return this
+        }
+
+        /**
+         * Registers a listener that is invoked when a matched stub is about to send its response.
+         *
+         * The listener fires after response headers and status have been applied,
+         * but before the response body is written. This allows test assertions on
+         * shared state (e.g., semaphore permits) at the exact moment a response is
+         * ready to be sent on the wire.
+         *
+         * Example:
+         * ```kotlin
+         * mokksyServer.onResponseReady { request, response ->
+         *     semaphore.availablePermits shouldBe 0
+         * }
+         * ```
+         *
+         * Only a single listener may be registered. Subsequent calls replace the previous one.
+         *
+         * @param listener A suspend lambda receiving the [RecordedRequest] and the
+         *   [AbstractResponseDefinition] about to be sent.
+         * @see MokksyServer.addListener For non-suspend usage from Java or Kotlin.
+         */
+        @JvmSynthetic
+        @ExperimentalMokksyApi
+        public fun onResponseReady(
+            listener: suspend (RecordedRequest, AbstractResponseDefinition<*>) -> Unit,
+        ) {
+            responseListener.value = listener
+        }
+
+        /**
+         * Registers a listener that is invoked when a matched stub is about to send its response.
+         *
+         * Accepts a [RequestListener] — works from both Kotlin and Java.
+         *
+         * Prefer [onResponseReady] from Kotlin for suspend-aware usage.
+         *
+         * Example (Java):
+         * ```java
+         * mokksy.addListener((request, response) -> {
+         *     assertThat(request.getUri()).isEqualTo("/path");
+         * });
+         * ```
+         *
+         * Only a single listener may be registered. Subsequent calls replace the previous one.
+         *
+         * @param listener The [RequestListener] whose [RequestListener.onResponseReady]
+         *   will be called when a stub response is ready.
+         */
+        @ExperimentalMokksyApi
+        public fun addListener(listener: RequestListener) {
+            responseListener.value = { request, response ->
+                listener.onResponseReady(request, response)
+            }
         }
 
         /**

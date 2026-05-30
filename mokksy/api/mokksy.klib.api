@@ -78,6 +78,10 @@ final enum class dev.mokksy.mokksy/JournalMode : kotlin/Enum<dev.mokksy.mokksy/J
     final fun values(): kotlin/Array<dev.mokksy.mokksy/JournalMode> // dev.mokksy.mokksy/JournalMode.values|values#static(){}[0]
 }
 
+abstract fun interface dev.mokksy.mokksy/RequestListener { // dev.mokksy.mokksy/RequestListener|null[0]
+    abstract fun onResponseReady(dev.mokksy.mokksy.request/RecordedRequest, dev.mokksy.mokksy.response/AbstractResponseDefinition<*>) // dev.mokksy.mokksy/RequestListener.onResponseReady|onResponseReady(dev.mokksy.mokksy.request.RecordedRequest;dev.mokksy.mokksy.response.AbstractResponseDefinition<*>){}[0]
+}
+
 abstract interface dev.mokksy.mokksy/MokksyHandler { // dev.mokksy.mokksy/MokksyHandler|null[0]
     abstract val configuration // dev.mokksy.mokksy/MokksyHandler.configuration|{}configuration[0]
         abstract fun <get-configuration>(): dev.mokksy.mokksy/ServerConfiguration // dev.mokksy.mokksy/MokksyHandler.configuration.<get-configuration>|<get-configuration>(){}[0]
@@ -165,6 +169,8 @@ abstract class <#A: kotlin/Any?> dev.mokksy.mokksy.response/AbstractResponseDefi
         final fun <get-httpStatus>(): io.ktor.http/HttpStatusCode // dev.mokksy.mokksy.response/AbstractResponseDefinition.httpStatus.<get-httpStatus>|<get-httpStatus>(){}[0]
     open val delay // dev.mokksy.mokksy.response/AbstractResponseDefinition.delay|{}delay[0]
         open fun <get-delay>(): kotlin.time/Duration // dev.mokksy.mokksy.response/AbstractResponseDefinition.delay.<get-delay>|<get-delay>(){}[0]
+
+    final fun getHttpStatusCode(): kotlin/Int // dev.mokksy.mokksy.response/AbstractResponseDefinition.getHttpStatusCode|getHttpStatusCode(){}[0]
 }
 
 final class <#A: kotlin/Any> dev.mokksy.mokksy.request/BodySpecBuilder { // dev.mokksy.mokksy.request/BodySpecBuilder|null[0]
@@ -466,6 +472,7 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
     final fun <#A1: kotlin/Any> post(kotlin/String? = ..., kotlin.reflect/KClass<#A1>, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A1>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A1> // dev.mokksy.mokksy/MokksyServer.post|post(kotlin.String?;kotlin.reflect.KClass<0:0>;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun <#A1: kotlin/Any> put(dev.mokksy.mokksy/StubConfiguration, kotlin.reflect/KClass<#A1>, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A1>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A1> // dev.mokksy.mokksy/MokksyServer.put|put(dev.mokksy.mokksy.StubConfiguration;kotlin.reflect.KClass<0:0>;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun <#A1: kotlin/Any> put(kotlin/String? = ..., kotlin.reflect/KClass<#A1>, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A1>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<#A1> // dev.mokksy.mokksy/MokksyServer.put|put(kotlin.String?;kotlin.reflect.KClass<0:0>;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun addListener(dev.mokksy.mokksy/RequestListener) // dev.mokksy.mokksy/MokksyServer.addListener|addListener(dev.mokksy.mokksy.RequestListener){}[0]
     final fun allStubs(): kotlin.collections/List<dev.mokksy.mokksy/StubHandle> // dev.mokksy.mokksy/MokksyServer.allStubs|allStubs(){}[0]
     final fun baseUrl(): kotlin/String // dev.mokksy.mokksy/MokksyServer.baseUrl|baseUrl(){}[0]
     final fun checkForUnmatchedRequests() // dev.mokksy.mokksy/MokksyServer.checkForUnmatchedRequests|checkForUnmatchedRequests(){}[0]
@@ -481,6 +488,7 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
     final fun getStub(kotlin/String): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/MokksyServer.getStub|getStub(kotlin.String){}[0]
     final fun head(dev.mokksy.mokksy/StubConfiguration, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.head|head(dev.mokksy.mokksy.StubConfiguration;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun head(kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.head|head(kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
+    final fun onResponseReady(kotlin.coroutines/SuspendFunction2<dev.mokksy.mokksy.request/RecordedRequest, dev.mokksy.mokksy.response/AbstractResponseDefinition<*>, kotlin/Unit>) // dev.mokksy.mokksy/MokksyServer.onResponseReady|onResponseReady(kotlin.coroutines.SuspendFunction2<dev.mokksy.mokksy.request.RecordedRequest,dev.mokksy.mokksy.response.AbstractResponseDefinition<*>,kotlin.Unit>){}[0]
     final fun options(dev.mokksy.mokksy/StubConfiguration, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.options|options(dev.mokksy.mokksy.StubConfiguration;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun options(kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.options|options(kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun patch(dev.mokksy.mokksy/StubConfiguration, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.patch|patch(dev.mokksy.mokksy.StubConfiguration;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]

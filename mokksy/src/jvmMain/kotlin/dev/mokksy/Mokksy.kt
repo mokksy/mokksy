@@ -10,6 +10,8 @@ import dev.mokksy.mokksy.StubConfiguration
 import dev.mokksy.mokksy.StubHandle
 import dev.mokksy.mokksy.loadStubsFromEnv
 import dev.mokksy.mokksy.loadStubsFromFile
+import dev.mokksy.mokksy.ExperimentalMokksyApi
+import dev.mokksy.mokksy.RequestListener
 import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import dev.mokksy.mokksy.start
@@ -768,6 +770,27 @@ public class Mokksy(
         requestType: KClass<P>,
         block: RequestSpecificationBuilder<P>.() -> Unit,
     ): BuildingStep<P> = delegate.method(configuration, Options, requestType, block)
+
+    // endregion
+
+    // region Response listener
+
+    /**
+     * Registers a listener that is invoked when a matched stub is about to send its response.
+     *
+     * Example:
+     * ```java
+     * mokksy.addListener((request, response) -> {
+     *     assertThat(request.getUri()).isEqualTo("/path");
+     * });
+     * ```
+     *
+     * @param listener The [RequestListener] to invoke.
+     */
+    @ExperimentalMokksyApi
+    public fun addListener(listener: RequestListener) {
+        delegate.addListener(listener)
+    }
 
     // endregion
 

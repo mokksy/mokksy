@@ -2,9 +2,12 @@
 
 package dev.mokksy.mokksy
 
+import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestSpecification
+import dev.mokksy.mokksy.response.AbstractResponseDefinition
 import dev.mokksy.mokksy.response.ResponseDefinitionSupplier
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.routing.RoutingRequest
 import kotlin.concurrent.atomics.AtomicLong
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch
@@ -116,10 +119,16 @@ internal data class Stub<P : Any, T : Any>(
     suspend fun respond(
         call: ApplicationCall,
         verbose: Boolean,
+        routingRequest: RoutingRequest,
+        responseListener: (suspend (RecordedRequest, AbstractResponseDefinition<*>) -> Unit)? = null,
     ) {
         val responseDefinition = responseDefinitionSupplier.invoke(call)
         responseDefinition.headers?.invoke(call.response.headers)
         call.response.status(responseDefinition.httpStatus)
+
+        responseListener?.let {
+            it(RecordedRequest.from(routingRequest, matched = true), responseDefinition)
+        }
 
         responseDefinition.writeResponse(call, verbose)
     }

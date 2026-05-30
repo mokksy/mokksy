@@ -6,6 +6,7 @@ import dev.mokksy.mokksy.InternalMokksyApi
 import dev.mokksy.mokksy.ServerConfiguration
 import dev.mokksy.mokksy.Stub
 import dev.mokksy.mokksy.StubRegistry
+import dev.mokksy.mokksy.response.AbstractResponseDefinition
 import dev.mokksy.mokksy.utils.logger.HttpFormatter
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -36,6 +37,7 @@ internal suspend fun handleRequest(
     requestJournal: RequestJournal,
     configuration: ServerConfiguration,
     formatter: HttpFormatter,
+    responseListener: (suspend (RecordedRequest, AbstractResponseDefinition<*>) -> Unit)? = null,
 ) {
     val request = context.call.request
 
@@ -58,6 +60,7 @@ internal suspend fun handleRequest(
             request = request,
             context = context,
             formatter = formatter,
+            responseListener = responseListener,
         )
     } else {
         if (requestJournal.recordsUnmatched) {
@@ -102,6 +105,7 @@ private suspend fun handleMatchedStub(
     request: RoutingRequest,
     context: RoutingContext,
     formatter: HttpFormatter,
+    responseListener: (suspend (RecordedRequest, AbstractResponseDefinition<*>) -> Unit)? = null,
 ) {
     val config = matchedStub.configuration
     val verbose = serverConfig.verbose || config.verbose
@@ -116,6 +120,6 @@ private suspend fun handleMatchedStub(
                 }\n---\n${this.toLogString()}",
             )
         }
-        respond(context.call, verbose)
+        respond(context.call, verbose, routingRequest = request, responseListener = responseListener)
     }
 }
