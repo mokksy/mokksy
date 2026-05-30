@@ -35,6 +35,11 @@ public abstract class AbstractResponseDefinition<T>(
     public val headers: (ResponseHeaders.() -> Unit)? = null,
     public open val delay: Duration = Duration.ZERO,
 ) {
+    /**
+     * Returns the HTTP status code as an integer.
+     */
+    public fun getHttpStatusCode(): Int = httpStatus.value
+
     internal abstract suspend fun writeResponse(
         call: ApplicationCall,
         verbose: Boolean,

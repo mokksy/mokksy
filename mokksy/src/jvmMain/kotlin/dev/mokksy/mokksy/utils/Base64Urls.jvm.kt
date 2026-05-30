@@ -18,7 +18,7 @@ public fun File.asBase64DataUrl(
 @JvmOverloads
 public fun Path.asBase64DataUrl(
     mimeType: MimeType =
-        ContentType.Companion
+        ContentType
             .defaultForFilePath(
                 fileName.toString(),
             ).asMimeType(),

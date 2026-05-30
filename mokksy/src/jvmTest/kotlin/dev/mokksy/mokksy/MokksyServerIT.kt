@@ -1,5 +1,9 @@
+@file:OptIn(ExperimentalMokksyApi::class)
+
 package dev.mokksy.mokksy
 
+import dev.mokksy.mokksy.request.RecordedRequest
+import dev.mokksy.mokksy.response.AbstractResponseDefinition
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -192,6 +196,88 @@ internal class MokksyServerIT : AbstractIT() {
         client.get(path)
 
         mokksy.findAllUnmatchedRequests() shouldHaveSize 1
+    }
+
+    // endregion
+
+    // region onResponseReady listener
+
+    @Test
+    suspend fun `onResponseReady listener fires with request and response when a stub matches`() {
+        val path = "/listener-request-response-$seed"
+        val captured = mutableListOf<Pair<RecordedRequest, AbstractResponseDefinition<*>>>()
+
+        mokksy.onResponseReady { request, response ->
+            captured.add(request to response)
+        }
+
+        mokksy.get {
+            path(path)
+        } respondsWith {
+            body = "listener-ok"
+        }
+
+        client.get(path)
+
+        captured shouldHaveSize 1
+        captured[0].first.uri shouldBe path
+        captured[0].second.httpStatus shouldBe HttpStatusCode.OK
+        captured[0].second.getHttpStatusCode() shouldBe HttpStatusCode.OK.value
+    }
+
+    @Test
+    suspend fun `addListener with RequestListener fires correctly from Kotlin`() {
+        val path = "/add-listener-$seed"
+        val captured = mutableListOf<Pair<RecordedRequest, AbstractResponseDefinition<*>>>()
+
+        mokksy.addListener { request, response ->
+            captured.add(request to response)
+        }
+
+        mokksy.get {
+            path(path)
+        } respondsWith {
+            body = "listener-ok"
+        }
+
+        client.get(path)
+
+        captured shouldHaveSize 1
+        captured[0].first.uri shouldBe path
+        captured[0].second.httpStatus shouldBe HttpStatusCode.OK
+    }
+
+    @Test
+    suspend fun `onResponseReady listener is not invoked for unmatched requests`() {
+        val captured = mutableListOf<RecordedRequest>()
+
+        mokksy.onResponseReady { request, _ ->
+            captured.add(request)
+        }
+
+        client.get("/unmatched-listener-$seed")
+
+        captured.shouldBeEmpty()
+    }
+
+    @Test
+    suspend fun `onResponseReady is replaceable`() {
+        var firstCalled = false
+        var secondCalled = false
+
+        mokksy.onResponseReady { _, _ -> firstCalled = true }
+        mokksy.onResponseReady { _, _ -> secondCalled = true }
+
+        mokksy.get {
+            path("/replace-listener-$seed")
+        } respondsWith {
+            body = "ok"
+        }
+
+        client.get("/replace-listener-$seed")
+
+        firstCalled shouldBe false
+        secondCalled shouldBe true
     }
 
     // endregion

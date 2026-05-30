@@ -11,6 +11,7 @@ public final class dev/mokksy/Mokksy : java/lang/AutoCloseable {
 	public fun <init> (Ljava/lang/String;I)V
 	public fun <init> (Ljava/lang/String;IZ)V
 	public synthetic fun <init> (Ljava/lang/String;IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun addListener (Ldev/mokksy/mokksy/RequestListener;)V
 	public final fun allStubs ()Ljava/util/List;
 	public final synthetic fun awaitStarted (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun baseUrl ()Ljava/lang/String;
@@ -300,6 +301,7 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHand
 	public fun <init> (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;)V
 	public synthetic fun <init> (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Ljava/lang/String;Ldev/mokksy/mokksy/ServerConfiguration;)V
+	public final fun addListener (Ldev/mokksy/mokksy/RequestListener;)V
 	public final fun allStubs ()Ljava/util/List;
 	public final fun awaitStarted (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun baseUrl ()Ljava/lang/String;
@@ -330,6 +332,7 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHand
 	public final fun method (Ldev/mokksy/mokksy/StubConfiguration;Lio/ktor/http/HttpMethod;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun method (Ljava/lang/String;Lio/ktor/http/HttpMethod;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public static synthetic fun method$default (Ldev/mokksy/mokksy/MokksyServer;Ljava/lang/String;Lio/ktor/http/HttpMethod;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/BuildingStep;
+	public final synthetic fun onResponseReady (Lkotlin/jvm/functions/Function3;)V
 	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun options (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun options (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
@@ -368,6 +371,10 @@ public final class dev/mokksy/mokksy/Mokksy_jvmKt {
 	public static final fun Mokksy (Ljava/lang/String;IZ)Ldev/mokksy/mokksy/MokksyServer;
 	public static final fun Mokksy (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/MokksyServer;
 	public static synthetic fun Mokksy$default (Ljava/lang/String;IZLkotlin/jvm/functions/Function1;ILjava/lang/Object;)Ldev/mokksy/mokksy/MokksyServer;
+}
+
+public abstract interface class dev/mokksy/mokksy/RequestListener {
+	public abstract fun onResponseReady (Ldev/mokksy/mokksy/request/RecordedRequest;Ldev/mokksy/mokksy/response/AbstractResponseDefinition;)V
 }
 
 public final class dev/mokksy/mokksy/ServerConfiguration {
@@ -873,6 +880,7 @@ public abstract class dev/mokksy/mokksy/response/AbstractResponseDefinition {
 	public fun getDelay-UwyO8pc ()J
 	public final fun getHeaders ()Lkotlin/jvm/functions/Function1;
 	public final fun getHttpStatus ()Lio/ktor/http/HttpStatusCode;
+	public final fun getHttpStatusCode ()I
 }
 
 public abstract class dev/mokksy/mokksy/response/AbstractResponseDefinitionBuilder {

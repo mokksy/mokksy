@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.AfterTest
 import kotlin.text.Charsets.UTF_8
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 internal class MokksySseIT : AbstractIT({ createKtorSSEClient(it) }) {
     @Test
@@ -144,5 +145,5 @@ suspend fun main() {
             }
     }
 
-    delay(1000_000L)
+    delay(1000.seconds)
 }
