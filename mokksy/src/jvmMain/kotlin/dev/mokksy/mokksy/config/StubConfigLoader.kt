@@ -52,7 +52,14 @@ private fun MokksyServer.registerFromConfig(stub: StubConfig) {
             stub.match.headers.forEach { (name, value) -> containsHeader(name, value) }
             stub.match.cookies.forEach { (name, value) -> cookie(name, value) }
             stub.match.cookiePatterns.forEach { (name, pattern) ->
-                cookie(name) { it?.matches(Regex(pattern)) == true }
+                val compiled =
+                    runCatching { Regex(pattern) }.getOrElse { ex ->
+                        throw IllegalArgumentException(
+                            "Stub '${stub.name ?: stub.path}': invalid cookie regex for '$name': '$pattern'",
+                            ex,
+                        )
+                    }
+                cookie(name) { it?.matches(compiled) == true }
             }
         }
 
