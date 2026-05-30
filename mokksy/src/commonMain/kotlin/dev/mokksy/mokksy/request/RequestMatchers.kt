@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldNot
 import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
+import io.ktor.server.request.RequestCookies
 import kotlin.collections.any
 import kotlin.collections.orEmpty
 import kotlin.jvm.JvmName
@@ -33,6 +34,27 @@ internal fun containsHeader(
                 },
             )
         }
+    }
+
+internal fun cookieMatcher(
+    name: String,
+    predicate: (String?) -> Boolean,
+): Matcher<RequestCookies> =
+    object : Matcher<RequestCookies> {
+        override fun test(value: RequestCookies): MatcherResult {
+            val actualValue = value[name]
+            return MatcherResult(
+                predicate(actualValue),
+                {
+                    "Request cookie '$name' should match predicate, but was '$actualValue'."
+                },
+                {
+                    "Request cookie '$name' should NOT match predicate, but it does."
+                },
+            )
+        }
+
+        override fun toString(): String = "cookie('$name')"
     }
 
 /**

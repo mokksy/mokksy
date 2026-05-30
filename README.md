@@ -574,6 +574,10 @@ Mokksy provides various matcher types to specify conditions for matching incomin
 
 - **Path matchers** — `path("/things")` or `path = beEqual("/things")`
 - **Header matchers** — `containsHeader("X-Request-ID", "abc")` checks for a header with an exact value
+- **Cookie matchers** — `cookie("session") { it?.startsWith("sess-") == true }` and
+  `cookieAbsent("session")` in Kotlin; `cookie("session", "abc")`,
+  `cookieMatches("session", value -> value.startsWith("sess-"))`, and
+  `cookieAbsent("session")` in Java
 - **Content matchers** — `bodyContains("value")` checks if the raw body string contains a substring;
   `bodyString += contain("value")` adds a Kotest matcher directly
 - **Predicate matchers** — `bodyMatchesPredicate { it?.name == "foo" }` matches against the typed,
@@ -584,6 +588,29 @@ Mokksy provides various matcher types to specify conditions for matching incomin
   Use negative values (e.g. `priority = -1`) for catch-all / fallback stubs.
   Priority is a tiebreaker: it applies only when two stubs match with an equal number of conditions satisfied.
   For most cases, specificity-based matching (see below) selects the right stub automatically.
+
+<!--- INCLUDE
+  @Test
+  suspend fun testCookieMatchers() {
+-->
+
+```kotlin
+// Predicate — matches when the "session" cookie value starts with "sess-"
+mokksy.get {
+    path("/cookie-secured")
+    cookie("session") { it?.startsWith("sess-") == true }
+} respondsWith { body = "cookie-authorized" }
+
+// Absent — matches when the "session" cookie is not present
+mokksy.get {
+    path("/cookie-absent")
+    cookieAbsent("session")
+} respondsWith { body = "cookie-absent" }
+```
+
+<!--- INCLUDE
+  }
+-->
 
 ### Stub Specificity
 
@@ -1116,6 +1143,28 @@ mokksy.post(spec -> {
     .status(200));
 ```
 
+**Cookie matchers** — three flavours cover exact value, predicate, and absent matching:
+
+```java
+// Exact value
+mokksy.get(spec -> spec
+    .path("/profile")
+    .cookie("session", "abc")
+).respondsWith(rb -> rb.body("matched"));
+
+// Predicate
+mokksy.get(spec -> spec
+    .path("/profile")
+    .cookieMatches("session", value -> value != null && value.startsWith("sess-"))
+).respondsWith(rb -> rb.body("predicate-matched"));
+
+// Absent
+mokksy.get(spec -> spec
+    .path("/profile")
+    .cookieAbsent("session")
+).respondsWith(rb -> rb.body("absent-matched"));
+```
+
 **All HTTP verbs** are available as named methods (`get`, `post`, `put`, `delete`, `patch`,
 `head`, `options`) — each with both `String` path and `Consumer` spec overloads.
 Use `method(String, String)` or `method(String, spec)` for dynamic method names in parameterised tests:
@@ -1280,6 +1329,7 @@ record CreateItemRequest(String name, int quantity) {}
 
 mokksy.post(CreateItemRequest.class, spec -> spec
         .path("/items")
+        .cookieMatches("session", value -> value != null && value.startsWith("sess-"))
         .bodyMatchesPredicate(req -> "widget".equals(req.name())))
     .respondsWith(builder -> builder.body("{\"id\":\"1\"}").status(201));
 ```

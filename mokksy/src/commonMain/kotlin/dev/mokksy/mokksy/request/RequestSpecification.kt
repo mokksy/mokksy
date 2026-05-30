@@ -5,6 +5,7 @@ import io.kotest.matchers.Matcher
 import io.kotest.matchers.string.contain
 import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
+import io.ktor.server.request.RequestCookies
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmSynthetic
 import kotlin.reflect.KClass
@@ -46,6 +47,7 @@ internal data class MatchResult(
  * @property method Matcher for the HTTP method of the request. If null, the method is not validated.
  * @property path Matcher for the request path. If null, the path is not validated.
  * @property headers List of matchers for Ktor Headers object. All matchers must pass for a match to succeed.
+ * @property cookies List of matchers for Ktor request cookies. All matchers must pass for a match to succeed.
  * @property body List of matchers for the request body as a [P]. All matchers must pass for a match to succeed.
  * @property bodyString List of matchers for the request body as a String.
  *                      All matchers must pass for a match to succeed.
@@ -65,6 +67,7 @@ public open class RequestSpecification<P : Any> internal constructor(
     public val method: Matcher<HttpMethod>? = null,
     public val path: Matcher<String>? = null,
     public val headers: List<Matcher<Headers>> = listOf(),
+    public val cookies: List<Matcher<RequestCookies>> = listOf(),
     public val body: List<Matcher<P?>> = listOf(),
     public val bodyString: List<Matcher<String?>> = listOf(),
     internal val formSpecs: List<FormBodySpec> = listOf(),
@@ -80,6 +83,7 @@ public open class RequestSpecification<P : Any> internal constructor(
             }
             if (path != null) appendLine("path: $path")
             if (headers.isNotEmpty()) appendLine("headers: $headers")
+            if (cookies.isNotEmpty()) appendLine("cookies: $cookies")
             if (body.isNotEmpty()) appendLine("body: $body")
             if (bodyString.isNotEmpty()) appendLine("bodyString: $bodyString")
             if (formSpecs.isNotEmpty()) appendLine("forms: $formSpecs")
@@ -96,6 +100,7 @@ public open class RequestSpecificationBuilder<P : Any>(
     protected var method: Matcher<HttpMethod>? = null
     public var path: Matcher<String>? = null
     public val headers: MutableList<Matcher<Headers>> = mutableListOf()
+    public val cookies: MutableList<Matcher<RequestCookies>> = mutableListOf()
     public val body: MutableList<Matcher<P?>> = mutableListOf()
     public val bodyString: MutableList<Matcher<String?>> = mutableListOf()
     internal val formSpecs: MutableList<FormBodySpec> = mutableListOf()
@@ -173,6 +178,71 @@ public open class RequestSpecificationBuilder<P : Any>(
                     .containsHeader(headerName, headerValue)
         }
 
+    /**
+     * Requires a request cookie with [name] to match [predicate].
+     *
+     * The predicate receives the decoded cookie value, or `null` when the cookie is absent.
+     * Request cookies only carry a name and value in the `Cookie` header; response-only attributes
+     * such as `Path`, `HttpOnly`, `Secure`, or `SameSite` are not available for request matching.
+     *
+     * Example:
+     * ```kotlin
+     * mokksy.get {
+     *     path("/profile")
+     *     cookie("session") { it?.startsWith("sess_") == true }
+     * }
+     * ```
+     *
+     * @param name Cookie name.
+     * @param predicate Predicate applied to the decoded cookie value.
+     * @return The same instance of [RequestSpecificationBuilder].
+     */
+    public fun cookie(
+        name: String,
+        predicate: (String?) -> Boolean,
+    ): RequestSpecificationBuilder<P> =
+        apply {
+            cookies += cookieMatcher(name, predicate)
+        }
+
+    /**
+     * Requires a request cookie with [name] to equal [value].
+     *
+     * Example:
+     * ```kotlin
+     * mokksy.get {
+     *     path("/profile")
+     *     cookie("session", "abc")
+     * }
+     * ```
+     *
+     * @param name Cookie name.
+     * @param value Expected decoded cookie value.
+     * @return The same instance of [RequestSpecificationBuilder].
+     */
+    public fun cookie(
+        name: String,
+        value: String,
+    ): RequestSpecificationBuilder<P> =
+        cookie(name) { it == value }
+
+    /**
+     * Requires that the request does not contain a cookie with [name].
+     *
+     * Example:
+     * ```kotlin
+     * mokksy.get {
+     *     path("/anonymous")
+     *     cookieAbsent("session")
+     * }
+     * ```
+     *
+     * @param name Cookie name that must be absent.
+     * @return The same instance of [RequestSpecificationBuilder].
+     */
+    public fun cookieAbsent(name: String): RequestSpecificationBuilder<P> =
+        cookie(name) { it == null }
+
     public fun bodyString(matcher: Matcher<String?>): RequestSpecificationBuilder<P> =
         apply {
             this.bodyString += matcher
@@ -236,6 +306,7 @@ public open class RequestSpecificationBuilder<P : Any>(
             method = method,
             path = path,
             headers = headers,
+            cookies = cookies,
             requestType = requestType,
             body = body,
             bodyString = bodyString,

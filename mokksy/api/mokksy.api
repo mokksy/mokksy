@@ -214,6 +214,9 @@ public final class dev/mokksy/mokksy/JavaRequestSpecificationBuilder {
 	public final fun bodyTextMatches (Ljava/lang/String;Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun bodyTextMatches (Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun containsHeader (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
+	public final fun cookie (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
+	public final fun cookieAbsent (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
+	public final fun cookieMatches (Ljava/lang/String;Ljava/util/function/Predicate;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun path (Lio/kotest/matchers/Matcher;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun path (Ljava/lang/String;)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
 	public final fun priority (I)Ldev/mokksy/mokksy/JavaRequestSpecificationBuilder;
@@ -822,6 +825,7 @@ public final class dev/mokksy/mokksy/request/RequestMatchers {
 public class dev/mokksy/mokksy/request/RequestSpecification {
 	public final fun getBody ()Ljava/util/List;
 	public final fun getBodyString ()Ljava/util/List;
+	public final fun getCookies ()Ljava/util/List;
 	public final fun getHeaders ()Ljava/util/List;
 	public final fun getMethod ()Lio/kotest/matchers/Matcher;
 	public final fun getPath ()Lio/kotest/matchers/Matcher;
@@ -838,8 +842,12 @@ public class dev/mokksy/mokksy/request/RequestSpecificationBuilder {
 	public final fun bodyMatchesPredicates ([Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun bodyString (Lio/kotest/matchers/Matcher;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun containsHeader (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
+	public final fun cookie (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
+	public final fun cookie (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
+	public final fun cookieAbsent (Ljava/lang/String;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun getBody ()Ljava/util/List;
 	public final fun getBodyString ()Ljava/util/List;
+	public final fun getCookies ()Ljava/util/List;
 	public final fun getHeaders ()Ljava/util/List;
 	protected final fun getMethod ()Lio/kotest/matchers/Matcher;
 	public final fun getPath ()Lio/kotest/matchers/Matcher;

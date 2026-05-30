@@ -128,6 +128,53 @@ internal class TypesafeMethodsIT : AbstractIT() {
     }
 
     @Test
+    suspend fun `Should match request cookie by predicate`() {
+        val uri = "/cookie-predicate-$seed"
+        mokksy
+            .get {
+                path(uri)
+                cookie("test") { it == "abc" }
+            } respondsWith {
+            body = "cookie matched"
+        }
+
+        val matched =
+            client.get(uri) {
+                headers.append(HttpHeaders.Cookie, "test=abc")
+            }
+        val unmatched =
+            client.get(uri) {
+                headers.append(HttpHeaders.Cookie, "test=wrong")
+            }
+
+        matched.status shouldBe HttpStatusCode.OK
+        matched.bodyAsText() shouldBe "cookie matched"
+        unmatched.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `Should match absent request cookie`() {
+        val uri = "/cookie-absent-$seed"
+        mokksy
+            .get {
+                path(uri)
+                cookieAbsent("test")
+            } respondsWith {
+            body = "cookie absent"
+        }
+
+        val matched = client.get(uri)
+        val unmatched =
+            client.get(uri) {
+                headers.append(HttpHeaders.Cookie, "test=abc")
+            }
+
+        matched.status shouldBe HttpStatusCode.OK
+        matched.bodyAsText() shouldBe "cookie absent"
+        unmatched.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
     suspend fun `Should respond to POST`() {
         // given
         val id = Random.nextInt()

@@ -185,6 +185,37 @@ class JavaRequestSpecificationBuilderTest {
 
     // endregion
 
+    // region cookies
+
+    @Test
+    fun `cookie exact value adds cookie matcher and returns this`() {
+        val result = sut.cookie("session", "abc")
+        assertSoftly {
+            result shouldBe sut
+            delegate.build().cookies shouldHaveSize 1
+        }
+    }
+
+    @Test
+    fun `cookieMatches adds cookie matcher and returns this`() {
+        val result = sut.cookieMatches("session", Predicate<String?> { it?.startsWith("abc") == true })
+        assertSoftly {
+            result shouldBe sut
+            delegate.build().cookies shouldHaveSize 1
+        }
+    }
+
+    @Test
+    fun `cookieAbsent adds cookie matcher and returns this`() {
+        val result = sut.cookieAbsent("session")
+        assertSoftly {
+            result shouldBe sut
+            delegate.build().cookies shouldHaveSize 1
+        }
+    }
+
+    // endregion
+
     // region priority
 
     @Test
