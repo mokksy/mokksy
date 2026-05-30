@@ -21,9 +21,7 @@ internal object MokksyITFixture {
         runIntegrationTest {
             mokksy.startSuspend()
             mokksy.awaitStarted()
-        }
 
-        runIntegrationTest {
             awaitIntegrationTests()
 
             mokksy.shutdownSuspend()
