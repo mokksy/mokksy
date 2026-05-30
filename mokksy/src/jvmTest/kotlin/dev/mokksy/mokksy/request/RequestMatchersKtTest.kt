@@ -5,6 +5,8 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
+import io.ktor.server.request.RequestCookies
+import io.mockk.mockk
 import kotlin.test.Test
 
 class RequestMatchersKtTest {
@@ -30,6 +32,47 @@ class RequestMatchersKtTest {
                 "Object 'Input(name=foo, age=null)' should match predicate 'predicateToString'"
             negatedFailureMessage() shouldBe
                 "Object 'Input(name=foo, age=null)' should NOT match predicate 'predicateToString'"
+        }
+    }
+
+    @Test
+    fun `Should test cookieMatcher`() {
+        val cookies =
+            object : RequestCookies(mockk()) {
+                override fun fetchCookies(): Map<String, String> = mapOf("session" to "abc123")
+            }
+
+        val passMatcher = cookieMatcher("session") { it == "abc123" }
+        passMatcher.toString() shouldBe "cookie('session')"
+
+        assertSoftly(passMatcher.test(cookies)) {
+            passed() shouldBe true
+            failureMessage() shouldBe
+                "Request cookie 'session' should match predicate, but was 'abc123'."
+            negatedFailureMessage() shouldBe
+                "Request cookie 'session' should NOT match predicate, but it does."
+        }
+
+        val failMatcher = cookieMatcher("session") { it == "wrong" }
+        assertSoftly(failMatcher.test(cookies)) {
+            passed() shouldBe false
+            failureMessage() shouldBe
+                "Request cookie 'session' should match predicate, but was 'abc123'."
+            negatedFailureMessage() shouldBe
+                "Request cookie 'session' should NOT match predicate, but it does."
+        }
+
+        val emptyCookies =
+            object : RequestCookies(mockk()) {
+                override fun fetchCookies(): Map<String, String> = emptyMap()
+            }
+        val missingMatcher = cookieMatcher("missing") { it == null }
+        assertSoftly(missingMatcher.test(emptyCookies)) {
+            passed() shouldBe true
+            failureMessage() shouldBe
+                "Request cookie 'missing' should match predicate, but was 'null'."
+            negatedFailureMessage() shouldBe
+                "Request cookie 'missing' should NOT match predicate, but it does."
         }
     }
 
