@@ -10,6 +10,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -126,6 +127,69 @@ internal class RequestSpecificationTest {
         }
 
     @Test
+    fun `should match cookie by predicate`() =
+        specTestApplication {
+            routing {
+                get("/test") {
+                    respondMatchResult(
+                        RequestSpecification(
+                            cookies = listOf(cookieMatcher("session") { it?.startsWith("abc") == true }),
+                            requestType = String::class,
+                        ),
+                    )
+                }
+            }
+
+            val response =
+                client.get("/test") {
+                    header(HttpHeaders.Cookie, "session=abcdef")
+                }
+
+            response.bodyAsText() shouldBe "true"
+        }
+
+    @Test
+    fun `should not match when cookie predicate fails`() =
+        specTestApplication {
+            routing {
+                get("/test") {
+                    respondMatchResult(
+                        RequestSpecification(
+                            cookies = listOf(cookieMatcher("session") { it == "expected" }),
+                            requestType = String::class,
+                        ),
+                    )
+                }
+            }
+
+            val response =
+                client.get("/test") {
+                    header(HttpHeaders.Cookie, "session=actual")
+                }
+
+            response.bodyAsText() shouldBe "false"
+        }
+
+    @Test
+    fun `should match absent cookie`() =
+        specTestApplication {
+            routing {
+                get("/test") {
+                    respondMatchResult(
+                        RequestSpecification(
+                            cookies = listOf(cookieMatcher("session") { it == null }),
+                            requestType = String::class,
+                        ),
+                    )
+                }
+            }
+
+            val response = client.get("/test")
+
+            response.bodyAsText() shouldBe "true"
+        }
+
+    @Test
     fun `should not match when bodyString differs`() =
         specTestApplication {
             routing {
@@ -205,6 +269,7 @@ internal class RequestSpecificationTest {
                             method = beEqual(HttpMethod.Post),
                             path = contain("test"),
                             headers = listOf(containsHeader("X-Request-ID", "RequestID")),
+                            cookies = listOf(cookieMatcher("session") { it == "abc" }),
                             requestType = Input::class,
                         ).matches(call.request)
                             .getOrThrow()
@@ -214,13 +279,13 @@ internal class RequestSpecificationTest {
                 }
             }
 
-            // method=POST and path match; X-Request-ID header is absent → headers[0] fails
+            // method=POST and path match; X-Request-ID header and session cookie are absent.
             val response = client.post("/test")
 
             val (matched, score, failed) = response.bodyAsText().split("|")
             matched shouldBe "false"
             score shouldBe "2"
-            failed shouldBe "headers[0]"
+            failed shouldBe "headers[0],cookies[0]"
         }
 
     @Test

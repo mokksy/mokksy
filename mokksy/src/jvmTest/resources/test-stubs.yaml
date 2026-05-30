@@ -47,3 +47,23 @@ stubs:
         - "Hello"
         - " World"
       contentType: text/plain; charset=UTF-8
+
+  - name: cookie-equals
+    method: GET
+    path: /cookie-test
+    match:
+      cookies:
+        session: abc123
+    response:
+      body: cookie-equals
+      status: 200
+
+  - name: cookie-regex
+    method: GET
+    path: /cookie-regex
+    match:
+      cookiePatterns:
+        session: sess-.*
+    response:
+      body: cookie-regex
+      status: 200

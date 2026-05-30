@@ -25,7 +25,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.withCharset
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -132,6 +131,70 @@ internal class StubFileConfigIT {
             contentType() shouldBe ContentType.Text.Plain.withCharset(UTF_8)
             bodyAsText() shouldBe "Hello World"
         }
+    }
+
+    // endregion
+
+    // region cookie matching
+
+    @Test
+    suspend fun `GET stub matches cookie value from file config`() {
+        val result =
+            client.get("/cookie-test") {
+                header(HttpHeaders.Cookie, "session=abc123")
+            }
+
+        assertSoftly(result) {
+            status shouldBe HttpStatusCode.OK
+            bodyAsText() shouldBe "cookie-equals"
+        }
+    }
+
+    @Test
+    suspend fun `GET stub does not match when cookie is missing`() {
+        val result = client.get("/cookie-test")
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `GET stub does not match when cookie value is wrong`() {
+        val result =
+            client.get("/cookie-test") {
+                header(HttpHeaders.Cookie, "session=wrong")
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `GET stub matches cookie value via regex from file config`() {
+        val result =
+            client.get("/cookie-regex") {
+                header(HttpHeaders.Cookie, "session=sess-xyz")
+            }
+
+        assertSoftly(result) {
+            status shouldBe HttpStatusCode.OK
+            bodyAsText() shouldBe "cookie-regex"
+        }
+    }
+
+    @Test
+    suspend fun `GET stub does not match cookie via regex when value is wrong`() {
+        val result =
+            client.get("/cookie-regex") {
+                header(HttpHeaders.Cookie, "session=wrong")
+            }
+
+        result.status shouldBe HttpStatusCode.NotFound
+    }
+
+    @Test
+    suspend fun `GET stub does not match cookie via regex when cookie is missing`() {
+        val result = client.get("/cookie-regex")
+
+        result.status shouldBe HttpStatusCode.NotFound
     }
 
     // endregion

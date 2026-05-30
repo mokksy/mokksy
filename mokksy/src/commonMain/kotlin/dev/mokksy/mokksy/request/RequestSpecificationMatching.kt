@@ -64,6 +64,9 @@ private suspend fun <P : Any> RequestSpecification<P>.matchesTyped(
             score += headersScore
             failed += headersFailed
         }
+        val (cookiesScore, cookiesFailed) = scoreCookieMatchers(request)
+        score += cookiesScore
+        failed += cookiesFailed
 
         val (bodyScore, bodyFailed) = scoreBodyMatchers(request)
         score += bodyScore
@@ -88,6 +91,20 @@ private suspend fun <P : Any> RequestSpecification<P>.matchesTyped(
         MatchResult(matched = failed.isEmpty(), score = score, failedMatchers = failed)
     }.onFailure {
         if (it is CancellationException || it is Error) throw it
+    }
+
+private fun RequestSpecification<*>.scoreCookieMatchers(
+    request: ApplicationRequest,
+): Pair<Int, List<String>> =
+    if (cookies.isEmpty()) {
+        0 to emptyList()
+    } else {
+        scoreMatchersSafely(
+            cookies,
+            request.cookies,
+            "cookies",
+            request.call,
+        )
     }
 
 private suspend fun <P : Any> RequestSpecification<P>.scoreBodyMatchers(

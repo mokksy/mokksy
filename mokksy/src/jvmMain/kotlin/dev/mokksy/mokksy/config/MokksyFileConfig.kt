@@ -23,6 +23,8 @@ internal data class StubConfig(
 internal data class MatchConfig(
     val bodyContains: List<String> = emptyList(),
     val headers: Map<String, String> = emptyMap(),
+    val cookies: Map<String, String> = emptyMap(),
+    val cookiePatterns: Map<String, String> = emptyMap(),
 )
 
 @Serializable

@@ -150,6 +150,45 @@ public class JavaRequestSpecificationBuilder<P : Any> internal constructor(
     ): JavaRequestSpecificationBuilder<P> = apply { delegate.containsHeader(name, value) }
 
     /**
+     * Requires a request cookie with [name] to match [predicate].
+     *
+     * The predicate receives the decoded cookie value, or `null` when the cookie is absent.
+     * Request cookies contain only name/value pairs; response cookie attributes such as
+     * `Path`, `HttpOnly`, `Secure`, or `SameSite` cannot be matched from an incoming request.
+     *
+     * @param name Cookie name.
+     * @param predicate A [Predicate] applied to the decoded cookie value, or `null` when absent.
+     * @return This builder instance.
+     */
+    public fun cookieMatches(
+        name: String,
+        predicate: Predicate<String?>,
+    ): JavaRequestSpecificationBuilder<P> =
+        apply { delegate.cookie(name) { predicate.test(it) } }
+
+    /**
+     * Requires a request cookie with [name] to equal [value].
+     *
+     * @param name Cookie name.
+     * @param value Expected decoded cookie value.
+     * @return This builder instance.
+     */
+    public fun cookie(
+        name: String,
+        value: String,
+    ): JavaRequestSpecificationBuilder<P> =
+        apply { delegate.cookie(name, value) }
+
+    /**
+     * Requires that the request does not contain a cookie with [name].
+     *
+     * @param name Cookie name that must be absent.
+     * @return This builder instance.
+     */
+    public fun cookieAbsent(name: String): JavaRequestSpecificationBuilder<P> =
+        apply { delegate.cookieAbsent(name) }
+
+    /**
      * Sets the priority for this stub. Higher values win over lower values.
      *
      * @param value Priority value; higher means higher precedence. Default is `0`.
