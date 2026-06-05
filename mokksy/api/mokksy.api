@@ -32,6 +32,10 @@ public final class dev/mokksy/Mokksy : java/lang/AutoCloseable {
 	public final synthetic fun delete (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun findAllUnexpectedRequests ()Ljava/util/List;
 	public final fun findAllUnmatchedStubs ()Ljava/util/List;
+	public final fun findStub (Ldev/mokksy/mokksy/StubPredicate;)Ldev/mokksy/mokksy/StubHandle;
+	public final fun findStubById (Ljava/lang/String;)Ldev/mokksy/mokksy/StubHandle;
+	public final fun findStubByName (Ljava/lang/String;)Ldev/mokksy/mokksy/StubHandle;
+	public final fun findStubs (Ldev/mokksy/mokksy/StubPredicate;)Ljava/util/List;
 	public final fun get (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/Class;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun get (Ldev/mokksy/mokksy/StubConfiguration;Ljava/lang/String;)Ldev/mokksy/mokksy/JavaBuildingStep;
 	public final fun get (Ldev/mokksy/mokksy/StubConfiguration;Ljava/util/function/Consumer;)Ldev/mokksy/mokksy/JavaBuildingStep;
@@ -316,6 +320,10 @@ public final class dev/mokksy/mokksy/MokksyServer : dev/mokksy/mokksy/MokksyHand
 	public final fun findAllUnexpectedRequests ()Ljava/util/List;
 	public final fun findAllUnmatchedRequests ()Ljava/util/List;
 	public final fun findAllUnmatchedStubs ()Ljava/util/List;
+	public final fun findStub (Ldev/mokksy/mokksy/StubPredicate;)Ldev/mokksy/mokksy/StubHandle;
+	public final fun findStubById (Ljava/lang/String;)Ldev/mokksy/mokksy/StubHandle;
+	public final fun findStubByName (Ljava/lang/String;)Ldev/mokksy/mokksy/StubHandle;
+	public final fun findStubs (Ldev/mokksy/mokksy/StubPredicate;)Ljava/util/List;
 	public final fun get (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun get (Ldev/mokksy/mokksy/StubConfiguration;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
 	public final fun get (Ljava/lang/String;Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/BuildingStep;
@@ -456,11 +464,16 @@ public final class dev/mokksy/mokksy/StubConfiguration$Companion {
 }
 
 public final class dev/mokksy/mokksy/StubHandle {
+	public final fun getId ()Ljava/lang/String;
 	public final fun getName ()Ljava/lang/String;
 	public final fun matchCount ()J
 	public fun toString ()Ljava/lang/String;
 	public final fun verifyCalled ()Ldev/mokksy/mokksy/VerificationBuilder;
 	public final fun verifyCalled (I)Ldev/mokksy/mokksy/StubHandle;
+}
+
+public abstract interface class dev/mokksy/mokksy/StubPredicate {
+	public abstract fun test (Ldev/mokksy/mokksy/StubHandle;)Z
 }
 
 public final class dev/mokksy/mokksy/VerificationBuilder {

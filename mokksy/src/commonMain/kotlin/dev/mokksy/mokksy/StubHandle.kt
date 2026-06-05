@@ -16,6 +16,11 @@ public class StubHandle internal constructor(
     internal val stub: Stub<*, *>,
 ) {
     /**
+     * Stable unique identifier for this stub, generated at creation time.
+     */
+    public val id: StubId get() = stub.id
+
+    /**
      * The optional name assigned at stub registration, or `null` if unnamed.
      */
     public val name: String? get() = stub.configuration.name

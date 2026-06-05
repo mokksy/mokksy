@@ -82,6 +82,10 @@ abstract fun interface dev.mokksy.mokksy/RequestListener { // dev.mokksy.mokksy/
     abstract fun onResponseReady(dev.mokksy.mokksy.request/RecordedRequest, dev.mokksy.mokksy.response/AbstractResponseDefinition<*>) // dev.mokksy.mokksy/RequestListener.onResponseReady|onResponseReady(dev.mokksy.mokksy.request.RecordedRequest;dev.mokksy.mokksy.response.AbstractResponseDefinition<*>){}[0]
 }
 
+abstract fun interface dev.mokksy.mokksy/StubPredicate { // dev.mokksy.mokksy/StubPredicate|null[0]
+    abstract fun test(dev.mokksy.mokksy/StubHandle): kotlin/Boolean // dev.mokksy.mokksy/StubPredicate.test|test(dev.mokksy.mokksy.StubHandle){}[0]
+}
+
 abstract interface dev.mokksy.mokksy/MokksyHandler { // dev.mokksy.mokksy/MokksyHandler|null[0]
     abstract val configuration // dev.mokksy.mokksy/MokksyHandler.configuration|{}configuration[0]
         abstract fun <get-configuration>(): dev.mokksy.mokksy/ServerConfiguration // dev.mokksy.mokksy/MokksyHandler.configuration.<get-configuration>|<get-configuration>(){}[0]
@@ -483,6 +487,10 @@ final class dev.mokksy.mokksy/MokksyServer : dev.mokksy.mokksy/MokksyHandler { /
     final fun findAllUnexpectedRequests(): kotlin.collections/List<dev.mokksy.mokksy.request/RecordedRequest> // dev.mokksy.mokksy/MokksyServer.findAllUnexpectedRequests|findAllUnexpectedRequests(){}[0]
     final fun findAllUnmatchedRequests(): kotlin.collections/List<dev.mokksy.mokksy.request/RecordedRequest> // dev.mokksy.mokksy/MokksyServer.findAllUnmatchedRequests|findAllUnmatchedRequests(){}[0]
     final fun findAllUnmatchedStubs(): kotlin.collections/List<dev.mokksy.mokksy/StubHandle> // dev.mokksy.mokksy/MokksyServer.findAllUnmatchedStubs|findAllUnmatchedStubs(){}[0]
+    final fun findStub(dev.mokksy.mokksy/StubPredicate): dev.mokksy.mokksy/StubHandle? // dev.mokksy.mokksy/MokksyServer.findStub|findStub(dev.mokksy.mokksy.StubPredicate){}[0]
+    final fun findStubById(kotlin/String): dev.mokksy.mokksy/StubHandle? // dev.mokksy.mokksy/MokksyServer.findStubById|findStubById(kotlin.String){}[0]
+    final fun findStubByName(kotlin/String): dev.mokksy.mokksy/StubHandle? // dev.mokksy.mokksy/MokksyServer.findStubByName|findStubByName(kotlin.String){}[0]
+    final fun findStubs(dev.mokksy.mokksy/StubPredicate): kotlin.collections/List<dev.mokksy.mokksy/StubHandle> // dev.mokksy.mokksy/MokksyServer.findStubs|findStubs(dev.mokksy.mokksy.StubPredicate){}[0]
     final fun get(dev.mokksy.mokksy/StubConfiguration, kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.get|get(dev.mokksy.mokksy.StubConfiguration;kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun get(kotlin/Function1<dev.mokksy.mokksy.request/RequestSpecificationBuilder<kotlin/String>, kotlin/Unit>): dev.mokksy.mokksy/BuildingStep<kotlin/String> // dev.mokksy.mokksy/MokksyServer.get|get(kotlin.Function1<dev.mokksy.mokksy.request.RequestSpecificationBuilder<kotlin.String>,kotlin.Unit>){}[0]
     final fun getStub(kotlin/String): dev.mokksy.mokksy/StubHandle // dev.mokksy.mokksy/MokksyServer.getStub|getStub(kotlin.String){}[0]
@@ -560,6 +568,8 @@ final class dev.mokksy.mokksy/StubConfiguration { // dev.mokksy.mokksy/StubConfi
 }
 
 final class dev.mokksy.mokksy/StubHandle { // dev.mokksy.mokksy/StubHandle|null[0]
+    final val id // dev.mokksy.mokksy/StubHandle.id|{}id[0]
+        final fun <get-id>(): kotlin/String // dev.mokksy.mokksy/StubHandle.id.<get-id>|<get-id>(){}[0]
     final val name // dev.mokksy.mokksy/StubHandle.name|{}name[0]
         final fun <get-name>(): kotlin/String? // dev.mokksy.mokksy/StubHandle.name.<get-name>|<get-name>(){}[0]
 

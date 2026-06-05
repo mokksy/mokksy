@@ -7,6 +7,7 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import kotlin.test.Test
@@ -125,15 +126,13 @@ internal class StubVerificationIT : MokksyIntegrationTest() {
         }
 
     @Test
-    fun `getStub returns null for unknown name`() =
+    fun `findStubByName returns null for unknown name`() =
         runIntegrationTest {
-            shouldThrow<NoSuchElementException> {
-                mokksy.getStub("nonexistent")
-            }
+            mokksy.findStubByName("nonexistent") shouldBe null
         }
 
     @Test
-    fun `getStub returns handle for named stub`() =
+    fun `findStubByName returns handle for named stub`() =
         runIntegrationTest {
             val stub =
                 mokksy
@@ -141,13 +140,15 @@ internal class StubVerificationIT : MokksyIntegrationTest() {
                         path("/find-stub-by-name")
                     }.respondsWith { body = "ok" }
 
-            val found = mokksy.getStub("find-stub-by-name")
-            found.name shouldBe "find-stub-by-name"
-            found.matchCount() shouldBe 0
+            val found = mokksy.findStubByName("find-stub-by-name")
+            found.shouldNotBeNull {
+                name shouldBe "find-stub-by-name"
+                matchCount() shouldBe 0
+            }
 
             client.get(mokksy.baseUrl() + "/find-stub-by-name")
             stub.matchCount() shouldBe 1
-            found.matchCount() shouldBe 1
+            found?.matchCount() shouldBe 1
         }
 
     @Test

@@ -9,7 +9,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.request.get
 import io.ktor.client.request.put
@@ -139,8 +141,9 @@ internal class MokksyServerIT : AbstractIT() {
 
     // endregion
 
-    // region getStub
+    // region getStub (deprecated, retained for backward-compat regression)
 
+    @Suppress("DEPRECATION")
     @Test
     fun `getStub returns named stub handle`() {
         val expected =
@@ -153,6 +156,7 @@ internal class MokksyServerIT : AbstractIT() {
         mokksy.getStub("named-stub").name shouldBe expected.name
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `getStub throws when stub not found`() {
         val error =
@@ -164,24 +168,97 @@ internal class MokksyServerIT : AbstractIT() {
     }
 
     @Test
-    fun `getStub throws when multiple stubs share the same name`() {
+    fun `duplicate stub name throws at registration`() {
         mokksy.get(name = "duplicate-stub", requestType = String::class) {
             path("/duplicate-stub-a-$seed")
         } respondsWith {
             body = "a"
         }
-        mokksy.post(name = "duplicate-stub", requestType = String::class) {
-            path("/duplicate-stub-b-$seed")
-        } respondsWith {
-            body = "b"
-        }
-
         val error =
-            shouldThrow<IllegalStateException> {
-                mokksy.getStub("duplicate-stub")
+            shouldThrow<IllegalArgumentException> {
+                mokksy.post(name = "duplicate-stub", requestType = String::class) {
+                    path("/duplicate-stub-b-$seed")
+                } respondsWith {
+                    body = "b"
+                }
             }
 
-        error.message shouldContain "Expected exactly one stub named 'duplicate-stub'"
+        error.message shouldContain "A stub with name 'duplicate-stub' is already registered"
+    }
+
+    @Test
+    fun `findStubById returns handle for registered stub`() {
+        val handle =
+            mokksy.get { path("/find-by-id-$seed") } respondsWith {
+                body = "ok"
+            }
+        mokksy.findStubById(handle.id) shouldNotBeNull {
+            id shouldBe handle.id
+            name shouldBe null
+        }
+    }
+
+    @Test
+    fun `findStubById returns null for unknown id`() {
+        mokksy.findStubById("nonexistent") shouldBe null
+    }
+
+    @Test
+    fun `findStubByName returns handle for named stub`() {
+        mokksy.get(name = "findable", requestType = String::class) {
+            path("/find-by-name-$seed")
+        } respondsWith {
+            body = "ok"
+        }
+        mokksy.findStubByName("findable") shouldNotBeNull {
+            name shouldBe "findable"
+        }
+    }
+
+    @Test
+    fun `findStubByName returns null for unknown name`() {
+        mokksy.findStubByName("nonexistent") shouldBe null
+    }
+
+    // endregion
+
+    // region findStub / findStubs (predicate)
+
+    @Test
+    fun `findStub with predicate returns first match`() {
+        mokksy.get { path("/predicate-first-$seed") } respondsWith { body = "ok" }
+        mokksy.get { path("/predicate-second-$seed") } respondsWith { body = "ok" }
+
+        mokksy.findStub { it.id.isNotEmpty() } shouldNotBe null
+    }
+
+    @Test
+    fun `findStub with predicate returns null when no match`() {
+        mokksy.get { path("/no-match-$seed") } respondsWith { body = "ok" }
+
+        mokksy.findStub { it.name == "no-such-name" } shouldBe null
+    }
+
+    @Test
+    fun `findStubs with predicate returns all matches`() {
+        mokksy.get(name = "match-a-$seed", requestType = String::class) {
+            path("/match-a-$seed")
+        } respondsWith { body = "a" }
+        mokksy.get(name = "match-b-$seed", requestType = String::class) {
+            path("/match-b-$seed")
+        } respondsWith { body = "b" }
+        mokksy.get(name = "other-$seed", requestType = String::class) {
+            path("/other-$seed")
+        } respondsWith { body = "other" }
+
+        mokksy.findStubs { it.name?.startsWith("match-") == true } shouldHaveSize 2
+    }
+
+    @Test
+    fun `findStubs with predicate returns empty list when no match`() {
+        mokksy.get { path("/nothing-$seed") } respondsWith { body = "ok" }
+
+        mokksy.findStubs { it.name == "missing" } shouldBe emptyList()
     }
 
     // endregion

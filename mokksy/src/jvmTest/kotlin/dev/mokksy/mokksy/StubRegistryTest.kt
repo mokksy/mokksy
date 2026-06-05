@@ -82,6 +82,73 @@ class StubRegistryTest {
                     registry.add(s1)
                 }
             }
+
+        @Test
+        fun `should throw on duplicate name`() =
+            runTest {
+                val registry = StubRegistry()
+                registry.add(
+                    createStub<String, String>(
+                        name = "dup-name",
+                        requestType = String::class,
+                    ),
+                )
+
+                assertFailsWith<IllegalArgumentException> {
+                    registry.add(
+                        createStub<String, String>(
+                            name = "dup-name",
+                            requestType = String::class,
+                        ),
+                    )
+                }
+            }
+
+        @Test
+        fun `findByName returns stub when name matches`() =
+            runTest {
+                val registry = StubRegistry()
+                val stub =
+                    createStub<String, String>(
+                        name = "target",
+                        requestType = String::class,
+                    )
+                registry.add(stub)
+                registry.findByName("target") shouldBe stub
+            }
+
+        @Test
+        fun `findByName returns null when name does not match`() =
+            runTest {
+                val registry = StubRegistry()
+                registry.add(
+                    createStub<String, String>(
+                        name = "other",
+                        requestType = String::class,
+                    ),
+                )
+                registry.findByName("nonexistent") shouldBe null
+            }
+
+        @Test
+        fun `findById returns stub when id matches`() =
+            runTest {
+                val registry = StubRegistry()
+                val stub =
+                    createStub<String, String>(requestType = String::class)
+                registry.add(stub)
+                registry.findById(stub.id) shouldBe stub
+            }
+
+        @Test
+        fun `findById returns null when id does not match`() =
+            runTest {
+                val registry = StubRegistry()
+                registry.add(
+                    createStub<String, String>(requestType = String::class),
+                )
+                registry.findById("nonexistent-id") shouldBe null
+            }
     }
 
     @Nested

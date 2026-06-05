@@ -4,6 +4,7 @@ package dev.mokksy.mokksy
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
@@ -17,6 +18,21 @@ class StubHandleTest {
             ),
         ).name shouldBe "named"
         StubHandle(createStub<String, String>(requestType = String::class)).name shouldBe null
+    }
+
+    @Test
+    fun `id delegates to stub id and is never null`() {
+        val stub = createStub<String, String>(requestType = String::class)
+        val handle = StubHandle(stub)
+        handle.id shouldBe stub.id
+        handle.id shouldNotBe null
+    }
+
+    @Test
+    fun `id is auto-generated for every stub`() {
+        val handle1 = StubHandle(createStub<String, String>(requestType = String::class))
+        val handle2 = StubHandle(createStub<String, String>(requestType = String::class))
+        handle1.id shouldNotBe handle2.id
     }
 
     @Test
