@@ -121,13 +121,16 @@ internal class StubRegistry {
      * Finds a stub by its human-readable name, or `null` if no stub has that name.
      */
     fun findByName(name: String): Stub<*, *>? =
-        stubs.value.firstOrNull { it.configuration.name == name }
+        if (name.isBlank()) {
+            null
+        } else {
+            stubs.value.firstOrNull { it.configuration.name == name }
+        }
 
     /**
      * Finds a stub by its stable unique identifier, or `null` if no stub has that id.
      */
-    fun findById(id: StubId): Stub<*, *>? =
-        stubs.value.firstOrNull { it.id == id }
+    fun findById(id: StubId): Stub<*, *>? = stubs.value.firstOrNull { it.id == id }
 
     // region Private helpers
 

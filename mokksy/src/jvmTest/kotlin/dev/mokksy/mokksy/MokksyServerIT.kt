@@ -224,7 +224,6 @@ internal class MokksyServerIT : AbstractIT() {
 
     // region findStub / findStubs (predicate)
 
-    @OptIn(ExperimentalMokksyApi::class)
     @Test
     fun `findStub with predicate returns first match`() {
         mokksy.get { path("/predicate-first-$seed") } respondsWith { body = "ok" }
@@ -233,7 +232,6 @@ internal class MokksyServerIT : AbstractIT() {
         mokksy.findStub { it.id.isNotEmpty() } shouldNotBe null
     }
 
-    @OptIn(ExperimentalMokksyApi::class)
     @Test
     fun `findStub with predicate returns null when no match`() {
         mokksy.get { path("/no-match-$seed") } respondsWith { body = "ok" }
@@ -241,7 +239,6 @@ internal class MokksyServerIT : AbstractIT() {
         mokksy.findStub { it.name == "no-such-name" } shouldBe null
     }
 
-    @OptIn(ExperimentalMokksyApi::class)
     @Test
     fun `findStubs with predicate returns all matches`() {
         mokksy.get(name = "match-a-$seed", requestType = String::class) {
@@ -257,7 +254,6 @@ internal class MokksyServerIT : AbstractIT() {
         mokksy.findStubs { it.name?.startsWith("match-") == true } shouldHaveSize 2
     }
 
-    @OptIn(ExperimentalMokksyApi::class)
     @Test
     fun `findStubs with predicate returns empty list when no match`() {
         mokksy.get { path("/nothing-$seed") } respondsWith { body = "ok" }

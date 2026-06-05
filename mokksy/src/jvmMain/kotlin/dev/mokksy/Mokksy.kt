@@ -535,7 +535,8 @@ public class Mokksy(
         replaceWith = ReplaceWith("findStubByName(name)"),
     )
     public fun getStub(name: String): StubHandle =
-        @Suppress("DEPRECATION") delegate.getStub(name)
+        @Suppress("DEPRECATION")
+        delegate.getStub(name)
 
     /**
      * Finds a registered stub by its stable unique identifier.

@@ -19,7 +19,6 @@ class MokksyJavaStubLookupIT {
     @Test
     void findStubById_shouldReturnHandleForRegisteredStub() throws Exception {
         try (Mokksy mokksy = Mokksy.create().start()) {
-            HttpClient httpClient = HttpClient.newHttpClient();
 
             var handle = mokksy.get(spec -> spec.path("/find-by-id"))
                 .respondsWith(builder -> builder.body("ok"));
