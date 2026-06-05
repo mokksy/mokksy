@@ -890,15 +890,21 @@ stub.verifyCalled().never();                 // never called
 stub.verifyCalled(3);                        // convenience shortcut
 ```
 
-For named stubs, you can also look them up later via `getStub`:
+For named stubs, you can also look them up later via `findStubByName`:
 
 ```kotlin
-val handle = mokksy.getStub("create-item")
-handle.verifyCalled().exactly(1)
+val handle = mokksy.findStubByName("create-item")
+handle?.verifyCalled()?.exactly(1)
 ```
 
-`getStub` throws `NoSuchElementException` if no stub with that name is registered
-or if the stub was already removed.
+`findStubByName` returns `null` if no stub with that name is registered or has been removed.
+Use `findStubById` to look up a stub by its stable unique id, or `findStubs { ... }` to
+filter by arbitrary criteria:
+
+```kotlin
+val byId: StubHandle? = mokksy.findStubById(handle.id)
+val unmatched: List<StubHandle> = mokksy.findStubs { it.matchCount() == 0 }
+```
 
 List all registered stubs with `allStubs()`:
 
