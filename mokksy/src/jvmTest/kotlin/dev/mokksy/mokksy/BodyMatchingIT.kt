@@ -34,7 +34,7 @@ internal class BodyMatchingIT : AbstractIT() {
         // given
         val path = "/predicate-$seed"
         mokksy
-            .post(name = "predicate", requestType = Input::class) {
+            .post(name = "predicate-$seed", requestType = Input::class) {
                 path(path)
 
                 bodyMatchesPredicate {
@@ -72,7 +72,7 @@ internal class BodyMatchingIT : AbstractIT() {
         // given
         val path = "/predicate-$seed"
         mokksy
-            .post(name = "predicate", requestType = Input::class) {
+            .post(name = "predicate-$seed", requestType = Input::class) {
                 path(path)
                 bodyContains(
                     Json.encodeToString(input),

@@ -3,15 +3,17 @@ package dev.mokksy
 import dev.mokksy.Mokksy.Companion.create
 import dev.mokksy.mokksy.BuildingStep
 import dev.mokksy.mokksy.DEFAULT_HOST
+import dev.mokksy.mokksy.ExperimentalMokksyApi
 import dev.mokksy.mokksy.JavaBuildingStep
 import dev.mokksy.mokksy.JavaRequestSpecificationBuilder
 import dev.mokksy.mokksy.MokksyServer
+import dev.mokksy.mokksy.RequestListener
 import dev.mokksy.mokksy.StubConfiguration
 import dev.mokksy.mokksy.StubHandle
+import dev.mokksy.mokksy.StubId
+import dev.mokksy.mokksy.StubPredicate
 import dev.mokksy.mokksy.loadStubsFromEnv
 import dev.mokksy.mokksy.loadStubsFromFile
-import dev.mokksy.mokksy.ExperimentalMokksyApi
-import dev.mokksy.mokksy.RequestListener
 import dev.mokksy.mokksy.request.RecordedRequest
 import dev.mokksy.mokksy.request.RequestSpecificationBuilder
 import dev.mokksy.mokksy.start
@@ -526,8 +528,46 @@ public class Mokksy(
      *
      * @throws NoSuchElementException if no stub with that name exists.
      * @throws IllegalStateException if multiple stubs share that name.
+     * @deprecated Use [findStubByName] instead, which returns `null` instead of throwing.
      */
-    public fun getStub(name: String): StubHandle = delegate.getStub(name)
+    @Deprecated(
+        message = "Use findStubByName, which returns null instead of throwing",
+        replaceWith = ReplaceWith("findStubByName(name)"),
+    )
+    public fun getStub(name: String): StubHandle =
+        @Suppress("DEPRECATION") delegate.getStub(name)
+
+    /**
+     * Finds a registered stub by its stable unique identifier.
+     *
+     * Unlike [getStub], this method returns `null` instead of throwing when
+     * no stub matches, and does not require the stub to have a name.
+     */
+    public fun findStubById(id: StubId): StubHandle? = delegate.findStubById(id)
+
+    /**
+     * Finds a registered stub by its human-readable name.
+     *
+     * Unlike [getStub], this method returns `null` instead of throwing when
+     * no stub matches or when multiple stubs share the same name.
+     */
+    public fun findStubByName(name: String): StubHandle? = delegate.findStubByName(name)
+
+    /**
+     * Finds the first registered stub matching [predicate], or `null` if none match.
+     *
+     * @see MokksyServer.findStub
+     */
+    @ExperimentalMokksyApi
+    public fun findStub(predicate: StubPredicate): StubHandle? = delegate.findStub(predicate)
+
+    /**
+     * Finds all registered stubs matching [predicate]. Returns an empty list if none match.
+     *
+     * @see MokksyServer.findStubs
+     */
+    @ExperimentalMokksyApi
+    public fun findStubs(predicate: StubPredicate): List<StubHandle> = delegate.findStubs(predicate)
 
     /** Returns a snapshot of all registered stubs. */
     public fun allStubs(): List<StubHandle> = delegate.allStubs()

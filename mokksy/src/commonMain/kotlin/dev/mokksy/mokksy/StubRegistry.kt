@@ -47,6 +47,12 @@ internal class StubRegistry {
      */
     fun add(stub: Stub<*, *>) {
         stubs.update { current ->
+            val name = stub.configuration.name
+            if (!name.isNullOrBlank()) {
+                require(current.none { it.configuration.name == name }) {
+                    "A stub with name '$name' is already registered: ${stub.toLogString()}"
+                }
+            }
             val index = current.binarySearch(stub, StubComparator)
             require(index < 0) { "Duplicate stub detected: ${stub.toLogString()}" }
             current.add(-(index + 1), stub)
@@ -110,6 +116,18 @@ internal class StubRegistry {
      * Returns a snapshot of all registered stubs.
      */
     fun getAll(): List<Stub<*, *>> = stubs.value
+
+    /**
+     * Finds a stub by its human-readable name, or `null` if no stub has that name.
+     */
+    fun findByName(name: String): Stub<*, *>? =
+        stubs.value.firstOrNull { it.configuration.name == name }
+
+    /**
+     * Finds a stub by its stable unique identifier, or `null` if no stub has that id.
+     */
+    fun findById(id: StubId): Stub<*, *>? =
+        stubs.value.firstOrNull { it.id == id }
 
     // region Private helpers
 

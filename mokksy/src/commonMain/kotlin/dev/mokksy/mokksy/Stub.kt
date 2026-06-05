@@ -11,6 +11,16 @@ import io.ktor.server.routing.RoutingRequest
 import kotlin.concurrent.atomics.AtomicLong
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.concurrent.atomics.incrementAndFetch
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+
+/**
+ * Stable unique identifier for a registered stub.
+ *
+ * Generated automatically at stub creation — every stub has a unique [StubId]
+ * regardless of whether an optional [StubConfiguration.name] was assigned.
+ */
+public typealias StubId = String
 
 /**
  * Represents a mapping between an inbound [RequestSpecification] and an outbound response definition.
@@ -28,8 +38,9 @@ import kotlin.concurrent.atomics.incrementAndFetch
  *          This includes headers, body, and HTTP status code, which are applied to the HTTP response.
  * @author Konstantin Pavlov
  */
-@OptIn(ExperimentalAtomicApi::class)
+@OptIn(ExperimentalAtomicApi::class, ExperimentalUuidApi::class)
 internal data class Stub<P : Any, T : Any>(
+    val id: StubId = Uuid.random().toString(),
     val configuration: StubConfiguration,
     val requestSpecification: RequestSpecification<P>,
     val responseDefinitionSupplier: ResponseDefinitionSupplier<T>,
@@ -120,7 +131,12 @@ internal data class Stub<P : Any, T : Any>(
         call: ApplicationCall,
         verbose: Boolean,
         routingRequest: RoutingRequest,
-        responseListener: (suspend (RecordedRequest, AbstractResponseDefinition<*>) -> Unit)? = null,
+        responseListener: (
+            suspend (
+                RecordedRequest,
+                AbstractResponseDefinition<*>,
+            ) -> Unit
+        )? = null,
     ) {
         val responseDefinition = responseDefinitionSupplier.invoke(call)
         responseDefinition.headers?.invoke(call.response.headers)
@@ -135,9 +151,9 @@ internal data class Stub<P : Any, T : Any>(
 
     fun toLogString(): String =
         if (configuration.name?.isNotBlank() == true) {
-            "Stub('${configuration.name}')[config=$configuration requestSpec=${requestSpecification.toLogString()}]"
+            "Stub('${configuration.name}')[$id][config=$configuration requestSpec=${requestSpecification.toLogString()}]"
         } else {
-            "Stub[config=$configuration requestSpec=${requestSpecification.toLogString()}]"
+            "Stub[$id][config=$configuration requestSpec=${requestSpecification.toLogString()}]"
         }
 }
 

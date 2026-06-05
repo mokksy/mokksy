@@ -715,7 +715,12 @@ public class MokksyServer
          * @return A [StubHandle] for the matching stub.
          * @throws NoSuchElementException if no stub with that name exists.
          * @throws IllegalStateException if multiple stubs share that name.
+         * @deprecated Use [findStubByName] instead, which returns `null` instead of throwing.
          */
+        @Deprecated(
+            message = "Use findStubByName, which returns null instead of throwing",
+            replaceWith = ReplaceWith("findStubByName(name)"),
+        )
         public fun getStub(name: String): StubHandle {
             val matchingStubs =
                 stubRegistry
@@ -744,6 +749,56 @@ public class MokksyServer
          * @return A list of [StubHandle] for every registered stub.
          */
         public fun allStubs(): List<StubHandle> = stubRegistry.getAll().map { StubHandle(it) }
+
+        /**
+         * Finds a registered stub by its stable unique identifier.
+         *
+         * Unlike [getStub], this method returns `null` instead of throwing when
+         * no stub matches, and does not require the stub to have a name.
+         *
+         * @param id The unique identifier returned from [StubHandle.id] at registration time.
+         * @return A [StubHandle] for the matching stub, or `null` if not found.
+         */
+        public fun findStubById(id: StubId): StubHandle? =
+            stubRegistry.findById(id)?.let { StubHandle(it) }
+
+        /**
+         * Finds a registered stub by its human-readable name.
+         *
+         * Unlike [getStub], this method returns `null` instead of throwing when
+         * no stub matches or when multiple stubs share the same name.
+         *
+         * @param name The name assigned at stub registration.
+         * @return A [StubHandle] for the first matching stub, or `null` if not found.
+         */
+        public fun findStubByName(name: String): StubHandle? =
+            stubRegistry.findByName(name)?.let { StubHandle(it) }
+
+        /**
+         * Finds the first registered stub matching [predicate], or `null` if none match.
+         *
+         * Use this for arbitrary filtering that goes beyond exact name or id lookup:
+         * ```kotlin
+         * mokksy.findStub { it.matchCount() == 0 && it.name?.startsWith("test-") == true }
+         * ```
+         *
+         * @return A [StubHandle] for the first matching stub in registration order, or `null`.
+         */
+        @ExperimentalMokksyApi
+        public fun findStub(predicate: StubPredicate): StubHandle? =
+            allStubs().firstOrNull { predicate.test(it) }
+
+        /**
+         * Finds all registered stubs matching [predicate].
+         *
+         * Returns an empty list if no stubs match. Order follows [allStubs] — by priority
+         * descending, then creation order ascending.
+         *
+         * @return A list of [StubHandle] matching the predicate; empty if no match.
+         */
+        @ExperimentalMokksyApi
+        public fun findStubs(predicate: StubPredicate): List<StubHandle> =
+            allStubs().filter { predicate.test(it) }
 
         private fun ensureJournalAvailable() {
             check(configuration.journalMode != JournalMode.NONE) {
