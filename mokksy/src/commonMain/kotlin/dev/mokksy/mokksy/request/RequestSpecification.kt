@@ -2,9 +2,11 @@ package dev.mokksy.mokksy.request
 
 import dev.mokksy.mokksy.MokksyDsl
 import io.kotest.matchers.Matcher
+import io.kotest.matchers.MatcherResult
 import io.kotest.matchers.string.contain
 import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
+import io.ktor.http.Parameters
 import io.ktor.server.request.RequestCookies
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmSynthetic
@@ -27,12 +29,12 @@ public const val DEFAULT_STUB_PRIORITY: Int = 0
  *
  * @property matched `true` when every defined matcher passed.
  * @property score Number of matchers that passed; higher means more specific.
- * @property failedMatchers Human-readable labels of matchers that did not pass.
+ * @property failedMatchers Descriptors of matchers that did not pass.
  */
 internal data class MatchResult(
     val matched: Boolean,
     val score: Int,
-    val failedMatchers: List<String>,
+    val failedMatchers: List<FailedMatcherDescriptor>,
 )
 
 /**
@@ -68,6 +70,7 @@ public open class RequestSpecification<P : Any> internal constructor(
     public val path: Matcher<String>? = null,
     public val headers: List<Matcher<Headers>> = listOf(),
     public val cookies: List<Matcher<RequestCookies>> = listOf(),
+    public val queryParameters: List<Matcher<Parameters>> = listOf(),
     public val body: List<Matcher<P?>> = listOf(),
     public val bodyString: List<Matcher<String?>> = listOf(),
     internal val formSpecs: List<FormBodySpec> = listOf(),
@@ -84,6 +87,7 @@ public open class RequestSpecification<P : Any> internal constructor(
             if (path != null) appendLine("path: $path")
             if (headers.isNotEmpty()) appendLine("headers: $headers")
             if (cookies.isNotEmpty()) appendLine("cookies: $cookies")
+            if (queryParameters.isNotEmpty()) appendLine("queryParameters: $queryParameters")
             if (body.isNotEmpty()) appendLine("body: $body")
             if (bodyString.isNotEmpty()) appendLine("bodyString: $bodyString")
             if (formSpecs.isNotEmpty()) appendLine("forms: $formSpecs")
@@ -101,6 +105,7 @@ public open class RequestSpecificationBuilder<P : Any>(
     public var path: Matcher<String>? = null
     public val headers: MutableList<Matcher<Headers>> = mutableListOf()
     public val cookies: MutableList<Matcher<RequestCookies>> = mutableListOf()
+    internal val queryParameters: MutableList<Matcher<Parameters>> = mutableListOf()
     public val body: MutableList<Matcher<P?>> = mutableListOf()
     public val bodyString: MutableList<Matcher<String?>> = mutableListOf()
     internal val formSpecs: MutableList<FormBodySpec> = mutableListOf()
@@ -125,7 +130,15 @@ public open class RequestSpecificationBuilder<P : Any>(
 
     public fun bodyContains(vararg strings: String): RequestSpecificationBuilder<P> =
         apply {
-            strings.forEach { this.bodyString += contain(it) }
+            strings.forEach { expected ->
+                this.bodyString +=
+                    object : Matcher<String?> {
+                        override fun test(value: String?): MatcherResult =
+                            contain(expected).test(value)
+
+                        override fun toString(): String = "contain('$expected')"
+                    }
+            }
         }
 
     /**
@@ -223,8 +236,7 @@ public open class RequestSpecificationBuilder<P : Any>(
     public fun cookie(
         name: String,
         value: String,
-    ): RequestSpecificationBuilder<P> =
-        cookie(name) { it == value }
+    ): RequestSpecificationBuilder<P> = cookie(name) { it == value }
 
     /**
      * Requires that the request does not contain a cookie with [name].
@@ -242,6 +254,68 @@ public open class RequestSpecificationBuilder<P : Any>(
      */
     public fun cookieAbsent(name: String): RequestSpecificationBuilder<P> =
         cookie(name) { it == null }
+
+    /**
+     * Requires a query parameter with [name] to match [predicate].
+     *
+     * The predicate receives the decoded parameter value, or `null` when the parameter is absent.
+     *
+     * Example:
+     * ```kotlin
+     * mokksy.get {
+     *     path("/search")
+     *     queryParam("q") { it?.startsWith("kotlin") == true }
+     * }
+     * ```
+     *
+     * @param name Query parameter name.
+     * @param predicate Predicate applied to the parameter value.
+     * @return The same instance of [RequestSpecificationBuilder].
+     */
+    public fun queryParam(
+        name: String,
+        predicate: (String?) -> Boolean,
+    ): RequestSpecificationBuilder<P> =
+        apply {
+            queryParameters += queryParamMatcher(name, predicate)
+        }
+
+    /**
+     * Requires a query parameter with [name] to equal [value].
+     *
+     * Example:
+     * ```kotlin
+     * mokksy.get {
+     *     path("/search")
+     *     queryParam("q", "kotlin")
+     * }
+     * ```
+     *
+     * @param name Query parameter name.
+     * @param value Expected value.
+     * @return The same instance of [RequestSpecificationBuilder].
+     */
+    public fun queryParam(
+        name: String,
+        value: String,
+    ): RequestSpecificationBuilder<P> = queryParam(name) { it == value }
+
+    /**
+     * Requires that the request does not contain a query parameter with [name].
+     *
+     * Example:
+     * ```kotlin
+     * mokksy.get {
+     *     path("/legacy")
+     *     queryParamAbsent("deprecated")
+     * }
+     * ```
+     *
+     * @param name Query parameter name that must be absent.
+     * @return The same instance of [RequestSpecificationBuilder].
+     */
+    public fun queryParamAbsent(name: String): RequestSpecificationBuilder<P> =
+        queryParam(name) { it == null }
 
     public fun bodyString(matcher: Matcher<String?>): RequestSpecificationBuilder<P> =
         apply {
@@ -307,6 +381,7 @@ public open class RequestSpecificationBuilder<P : Any>(
             path = path,
             headers = headers,
             cookies = cookies,
+            queryParameters = queryParameters,
             requestType = requestType,
             body = body,
             bodyString = bodyString,

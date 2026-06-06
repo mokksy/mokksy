@@ -42,7 +42,7 @@ private val DefaultJson = Json { ignoreUnknownKeys = true }
 @Suppress("TooManyFunctions")
 public open class HttpFormatter(
     theme: ColorTheme = ColorTheme.LIGHT_ON_DARK,
-    protected val useColor: Boolean = isColorSupported(),
+    public val useColor: Boolean = isColorSupported(),
     private val json: Json = DefaultJson,
 ) {
     /**

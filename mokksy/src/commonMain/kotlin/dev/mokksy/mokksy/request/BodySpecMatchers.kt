@@ -24,12 +24,12 @@ private const val MAX_PART_SIZE: Long = 65535
 internal suspend fun scoreFormMatchers(
     request: ApplicationRequest,
     formSpecs: List<FormBodySpec>,
-): Pair<Int, List<String>> {
+): Pair<Int, List<FailedMatcherDescriptor>> {
     var score = 0
-    val failed = mutableListOf<String>()
+    val failed = mutableListOf<FailedMatcherDescriptor>()
 
     formSpecs.forEachIndexed { index, spec ->
-        val (partScore, partFailed) = scoreFormMatcher(request, spec, "form[$index]")
+        val (partScore, partFailed) = scoreFormMatcher(request, spec, index)
         score += partScore
         failed += partFailed
     }
@@ -40,22 +40,22 @@ internal suspend fun scoreFormMatchers(
 private suspend fun scoreFormMatcher(
     request: ApplicationRequest,
     spec: FormBodySpec,
-    label: String,
-): Pair<Int, List<String>> {
+    index: Int,
+): Pair<Int, List<FailedMatcherDescriptor>> {
     val contentType = request.contentType()
     return when {
         spec.encoding != FormEncoding.URL_ENCODED &&
             contentType.match(ContentType.MultiPart.FormData) -> {
-            scoreMultipartParts(request, spec.parts, label)
+            scoreMultipartParts(request, spec.parts, MatcherCategory.FORM, index)
         }
 
         spec.encoding != FormEncoding.MULTIPART &&
             contentType.match(ContentType.Application.FormUrlEncoded) -> {
-            scoreUrlEncodedParts(request, spec.parts, label)
+            scoreUrlEncodedParts(request, spec.parts, MatcherCategory.FORM, index)
         }
 
         else -> {
-            0 to spec.parts.indices.map { "$label[$it]" }
+            0 to listOf(FailedMatcherDescriptor.Indexed(MatcherCategory.FORM, index))
         }
     }
 }
@@ -63,21 +63,21 @@ private suspend fun scoreFormMatcher(
 internal suspend fun scoreMultipartMatchers(
     request: ApplicationRequest,
     multipartSpecs: List<MultipartBodySpec>,
-): Pair<Int, List<String>> {
+): Pair<Int, List<FailedMatcherDescriptor>> {
     var score = 0
-    val failed = mutableListOf<String>()
+    val failed = mutableListOf<FailedMatcherDescriptor>()
 
     multipartSpecs.forEachIndexed { index, spec ->
-        val label = "multipart[$index]"
         val contentType = request.contentType()
         val boundaryPassed =
             spec.boundaryMatcher
                 ?.test(contentType.parameter("boundary"))
                 ?.passed() != false
         if (!contentType.match(spec.contentType) || !boundaryPassed) {
-            failed += spec.parts.indices.map { "$label[$it]" }
+            failed += FailedMatcherDescriptor.Indexed(MatcherCategory.MULTIPART, index)
         } else {
-            val (partScore, partFailed) = scoreMultipartParts(request, spec.parts, label)
+            val (partScore, partFailed) =
+                scoreMultipartParts(request, spec.parts, MatcherCategory.MULTIPART, index)
             score += partScore
             failed += partFailed
         }
@@ -89,7 +89,7 @@ internal suspend fun scoreMultipartMatchers(
 internal suspend fun scoreByteBodyMatchers(
     request: ApplicationRequest,
     byteBodySpecs: List<ByteBodySpec>,
-): Pair<Int, List<String>> {
+): Pair<Int, List<FailedMatcherDescriptor>> {
     if (byteBodySpecs.isEmpty()) return 0 to emptyList()
 
     val body =
@@ -107,7 +107,7 @@ internal suspend fun scoreByteBodyMatchers(
         }
 
     var score = 0
-    val failed = mutableListOf<String>()
+    val failed = mutableListOf<FailedMatcherDescriptor>()
     val contentType =
         try {
             request.headers[HttpHeaders.ContentType]?.let {
@@ -122,21 +122,20 @@ internal suspend fun scoreByteBodyMatchers(
         }
 
     byteBodySpecs.forEachIndexed { index, spec ->
-        val label = "bytes[$index]"
         if (body == null) {
-            failed += label
+            failed += FailedMatcherDescriptor.Indexed(MatcherCategory.BYTES, index)
             return@forEachIndexed
         }
         if (spec.contentTypeMatcher != null &&
             !spec.contentTypeMatcher.test(contentType).passed()
         ) {
-            failed += label
+            failed += FailedMatcherDescriptor.Indexed(MatcherCategory.BYTES, index)
             return@forEachIndexed
         }
         if (spec.contentMatchers.all { it.matches(body) }) {
             score++
         } else {
-            failed += label
+            failed += FailedMatcherDescriptor.Indexed(MatcherCategory.BYTES, index)
         }
     }
 
@@ -146,8 +145,9 @@ internal suspend fun scoreByteBodyMatchers(
 private suspend fun scoreUrlEncodedParts(
     request: ApplicationRequest,
     specs: List<BodyPartSpec>,
-    label: String,
-): Pair<Int, List<String>> {
+    category: MatcherCategory,
+    outerIndex: Int,
+): Pair<Int, List<FailedMatcherDescriptor>> {
     val parameters =
         try {
             request.call.receiveParameters()
@@ -156,19 +156,20 @@ private suspend fun scoreUrlEncodedParts(
         } catch (e: Exception) {
             request.call.application.log
                 .trace("Unable to receive form parameters: ${e.message}")
-            return 0 to specs.indices.map { "$label[$it]" }
+            null
         }
 
-    var score = 0
-    val failed = mutableListOf<String>()
-    specs.forEachIndexed { index, spec ->
-        if (matchesUrlEncodedPart(parameters, spec)) {
-            score++
-        } else {
-            failed += "$label[$index]"
-        }
+    if (parameters == null) {
+        return 0 to listOf(FailedMatcherDescriptor.Indexed(category, outerIndex))
     }
 
+    val score = specs.count { spec -> matchesUrlEncodedPart(parameters, spec) }
+    val failed =
+        if (score == specs.size) {
+            emptyList()
+        } else {
+            listOf(FailedMatcherDescriptor.Indexed(category, outerIndex))
+        }
     return score to failed
 }
 
@@ -176,8 +177,9 @@ private suspend fun scoreUrlEncodedParts(
 private suspend fun scoreMultipartParts(
     request: ApplicationRequest,
     specs: List<BodyPartSpec>,
-    label: String,
-): Pair<Int, List<String>> {
+    category: MatcherCategory,
+    outerIndex: Int,
+): Pair<Int, List<FailedMatcherDescriptor>> {
     val multipart =
         try {
             request.call.receiveMultipart()
@@ -186,7 +188,7 @@ private suspend fun scoreMultipartParts(
         } catch (e: Exception) {
             request.call.application.log
                 .trace("Unable to receive multipart body for matching: ${e.message}")
-            return 0 to specs.indices.map { "$label[$it]" }
+            return 0 to listOf(FailedMatcherDescriptor.Indexed(category, outerIndex))
         }
 
     val parts = mutableListOf<Pair<PartData, ByteArray?>>()
@@ -200,13 +202,12 @@ private suspend fun scoreMultipartParts(
     } catch (e: Exception) {
         request.call.application.log
             .trace("Unable to read multipart parts: ${e.message}")
-        return 0 to specs.indices.map { "$label[$it]" }
+        return 0 to listOf(FailedMatcherDescriptor.Indexed(category, outerIndex))
     }
 
     var score = 0
-    val failed = mutableListOf<String>()
     try {
-        specs.forEachIndexed { index, spec ->
+        for (spec in specs) {
             val matchingParts =
                 parts.filter { (part, _) ->
                     val partName = part.name ?: part.contentDisposition?.parameter("name")
@@ -214,14 +215,18 @@ private suspend fun scoreMultipartParts(
                 }
             if (matchingParts.any { (part, content) -> matchMultipartPart(part, spec, content) }) {
                 score++
-            } else {
-                failed += "$label[$index]"
             }
         }
     } finally {
         parts.forEach { (part, _) -> part.dispose() }
     }
 
+    val failed =
+        if (score == specs.size) {
+            emptyList()
+        } else {
+            listOf(FailedMatcherDescriptor.Indexed(category, outerIndex))
+        }
     return score to failed
 }
 

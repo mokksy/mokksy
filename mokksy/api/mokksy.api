@@ -850,6 +850,7 @@ public class dev/mokksy/mokksy/request/RequestSpecification {
 	public final fun getMethod ()Lio/kotest/matchers/Matcher;
 	public final fun getPath ()Lio/kotest/matchers/Matcher;
 	public final fun getPriority ()I
+	public final fun getQueryParameters ()Ljava/util/List;
 }
 
 public class dev/mokksy/mokksy/request/RequestSpecificationBuilder {
@@ -877,6 +878,9 @@ public class dev/mokksy/mokksy/request/RequestSpecificationBuilder {
 	public final fun path (Lio/kotest/matchers/Matcher;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun path (Ljava/lang/String;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	public final fun priority (I)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
+	public final fun queryParam (Ljava/lang/String;Ljava/lang/String;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
+	public final fun queryParam (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
+	public final fun queryParamAbsent (Ljava/lang/String;)Ldev/mokksy/mokksy/request/RequestSpecificationBuilder;
 	protected final fun setMethod (Lio/kotest/matchers/Matcher;)V
 	public final fun setPath (Lio/kotest/matchers/Matcher;)V
 	public final fun setPriority (I)V
@@ -1048,7 +1052,7 @@ public class dev/mokksy/mokksy/utils/logger/HttpFormatter {
 	public final fun formatBody (Ljava/lang/Object;Lio/ktor/http/ContentType;)Ljava/lang/String;
 	public static synthetic fun formatBody$default (Ldev/mokksy/mokksy/utils/logger/HttpFormatter;Ljava/lang/Object;Lio/ktor/http/ContentType;ILjava/lang/Object;)Ljava/lang/String;
 	protected final fun getColors ()Ldev/mokksy/mokksy/utils/logger/HttpFormatter$ColorScheme;
-	protected final fun getUseColor ()Z
+	public final fun getUseColor ()Z
 	public final fun header (Ljava/lang/String;Ljava/util/List;)Ljava/lang/String;
 	public final fun requestLine (Lio/ktor/http/HttpMethod;Ljava/lang/String;)Ljava/lang/String;
 	public final fun responseLine (Ljava/lang/String;Lio/ktor/http/HttpStatusCode;)Ljava/lang/String;

@@ -66,7 +66,8 @@ public annotation class ExperimentalMokksyApi
 @RequiresOptIn(
     level = RequiresOptIn.Level.ERROR,
     message =
-        "This API is internal in Mokksy and should not be used. It could be removed or changed without notice.",
+        "This API is internal in Mokksy and should not be used outside. " +
+            "It could be removed or changed without notice.",
 )
 @Target(
     CLASS,
