@@ -11,144 +11,144 @@ plugins {
     alias(libs.plugins.knit)
 }
 
-dokka {
-    dokkaSourceSets.configureEach {
-        includes.from("Module.md")
-    }
-
-    moduleName.set("Mokksy")
-
-    pluginsConfiguration.html {
-        footerMessage = "Copyright © 2025-2026 Konstantin Pavlov"
-    }
-}
-
-kotlin {
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotest.assertions.core)
-                api(libs.ktor.server.content.negotiation)
-                api(libs.ktor.server.core)
-                api(project.dependencies.platform(libs.ktor.bom))
-                implementation(libs.kotlinx.atomicfu)
-                implementation(libs.kotlinx.collections.immutable)
-                implementation(libs.ktor.serialization.kotlinx.json)
-                implementation(libs.ktor.server.double.receive)
-                implementation(libs.ktor.server.sse)
-                implementation(libs.kotlinLogging)
-            }
+    dokka {
+        dokkaSourceSets.configureEach {
+            includes.from("Module.md")
         }
 
-        commonTest {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.assertk)
-                implementation(libs.kotlinLogging)
-                implementation(libs.kotlinx.coroutines.test)
-                implementation(libs.ktor.client.content.negotiation)
-                implementation(libs.ktor.client.core)
-                implementation(libs.ktor.server.test.host)
-                implementation(libs.kotest.assertions.json)
-            }
-        }
+        moduleName.set("Mokksy")
 
-        webMain {
-            dependencies {
-                implementation(libs.ktor.server.cio)
-            }
-        }
-
-        jvmMain {
-
-            dependencies {
-                implementation(libs.jansi)
-                implementation(libs.kaml)
-                implementation(libs.ktor.server.call.logging)
-                implementation(libs.ktor.server.netty)
-                implementation(project.dependencies.platform(libs.netty.bom))
-                compileOnly(libs.ktor.serialization.jackson)
-            }
-        }
-
-        jvmTest {
-            dependencies {
-                implementation(libs.assertj.core)
-                implementation(libs.datafaker)
-                implementation(libs.junit.jupiter.params)
-                implementation(libs.ktor.client.java)
-                implementation(libs.ktor.serialization.jackson)
-                implementation(libs.lincheck)
-                implementation(libs.mockk)
-                implementation(libs.mockk.dsl)
-                runtimeOnly(libs.slf4j.simple)
-            }
-        }
-
-        nativeMain {
-            dependencies {
-                implementation(libs.ktor.server.cio)
-            }
-        }
-
-        nativeTest {
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-            }
+        pluginsConfiguration.html {
+            footerMessage = "Copyright © 2025-2026 Konstantin Pavlov"
         }
     }
 
-    sourceSets {
-        jvmTest {
-            kotlin.srcDir("build/generated/knit/test/kotlin")
+    kotlin {
+
+        sourceSets {
+            commonMain {
+                dependencies {
+                    api(libs.kotest.assertions.core)
+                    api(libs.ktor.server.content.negotiation)
+                    api(libs.ktor.server.core)
+                    api(project.dependencies.platform(libs.ktor.bom))
+                    implementation(libs.kotlinx.atomicfu)
+                    implementation(libs.kotlinx.collections.immutable)
+                    implementation(libs.ktor.serialization.kotlinx.json)
+                    implementation(libs.ktor.server.double.receive)
+                    implementation(libs.ktor.server.sse)
+                    implementation(libs.kotlinLogging)
+                }
+            }
+
+            commonTest {
+                dependencies {
+                    implementation(kotlin("test"))
+                    implementation(libs.assertk)
+                    implementation(libs.kotlinLogging)
+                    implementation(libs.kotlinx.coroutines.test)
+                    implementation(libs.ktor.client.content.negotiation)
+                    implementation(libs.ktor.client.core)
+                    implementation(libs.ktor.server.test.host)
+                    implementation(libs.kotest.assertions.json)
+                }
+            }
+
+            webMain {
+                dependencies {
+                    implementation(libs.ktor.server.cio)
+                }
+            }
+
+            jvmMain {
+
+                dependencies {
+                    compileOnly(libs.ktor.serialization.jackson)
+                    implementation(libs.jansi)
+                    implementation(libs.kaml)
+                    implementation(libs.ktor.server.call.logging)
+                    implementation(libs.ktor.server.netty)
+                    implementation(project.dependencies.platform(libs.netty.bom))
+                }
+            }
+
+            jvmTest {
+                dependencies {
+                    implementation(libs.assertj.core)
+                    implementation(libs.datafaker)
+                    implementation(libs.junit.jupiter.params)
+                    implementation(libs.ktor.client.java)
+                    implementation(libs.ktor.serialization.jackson)
+                    implementation(libs.lincheck)
+                    implementation(libs.mockk)
+                    implementation(libs.mockk.dsl)
+                    runtimeOnly(libs.slf4j.simple)
+                }
+            }
+
+            nativeMain {
+                dependencies {
+                    implementation(libs.ktor.server.cio)
+                }
+            }
+
+            nativeTest {
+                dependencies {
+                    implementation(libs.ktor.client.darwin)
+                }
+            }
+        }
+
+        sourceSets {
+            jvmTest {
+                kotlin.srcDir("build/generated/knit/test/kotlin")
+            }
         }
     }
-}
 
-publishing {
-    publications {
-        create<MavenPublication>("shadow") {
-            artifactId = "${project.name}-standalone"
-            artifact(tasks.named("shadowJar")) {
-                classifier = ""
-                extension = "jar"
-            }
-            artifact(tasks["jvmSourcesJar"]) {
-                classifier = "sources"
+    publishing {
+        publications {
+            create<MavenPublication>("shadow") {
+                artifactId = "${project.name}-standalone"
+                artifact(tasks.named("shadowJar")) {
+                    classifier = ""
+                    extension = "jar"
+                }
+                artifact(tasks["jvmSourcesJar"]) {
+                    classifier = "sources"
+                }
             }
         }
     }
-}
 
-knit {
-    rootDir = project.rootDir
-    files =
-        fileTree(project.rootDir) {
-            include(
-                "README.md",
-                "docs/**/*.md",
+    knit {
+        rootDir = project.rootDir
+        files =
+            fileTree(project.rootDir) {
+                include(
+                    "README.md",
+                    "docs/**/*.md",
             )
-            exclude("**/build/**")
-        }
-    siteRoot = "https://mokksy.dev/"
-}
+                exclude("**/build/**")
+            }
+        siteRoot = "https://mokksy.dev/"
+    }
 // Generated knit sources must exist before test compilation.
-tasks.named("jvmTestClasses").configure {
-    dependsOn(tasks.named("knit"))
-}
+    tasks.named("jvmTestClasses").configure {
+        dependsOn(tasks.named("knit"))
+    }
 
 // Decouple knit tasks from the standard build lifecycle.
 // Run on demand: ./gradlew :docs:knit  or  ./gradlew :docs:knitCheck
 // afterEvaluate is required here because the knit plugin wires knitCheck -> check during its own afterEvaluate.
-afterEvaluate {
-    tasks.named("check").configure {
-        setDependsOn(
-            dependsOn.filterNot { dep ->
+    afterEvaluate {
+        tasks.named("check").configure {
+            setDependsOn(
+                dependsOn.filterNot { dep ->
                 (dep is TaskProvider<*> && dep.name == "knitCheck") ||
                     (dep is Task && dep.name == "knitCheck") ||
                     (dep is String && dep == "knitCheck")
-            },
+                },
         )
+        }
     }
-}

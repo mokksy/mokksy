@@ -1,117 +1,115 @@
 @file:OptIn(
     ExperimentalWasmDsl::class,
     ExperimentalAbiValidation::class,
-)
-
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+)import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmDefaultMode
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
-plugins {
-    kotlin("multiplatform")
-}
-
-kotlin {
-
-    abiValidation {
-        enabled = true
+    plugins {
+        kotlin("multiplatform")
     }
 
-    compilerOptions {
-        languageVersion = KOTLIN_2_2
-        apiVersion = KOTLIN_2_2
-        allWarningsAsErrors = true
-        extraWarnings = true
-        freeCompilerArgs =
-            listOf(
-                "-Wextra",
-                "-Xmulti-dollar-interpolation",
-                "-Xexpect-actual-classes",
-            )
-        optIn.add("kotlin.time.ExperimentalTime")
-    }
-    coreLibrariesVersion = "2.2.21"
+    kotlin {
 
-    jvmToolchain(17)
+        abiValidation {
+            enabled = true
+        }
 
-    explicitApi()
-
-    withSourcesJar(publish = true)
-
-    jvm {
         compilerOptions {
-            javaParameters = true
-            jvmDefault.set(JvmDefaultMode.ENABLE)
-            jvmTarget = JvmTarget.JVM_17
+            languageVersion = KOTLIN_2_2
+            apiVersion = KOTLIN_2_2
             allWarningsAsErrors = true
             extraWarnings = true
-            // Enable debug symbols and line number information
-            freeCompilerArgs.addAll(
-                "-Xdebug",
+            freeCompilerArgs =
+                listOf(
+                    "-Wextra",
+                    "-Xmulti-dollar-interpolation",
+                    "-Xexpect-actual-classes",
             )
+            optIn.add("kotlin.time.ExperimentalTime")
         }
-        testRuns["test"].executionTask.configure {
-            useJUnitPlatform()
+        coreLibrariesVersion = "2.2.21"
+
+        jvmToolchain(17)
+
+        explicitApi()
+
+        withSourcesJar(publish = true)
+
+        jvm {
+            compilerOptions {
+                javaParameters = true
+                jvmDefault.set(JvmDefaultMode.ENABLE)
+                jvmTarget = JvmTarget.JVM_17
+                allWarningsAsErrors = true
+                extraWarnings = true
+                // Enable debug symbols and line number information
+                freeCompilerArgs.addAll(
+                    "-Xdebug",
+            )
+            }
+            testRuns["test"].executionTask.configure {
+                useJUnitPlatform()
+            }
         }
-    }
 
-    tasks.named<Test>("jvmTest").configure {
-        classpath += files(layout.buildDirectory.dir("classes/java/jvmTest"))
-    }
+        tasks.named<Test>("jvmTest").configure {
+            classpath += files(layout.buildDirectory.dir("classes/java/jvmTest"))
+        }
 
-    wasmJs {
-        nodejs()
-    }
+        wasmJs {
+            nodejs()
+        }
 
-    js {
-        nodejs {
-            testTask {
-                useMocha {
-                    timeout = "15s"
+        js {
+            nodejs {
+                testTask {
+                    useMocha {
+                        timeout = "15s"
+                    }
                 }
             }
         }
-    }
 
-    macosArm64()
-    iosSimulatorArm64()
-    watchosSimulatorArm64()
-    tvosSimulatorArm64()
-}
+        macosArm64()
+        iosSimulatorArm64()
+        watchosSimulatorArm64()
+        tvosSimulatorArm64()
+    }
 
 // Run tests in parallel to some degree.
-private val defaultForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
-tasks.withType<Test>().configureEach {
-    maxParallelForks =
-        providers
-            .gradleProperty("test.maxParallelForks")
-            .map {
+    private val defaultForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+    tasks.withType<Test>().configureEach {
+        maxParallelForks =
+            providers
+                .gradleProperty("test.maxParallelForks")
+                .map {
                 it.toIntOrNull() ?: defaultForks
-            }.getOrElse(defaultForks)
+                }.getOrElse(defaultForks)
 
-    forkEvery = 100
-    testLogging {
-        showStandardStreams = true
-        events("failed")
+        forkEvery = 100
+        testLogging {
+            showStandardStreams = true
+            events("failed")
+        }
+
+        systemProperty("kotest.output.ansi", "true")
+        reports {
+            junitXml.required = true
+            junitXml.includeSystemOutLog = true
+            junitXml.includeSystemErrLog = true
+        }
     }
 
-    systemProperty("kotest.output.ansi", "true")
-    reports {
-        junitXml.required = true
-        junitXml.includeSystemOutLog = true
-        junitXml.includeSystemErrLog = true
-    }
-}
-
-plugins.withId("dev.detekt") {
-    tasks.named("detekt").configure {
-        dependsOn(
-            "detektCommonMainSourceSet",
-            "detektMainJvm",
-            "detektCommonTestSourceSet",
-            "detektTestJvm",
+    plugins.withId("dev.detekt") {
+        tasks.named("detekt").configure {
+            dependsOn(
+                "detektCommonMainSourceSet",
+                "detektMainJvm",
+                "detektCommonTestSourceSet",
+                "detektTestJvm",
         )
+        }
     }
-}
