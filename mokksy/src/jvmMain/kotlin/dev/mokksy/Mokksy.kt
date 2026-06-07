@@ -3,6 +3,7 @@ package dev.mokksy
 import dev.mokksy.Mokksy.Companion.create
 import dev.mokksy.mokksy.BuildingStep
 import dev.mokksy.mokksy.DEFAULT_HOST
+import dev.mokksy.mokksy.DEFAULT_START_TIMEOUT
 import dev.mokksy.mokksy.ExperimentalMokksyApi
 import dev.mokksy.mokksy.JavaBuildingStep
 import dev.mokksy.mokksy.JavaRequestSpecificationBuilder
@@ -29,6 +30,10 @@ import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.function.Consumer
 import kotlin.reflect.KClass
+import kotlin.time.Duration
+import kotlin.time.toJavaDuration
+import kotlin.time.toKotlinDuration
+import java.time.Duration as JavaDuration
 
 /**
  * The primary entry point for Mokksy — a lightweight HTTP stub server for JVM tests.
@@ -96,10 +101,13 @@ public class Mokksy(
      * Mokksy mokksy = Mokksy.create(8080).start();
      * ```
      *
+     * @param timeout Maximum duration to wait for the server to start. Defaults to 5 seconds.
      * @return This instance, for chaining.
+     * @throws IllegalStateException if the server does not start within [timeout].
      */
-    public fun start(): Mokksy {
-        delegate.start()
+    @JvmOverloads
+    public fun start(timeout: JavaDuration = DEFAULT_START_TIMEOUT.toJavaDuration()): Mokksy {
+        delegate.start(timeout)
         return this
     }
 
@@ -607,6 +615,26 @@ public class Mokksy(
     /** Suspends until the server is fully started and ready to accept connections. */
     @JvmSynthetic
     public suspend fun awaitStarted(): MokksyServer = delegate.awaitStarted()
+
+    /**
+     * Suspends until the server is fully started and ready to accept connections.
+     *
+     * @param timeout Maximum duration to wait for the server to start.
+     * @throws IllegalStateException if the server does not start within [timeout].
+     */
+    @JvmSynthetic
+    public suspend fun awaitStarted(timeout: Duration): MokksyServer =
+        delegate.awaitStarted(timeout)
+
+    /**
+     * Suspends until the server is fully started and ready to accept connections.
+     *
+     * @param timeout Maximum duration to wait for the server to start.
+     * @throws IllegalStateException if the server does not start within [timeout].
+     */
+    @JvmSynthetic
+    public suspend fun awaitStarted(timeout: JavaDuration): MokksyServer =
+        delegate.awaitStarted(timeout.toKotlinDuration())
 
     /**
      * Stops the server asynchronously.

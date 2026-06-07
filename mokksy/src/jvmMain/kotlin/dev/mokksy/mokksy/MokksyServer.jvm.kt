@@ -7,9 +7,36 @@ import dev.mokksy.mokksy.response.ResponseDefinitionBuilder
 import dev.mokksy.mokksy.response.StreamingResponseDefinitionBuilder
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking
+import java.time.Duration
 import java.util.function.Consumer
+import kotlin.time.toJavaDuration
+import kotlin.time.toKotlinDuration
 
 // region Lifecycle
+
+/**
+ * Starts the Mokksy server and blocks until the port is bound and ready to accept requests.
+ *
+ * Returns `this` for chaining:
+ * ```kotlin
+ * val mokksy = Mokksy().start(Duration.ofSeconds(5))
+ * ```
+ *
+ * @param timeout Maximum duration to wait for the server to start. Defaults to [DEFAULT_START_TIMEOUT].
+ * @throws IllegalStateException if the server does not start within [timeout].
+ */
+public fun MokksyServer.start(timeout: Duration): MokksyServer {
+    try {
+        loadStubsFromEnv()
+    } catch (_: IllegalStateException) {
+        // no MOKKSY_CONFIG set — start with empty stub registry
+    }
+    runBlocking {
+        this@start.startSuspend()
+        this@start.awaitStarted(timeout.toKotlinDuration())
+    }
+    return this
+}
 
 /**
  * Starts the Mokksy server and blocks until the port is bound and ready to accept requests.
@@ -19,21 +46,11 @@ import java.util.function.Consumer
  * val mokksy = Mokksy().start()
  * ```
  *
- * Intended for Java callers and blocking JVM test setups. Kotlin callers should prefer
- * [MokksyServer.startSuspend] combined with [MokksyServer.awaitStarted].
+ * Maximum duration to wait for the server to start is to [DEFAULT_START_TIMEOUT].
+ * @throws IllegalStateException if the server does not start within [DEFAULT_START_TIMEOUT].
  */
-public fun MokksyServer.start(): MokksyServer {
-    try {
-        loadStubsFromEnv()
-    } catch (_: IllegalStateException) {
-        // no MOKKSY_CONFIG set — start with empty stub registry
-    }
-    runBlocking {
-        this@start.startSuspend()
-        this@start.awaitStarted()
-    }
-    return this
-}
+public fun MokksyServer.start(): MokksyServer =
+    start(timeout = DEFAULT_START_TIMEOUT.toJavaDuration())
 
 /**
  * Starts the Mokksy server on the given dispatcher, blocking until the port is bound.

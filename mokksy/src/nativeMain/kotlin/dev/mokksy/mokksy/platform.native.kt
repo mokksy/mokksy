@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.Level
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.call
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
@@ -11,6 +12,13 @@ import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 
 private val logger = KotlinLogging.logger {}
+
+internal actual fun subscribeToApplicationStarted(
+    application: Application,
+    onStarted: () -> Unit,
+) {
+    // No-op: ApplicationStarted event is unreliable on native targets
+}
 
 internal actual fun createEmbeddedServer(
     host: String,

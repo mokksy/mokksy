@@ -12,6 +12,13 @@ import io.ktor.server.engine.embeddedServer
 
 private val logger: KLogger = KotlinLogging.logger("MokksyServer")
 
+internal actual fun subscribeToApplicationStarted(
+    application: Application,
+    onStarted: () -> Unit,
+) {
+    // No-op: ApplicationStarted event is unreliable on web targets
+}
+
 internal actual fun createEmbeddedServer(
     host: String,
     port: Int,
