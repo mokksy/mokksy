@@ -69,46 +69,54 @@ internal class StubRegistry {
      * If another coroutine already claimed it (lost CAS on an [StubConfiguration.eventuallyRemove]
      * stub), retry from Phase 1 with a fresh snapshot.
      *
-     * @return The matched stub, or `null` if no stub matched.
+     * @return [StubLookupResult.Matched] with the matched stub, or
+     * [StubLookupResult.NotMatched] with per-stub evaluation data when no stub matched.
      */
     suspend fun findMatchingStub(
         request: RoutingRequest,
         verbose: Boolean,
         logger: Logger,
         formatter: HttpFormatter,
-    ): Stub<*, *>? {
+    ): StubLookupResult {
         val formattedRequest = formatRequest(request, verbose, formatter)
 
         // Retries only when an eventuallyRemove stub is claimed by a concurrent coroutine
         // between Phase 1 evaluation and the Phase 2 claim — an extremely rare edge case.
+        // Each retry evaluates a fresh snapshot, and claimMatch succeeds at most once
+        // per stub, so the loop always terminates with a different winner.
         while (true) {
             // Phase 1: snapshot + evaluate outside the lock (suspend I/O runs freely).
-            val candidate =
-                evaluate(stubs.value, request, verbose, logger, formattedRequest)
-                    ?: return null
+            val result = evaluate(stubs.value, request, verbose, logger, formattedRequest)
 
-            // Phase 2: claim the winner (lock held only for this brief step).
-            if (candidate.configuration.eventuallyRemove) {
-                // CAS inside the lock: only one coroutine wins; losers retry Phase 1.
-                val claimed =
-                    mutex.withLock {
-                        candidate.claimMatch().also { won ->
-                            if (won) {
-                                stubs.update { it.remove(candidate) }
-                                if (verbose) {
-                                    logger.debug(
-                                        "Removed used stub: ${candidate.toLogString()}",
-                                    )
+            when (result) {
+                is StubLookupResult.NotMatched -> return result
+                is StubLookupResult.Matched -> {
+                    val stub = result.stub
+
+                    // Phase 2: claim the winner (lock held only for this brief step).
+                    if (stub.configuration.eventuallyRemove) {
+                        // CAS inside the lock: only one coroutine wins; losers retry Phase 1.
+                        val claimed =
+                            mutex.withLock {
+                                stub.claimMatch().also { won ->
+                                    if (won) {
+                                        stubs.update { it.remove(stub) }
+                                        if (verbose) {
+                                            logger.debug(
+                                                "Removed used stub: ${stub.toLogString()}",
+                                            )
+                                        }
+                                    }
                                 }
                             }
-                        }
+                        if (!claimed) continue
+                    } else {
+                        stub.markMatched()
                     }
-                if (!claimed) continue
-            } else {
-                candidate.markMatched()
-            }
 
-            return candidate
+                    return result
+                }
+            }
         }
     }
 
@@ -156,47 +164,40 @@ internal class StubRegistry {
         verbose: Boolean,
         logger: Logger,
         formattedRequest: String,
-    ): Stub<*, *>? {
-        val results =
-            snapshot
-                .filter { !it.configuration.eventuallyRemove || !it.hasBeenMatched() }
-                .map { stub -> stub to stub.requestSpecification.matches(request) }
-
-        if (verbose) {
-            results.forEach { (stub, result) ->
+    ): StubLookupResult {
+        val evaluated = buildList {
+            for (stub in snapshot) {
+                if (stub.configuration.eventuallyRemove && stub.hasBeenMatched()) continue
+                val result = stub.requestSpecification.matches(request)
                 result.exceptionOrNull()?.let { ex ->
-                    logger.warn(
-                        "Failed to evaluate condition for stub: ${stub.toLogString()}. " +
-                            "Request: $formattedRequest",
-                        ex,
-                    )
+                    if (verbose) {
+                        logger.warn(
+                            "Failed to evaluate condition for stub: ${stub.toLogString()}. " +
+                                "Request: $formattedRequest",
+                            ex,
+                        )
+                    }
                 }
+                result.getOrNull()?.let { add(stub to it) }
             }
         }
 
-        val evaluated =
-            results.mapNotNull { (stub, result) -> result.getOrNull()?.let { stub to it } }
         val fullMatches = evaluated.filter { (_, mr) -> mr.matched }
 
         if (fullMatches.isNotEmpty()) {
-            return fullMatches
+            val winner = fullMatches
                 .sortedWith(
                     compareByDescending<Pair<Stub<*, *>, MatchResult>> { (_, r) -> r.score }
                         .thenByDescending { (s, _) -> s.requestSpecification.priority }
                         .thenBy { (s, _) -> s.creationOrder },
                 ).first()
                 .first
+            return StubLookupResult.Matched(winner)
         }
 
-        if (verbose) {
-            evaluated.maxByOrNull { (_, r) -> r.score }?.let { (stub, mr) ->
-                logger.warn(
-                    "No stub matched request. Closest stub: ${stub.toLogString()}\n" +
-                        "Failed matchers: ${mr.failedMatchers.joinToString()}",
-                )
-            }
-        }
-        return null
+        // No full match — build evaluation list for diagnostics
+        val evaluations = evaluated.map { (stub, mr) -> StubEvaluation(stub, mr) }
+        return StubLookupResult.NotMatched(evaluations)
     }
 
     // endregion

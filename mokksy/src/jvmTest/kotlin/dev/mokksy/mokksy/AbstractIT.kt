@@ -13,9 +13,10 @@ internal open class AbstractIT(
     private val clientSupplier: (Int) -> HttpClient = {
         createKtorClient(it)
     },
+    private val verbose: Boolean = true,
 ) {
     val mokksy: MokksyServer =
-        MokksyServer(verbose = true) {
+        MokksyServer(verbose = verbose) {
             log.info("Running Mokksy server with ${engine::class.simpleName}")
         }
 

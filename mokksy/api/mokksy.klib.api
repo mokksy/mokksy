@@ -643,6 +643,8 @@ open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecification { // 
         final fun <get-path>(): io.kotest.matchers/Matcher<kotlin/String>? // dev.mokksy.mokksy.request/RequestSpecification.path.<get-path>|<get-path>(){}[0]
     final val priority // dev.mokksy.mokksy.request/RequestSpecification.priority|{}priority[0]
         final fun <get-priority>(): kotlin/Int // dev.mokksy.mokksy.request/RequestSpecification.priority.<get-priority>|<get-priority>(){}[0]
+    final val queryParameters // dev.mokksy.mokksy.request/RequestSpecification.queryParameters|{}queryParameters[0]
+        final fun <get-queryParameters>(): kotlin.collections/List<io.kotest.matchers/Matcher<io.ktor.http/Parameters>> // dev.mokksy.mokksy.request/RequestSpecification.queryParameters.<get-queryParameters>|<get-queryParameters>(){}[0]
 }
 
 open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecificationBuilder { // dev.mokksy.mokksy.request/RequestSpecificationBuilder|null[0]
@@ -682,6 +684,9 @@ open class <#A: kotlin/Any> dev.mokksy.mokksy.request/RequestSpecificationBuilde
     final fun path(io.kotest.matchers/Matcher<kotlin/String>): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.path|path(io.kotest.matchers.Matcher<kotlin.String>){}[0]
     final fun path(kotlin/String): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.path|path(kotlin.String){}[0]
     final fun priority(kotlin/Int): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.priority|priority(kotlin.Int){}[0]
+    final fun queryParam(kotlin/String, kotlin/Function1<kotlin/String?, kotlin/Boolean>): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.queryParam|queryParam(kotlin.String;kotlin.Function1<kotlin.String?,kotlin.Boolean>){}[0]
+    final fun queryParam(kotlin/String, kotlin/String): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.queryParam|queryParam(kotlin.String;kotlin.String){}[0]
+    final fun queryParamAbsent(kotlin/String): dev.mokksy.mokksy.request/RequestSpecificationBuilder<#A> // dev.mokksy.mokksy.request/RequestSpecificationBuilder.queryParamAbsent|queryParamAbsent(kotlin.String){}[0]
 }
 
 open class <#A: kotlin/Any?> dev.mokksy.mokksy.response/ResponseDefinition : dev.mokksy.mokksy.response/AbstractResponseDefinition<#A> { // dev.mokksy.mokksy.response/ResponseDefinition|null[0]

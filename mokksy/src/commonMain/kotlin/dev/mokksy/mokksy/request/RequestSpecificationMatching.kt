@@ -24,103 +24,119 @@ internal suspend fun RequestSpecification<*>.matches(
     request: ApplicationRequest,
 ): Result<MatchResult> = this.matchesTyped(request)
 
+@Suppress("LongMethod")
 private suspend fun <P : Any> RequestSpecification<P>.matchesTyped(
     request: ApplicationRequest,
-): Result<MatchResult> =
-    runCatching {
-        var score = 0
-        val failed = mutableListOf<String>()
+): Result<MatchResult> {
+    var score = 0
+    val failed = mutableListOf<FailedMatcherDescriptor>()
 
-        if (method != null) {
-            val (s, f) =
-                scoreSingleMatcher(
-                    method,
-                    request.httpMethod,
-                    "method",
-                    request.call,
-                )
-            score += s
-            failed += f
-        }
-        if (path != null) {
-            val (s, f) =
-                scoreSingleMatcher(
-                    path,
-                    request.path(),
-                    "path",
-                    request.call,
-                )
-            score += s
-            failed += f
-        }
-        if (headers.isNotEmpty()) {
-            val (headersScore, headersFailed) =
-                scoreMatchersSafely(
-                    headers,
-                    request.headers,
-                    "headers",
-                    request.call,
-                )
-            score += headersScore
-            failed += headersFailed
-        }
-        val (cookiesScore, cookiesFailed) = scoreCookieMatchers(request)
-        score += cookiesScore
-        failed += cookiesFailed
-
-        val (bodyScore, bodyFailed) = scoreBodyMatchers(request)
-        score += bodyScore
-        failed += bodyFailed
-
-        val (bodyStringScore, bodyStringFailed) = scoreBodyStringMatchers(request)
-        score += bodyStringScore
-        failed += bodyStringFailed
-
-        val (formScore, formFailed) = scoreFormMatchers(request, formSpecs)
-        score += formScore
-        failed += formFailed
-
-        val (multipartScore, multipartFailed) = scoreMultipartMatchers(request, multipartSpecs)
-        score += multipartScore
-        failed += multipartFailed
-
-        val (byteBodyScore, byteBodyFailed) = scoreByteBodyMatchers(request, byteBodySpecs)
-        score += byteBodyScore
-        failed += byteBodyFailed
-
-        MatchResult(matched = failed.isEmpty(), score = score, failedMatchers = failed)
-    }.onFailure {
-        if (it is CancellationException || it is Error) throw it
+    if (method != null) {
+        val (s, f) =
+            scoreSingleMatcher(
+                method,
+                request.httpMethod,
+                MatcherCategory.METHOD,
+                request.call,
+            )
+        score += s
+        failed += f
     }
+    if (path != null) {
+        val (s, f) =
+            scoreSingleMatcher(
+                path,
+                request.path(),
+                MatcherCategory.PATH,
+                request.call,
+            )
+        score += s
+        failed += f
+    }
+    if (headers.isNotEmpty()) {
+        val (headersScore, headersFailed) =
+            scoreMatchersSafely(
+                headers,
+                request.headers,
+                MatcherCategory.HEADERS,
+                request.call,
+            )
+        score += headersScore
+        failed += headersFailed
+    }
+    val (cookiesScore, cookiesFailed) = scoreCookieMatchers(request)
+    score += cookiesScore
+    failed += cookiesFailed
+
+    val (queryParamsScore, queryParamsFailed) = scoreQueryParameterMatchers(request)
+    score += queryParamsScore
+    failed += queryParamsFailed
+
+    val (bodyScore, bodyFailed) = scoreBodyMatchers(request)
+    score += bodyScore
+    failed += bodyFailed
+
+    val (bodyStringScore, bodyStringFailed) = scoreBodyStringMatchers(request)
+    score += bodyStringScore
+    failed += bodyStringFailed
+
+    val (formScore, formFailed) = scoreFormMatchers(request, formSpecs)
+    score += formScore
+    failed += formFailed
+
+    val (multipartScore, multipartFailed) = scoreMultipartMatchers(request, multipartSpecs)
+    score += multipartScore
+    failed += multipartFailed
+
+    val (byteBodyScore, byteBodyFailed) = scoreByteBodyMatchers(request, byteBodySpecs)
+    score += byteBodyScore
+    failed += byteBodyFailed
+
+    return Result.success(MatchResult(matched = failed.isEmpty(), score = score, failedMatchers = failed))
+}
 
 private fun RequestSpecification<*>.scoreCookieMatchers(
     request: ApplicationRequest,
-): Pair<Int, List<String>> =
+): Pair<Int, List<FailedMatcherDescriptor>> =
     if (cookies.isEmpty()) {
         0 to emptyList()
     } else {
         scoreMatchersSafely(
             cookies,
             request.cookies,
-            "cookies",
+            MatcherCategory.COOKIES,
+            request.call,
+        )
+    }
+
+private fun RequestSpecification<*>.scoreQueryParameterMatchers(
+    request: ApplicationRequest,
+): Pair<Int, List<FailedMatcherDescriptor>> =
+    if (queryParameters.isEmpty()) {
+        0 to emptyList()
+    } else {
+        scoreMatchersSafely(
+            queryParameters,
+            request.queryParameters,
+            MatcherCategory.QUERY_PARAMS,
             request.call,
         )
     }
 
 private suspend fun <P : Any> RequestSpecification<P>.scoreBodyMatchers(
     request: ApplicationRequest,
-): Pair<Int, List<String>> =
+): Pair<Int, List<FailedMatcherDescriptor>> =
     if (body.isEmpty()) {
         0 to emptyList()
     } else {
         receiveBodyOrNull(request)
-            ?.let { scoreMatchersSafely(body, it, "body", request.call) }
-            ?: (0 to body.indices.map { "body[$it]" })
+            ?.let { scoreMatchersSafely(body, it, MatcherCategory.BODY, request.call) }
+            ?: (0 to body.indices.map { FailedMatcherDescriptor.Indexed(MatcherCategory.BODY, it) })
     }
 
 private suspend fun RequestSpecification<*>.scoreBodyStringMatchers(
     request: ApplicationRequest,
-): Pair<Int, List<String>> =
+): Pair<Int, List<FailedMatcherDescriptor>> =
     if (bodyString.isEmpty()) {
         0 to emptyList()
     } else {
@@ -129,11 +145,13 @@ private suspend fun RequestSpecification<*>.scoreBodyStringMatchers(
                 scoreMatchersSafely(
                     bodyString,
                     it,
-                    "bodyString",
+                    MatcherCategory.BODY_STRING,
                     request.call,
                 )
             }
-            ?: (0 to bodyString.indices.map { "bodyString[$it]" })
+            ?: (0 to bodyString.indices.map {
+                FailedMatcherDescriptor.Indexed(MatcherCategory.BODY_STRING, it)
+            })
     }
 
 private suspend fun <P : Any> RequestSpecification<P>.receiveBodyOrNull(
@@ -159,34 +177,38 @@ private suspend fun receiveBodyStringOrNull(request: ApplicationRequest): String
         request.call.receive(type = String::class)
     } catch (e: CancellationException) {
         throw e
-    } catch (e: Exception) {
+    } catch (e: ContentTransformationException) {
         request.call.application.log
-            .debug(
-                "Unable to read body as string for matching. " +
-                    "Make sure the Ktor `DoubleReceive` plugin is installed. ${e.message}",
-                e,
-            )
+            .trace("Unable to read body as string for matching: ${e.message}")
+        null
+    } catch (e: BadRequestException) {
+        request.call.application.log
+            .trace("Bad request body during string scoring: ${e.message}")
         null
     }
 
 /**
  * Guards a single matcher invocation. Returns `1 to emptyList()` on pass,
- * `0 to listOf(label)` on mismatch or throw.
+ * `0 to listOf(Simple(category))` on mismatch or throw.
  */
 @Suppress("TooGenericExceptionCaught")
 private fun <T> scoreSingleMatcher(
     matcher: Matcher<T>,
     value: T,
-    label: String,
+    category: MatcherCategory,
     call: ApplicationCall,
-): Pair<Int, List<String>> =
+): Pair<Int, List<FailedMatcherDescriptor>> =
     try {
-        if (matcher.test(value).passed()) 1 to emptyList() else 0 to listOf(label)
+        if (matcher.test(value).passed()) {
+            1 to emptyList()
+        } else {
+            0 to listOf(FailedMatcherDescriptor.Simple(category))
+        }
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        call.application.log.debug("Matcher $label threw during scoring: ${e.message}", e)
-        0 to listOf(label)
+        call.application.log.debug("Matcher $category threw during scoring: ${e.message}", e)
+        0 to listOf(FailedMatcherDescriptor.Simple(category))
     }
 
 /**
@@ -197,19 +219,23 @@ private fun <T> scoreSingleMatcher(
 private fun <T> scoreMatchersSafely(
     matchers: List<Matcher<T>>,
     value: T,
-    label: String,
+    category: MatcherCategory,
     call: ApplicationCall,
-): Pair<Int, List<String>> {
+): Pair<Int, List<FailedMatcherDescriptor>> {
     var score = 0
-    val failed = mutableListOf<String>()
+    val failed = mutableListOf<FailedMatcherDescriptor>()
     matchers.forEachIndexed { i, matcher ->
         try {
-            if (matcher.test(value).passed()) score++ else failed += "$label[$i]"
+            if (matcher.test(value).passed()) {
+                score++
+            } else {
+                failed += FailedMatcherDescriptor.Indexed(category, i)
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            call.application.log.debug("Matcher $label[$i] threw during scoring: ${e.message}", e)
-            failed += "$label[$i]"
+            call.application.log.debug("Matcher $category[$i] threw during scoring: ${e.message}", e)
+            failed += FailedMatcherDescriptor.Indexed(category, i)
         }
     }
     return score to failed

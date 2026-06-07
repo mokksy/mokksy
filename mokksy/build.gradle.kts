@@ -1,7 +1,3 @@
-
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.get
-
 plugins {
     alias(libs.plugins.kotlin.serialization)
     `kotlin-multiplatform-convention`
@@ -33,7 +29,6 @@ kotlin {
         commonMain {
             dependencies {
                 api(libs.kotest.assertions.core)
-                api(libs.kotest.assertions.json)
                 api(libs.ktor.server.content.negotiation)
                 api(libs.ktor.server.core)
                 api(project.dependencies.platform(libs.ktor.bom))
@@ -55,6 +50,7 @@ kotlin {
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.server.test.host)
+                implementation(libs.kotest.assertions.json)
             }
         }
 
@@ -65,13 +61,6 @@ kotlin {
         }
 
         jvmMain {
-//            val dockerRuntime: Configuration by configurations.creating {
-//                isTransitive = true
-//            }
-
-//            dependencies {
-//                dockerRuntime("org.slf4j:slf4j-simple:2.0.17")
-//            }
 
             dependencies {
                 implementation(libs.jansi)
@@ -80,7 +69,6 @@ kotlin {
                 implementation(libs.ktor.server.netty)
                 implementation(project.dependencies.platform(libs.netty.bom))
                 compileOnly(libs.ktor.serialization.jackson)
-//                 dockerRuntime(libs.slf4j.simple)
             }
         }
 

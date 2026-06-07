@@ -10,8 +10,6 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
 import io.ktor.server.request.RequestCookies
-import kotlin.collections.any
-import kotlin.collections.orEmpty
 import kotlin.jvm.JvmName
 
 /**
@@ -34,6 +32,8 @@ internal fun containsHeader(
                 },
             )
         }
+
+        override fun toString(): String = "$name = $expectedValue"
     }
 
 internal fun cookieMatcher(
@@ -55,6 +55,23 @@ internal fun cookieMatcher(
         }
 
         override fun toString(): String = "cookie('$name')"
+    }
+
+internal fun queryParamMatcher(
+    name: String,
+    predicate: (String?) -> Boolean,
+): Matcher<Parameters> =
+    object : Matcher<Parameters> {
+        override fun test(value: Parameters): MatcherResult {
+            val actualValue = value[name]
+            return MatcherResult(
+                predicate(actualValue),
+                { "Query parameter '$name'='$actualValue' should match '$predicate'" },
+                { "Query parameter '$name'='$actualValue' should NOT match '$predicate'" },
+            )
+        }
+
+        override fun toString(): String = "queryParam('$name')"
     }
 
 /**
