@@ -11,6 +11,12 @@ on:
     branches: [ "main" ]
 
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish docs to GitHub Pages
+        type: boolean
+        required: false
+        default: false
 
 env:
   JVM_VERSION: 25
@@ -51,7 +57,7 @@ jobs:
           make knit apidocs
 
   deploy:
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ (github.ref == 'refs/heads/main' && github.event_name != 'workflow_dispatch') || (github.event_name == 'workflow_dispatch' && inputs.publish == true) }}
     permissions:
       contents: read
       pages: write      # to deploy to Pages
