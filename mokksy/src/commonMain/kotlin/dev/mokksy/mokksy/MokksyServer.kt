@@ -27,11 +27,13 @@ import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmSynthetic
 import kotlin.reflect.KClass
+import kotlin.time.Duration
 
 /**
  * An embedded mock HTTP server for testing. Registers stubs for any HTTP method and verifies
@@ -117,7 +119,14 @@ public class MokksyServer
                 logger = this.environment.log
                 mokksy(this@MokksyServer)
                 configurer(this)
+                subscribeToApplicationStarted(this) {
+                    this@MokksyServer.signalStarted()
+                }
             }
+
+        internal fun signalStarted() {
+            started.complete(Unit)
+        }
 
         override suspend fun handle(context: RoutingContext) {
             handleRequest(
@@ -158,6 +167,8 @@ public class MokksyServer
          * Use this as a synchronization point when [startSuspend] is launched asynchronously.
          * Returns immediately if the server is already started.
          *
+         * Defaults to a timeout of [DEFAULT_START_TIMEOUT].
+         *
          * Example:
          * ```kotlin
          * coroutineScope {
@@ -165,9 +176,24 @@ public class MokksyServer
          *     mokksy.awaitStarted() // port() and baseUrl() are safe after this point
          * }
          * ```
+         *
+         * @throws IllegalStateException if the server does not start within the default timeout.
          */
-        public suspend fun awaitStarted(): MokksyServer {
-            started.await()
+        public suspend fun awaitStarted(): MokksyServer = awaitStarted(DEFAULT_START_TIMEOUT)
+
+        /**
+         * Suspends until the server has fully started and the port is bound, or until [timeout] elapses.
+         *
+         * Use this as a synchronization point when [startSuspend] is launched asynchronously.
+         * Returns immediately if the server is already started.
+         *
+         * @param timeout Maximum duration to wait for the server to start.
+         * @throws IllegalStateException if the server does not start within [timeout].
+         */
+        public suspend fun awaitStarted(timeout: Duration): MokksyServer {
+            require(timeout.isPositive()) { "timeout must be positive: $timeout" }
+            withTimeoutOrNull(timeout) { started.await() }
+                ?: error("Mokksy server did not start within $timeout")
             return this
         }
 

@@ -1,6 +1,7 @@
 package dev.mokksy.mokksy
 
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.install
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
@@ -8,6 +9,16 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.calllogging.CallLogging
 import org.slf4j.event.Level
+
+@Suppress("DEPRECATION")
+internal actual fun subscribeToApplicationStarted(
+    application: Application,
+    onStarted: () -> Unit,
+) {
+    application.environment.monitor.subscribe(ApplicationStarted) {
+        onStarted()
+    }
+}
 
 internal actual fun createEmbeddedServer(
     host: String,

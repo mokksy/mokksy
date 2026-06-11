@@ -3,8 +3,27 @@ package dev.mokksy.mokksy
 import io.ktor.server.application.Application
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.EmbeddedServer
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 internal const val DEFAULT_HOST: String = "127.0.0.1"
+internal val DEFAULT_START_TIMEOUT: Duration = 5.seconds
+
+/**
+ * Platform-specific hook to subscribe to application start event.
+ *
+ * On JVM, this subscribes to [io.ktor.server.application.ApplicationStarted]
+ * so that [MokksyServer.awaitStarted] returns only when the Ktor engine is
+ * actually ready to accept connections. On non-JVM targets this is a no-op,
+ * because the event may not fire reliably.
+ *
+ * @param application The Ktor application instance.
+ * @param onStarted Callback to invoke when the application has started.
+ */
+internal expect fun subscribeToApplicationStarted(
+    application: Application,
+    onStarted: () -> Unit,
+)
 
 /**
  * Creates and returns an embedded Ktor server instance

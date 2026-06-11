@@ -39,6 +39,7 @@ lint:
 # https://docs.openrewrite.org/recipes/maven/bestpractices
 .PHONY: format
 format:
+	@./gradlew rewriteRun
 	@./gradlew detekt --auto-correct
 
 .PHONY: all
