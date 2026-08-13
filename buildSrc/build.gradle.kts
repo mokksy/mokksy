@@ -13,5 +13,5 @@ plugins {
         implementation(libs.kotlin.gradle.plugin)
         implementation(libs.gradle.maven.publish.plugin)
         implementation("com.diffplug.spotless:spotless-plugin-gradle:8.9.0")
-        implementation("com.gradleup.shadow:shadow-gradle-plugin:9.4.2")
+        implementation("com.gradleup.shadow:shadow-gradle-plugin:9.6.1")
     }
