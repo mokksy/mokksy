@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
 
       - name: Set up JDK ${{ env.JVM_VERSION }}
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: ${{ env.JVM_VERSION }}
           distribution: ${{ env.JVM_DISTRIBUTION }}
@@ -75,7 +75,7 @@ jobs:
           fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
 
       - name: Set up JDK ${{ env.JVM_VERSION }}
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           java-version: ${{ env.JVM_VERSION }}
           distribution: ${{ env.JVM_DISTRIBUTION }}
